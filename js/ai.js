@@ -1,6 +1,9 @@
 // ========== ИИ ДЛЯ РЕЖИМА VS AI ==========
 
 function aiMove() {
+    // Отладочный лог — покажет, вызывается ли функция
+    try { console.log('aiMove called. opponentType=', opponentType, 'player alive=', players[1] && players[1].alive); } catch(e) {}
+
     if (typeof opponentType === 'undefined' || opponentType !== 'ai') return;
     if (!players[1].alive) return;
     
@@ -84,7 +87,7 @@ function aiMove() {
     }
     
     moveScores.sort((a, b) => b.score - a.score);
-    const bestMove = moveScores[0]; // ✅ ИСПРАВЛЕНИЕ: берём весь объект, а не только dir
+    const bestMove = moveScores[0]; // берём весь объект
     
     if (bestMove && bestMove.score > -999) {
         p.dirX = bestMove.dir.dx;
@@ -105,65 +108,6 @@ function aiMove() {
             }
         }
     }
-    
-    // ===== ДВИЖЕНИЕ =====
-    const BOT_SPEED = 0.7;
-    const newX = p.x + p.dirX * BOT_SPEED;
-    const newY = p.y + p.dirY * BOT_SPEED;
-    
-    // Проверка перед движением
-    if (newX < 1 || newX >= WIDTH - 1 || newY < 1 || newY >= HEIGHT - 1) {
-        // Если движение ведёт к стене — разворачиваемся
-        if (p.dirX !== 0 || p.dirY !== 0) {
-            p.dirX = -p.dirX;
-            p.dirY = -p.dirY;
-        } else {
-            p.dirX = 1;
-            p.dirY = 0;
-        }
-        return;
-    }
-    
-    if (isSafeCell(newX, newY, p.trail, enemy.trail)) {
-        p.x = newX;
-        p.y = newY;
-    } else {
-        // Если небезопасно — ищем другое безопасное направление
-        const dirs2 = [
-            { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
-            { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
-        ];
-        let moved = false;
-        for (let d of dirs2) {
-            const testX = p.x + d.dx * BOT_SPEED;
-            const testY = p.y + d.dy * BOT_SPEED;
-            if (testX >= 1 && testX < WIDTH - 1 && testY >= 1 && testY < HEIGHT - 1) {
-                if (isSafeCell(testX, testY, p.trail, enemy.trail)) {
-                    p.x = testX;
-                    p.y = testY;
-                    p.dirX = d.dx;
-                    p.dirY = d.dy;
-                    moved = true;
-                    break;
-                }
-            }
-        }
-        if (!moved) {
-            // Если совсем нет безопасного направления — стоим на месте
-            p.dirX = 0;
-            p.dirY = 0;
-        }
-    }
-    
-    // ===== СЛЕД =====
-    const trailX = Math.round(p.x);
-    const trailY = Math.round(p.y);
-    if (trailX >= 0 && trailX < WIDTH && trailY >= 0 && trailY < HEIGHT) {
-        if (p.trail.length === 0 || 
-            p.trail[p.trail.length-1].x !== trailX || 
-            p.trail[p.trail.length-1].y !== trailY) {
-            p.trail.push({ x: trailX, y: trailY });
-            if (p.trail.length > 20) p.trail.shift();
-        }
-    }
+
+    // Примечание: движение игрока выполняется в updateGame(), здесь только выбираем направление (dirX/dirY).
 }
