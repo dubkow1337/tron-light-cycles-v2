@@ -411,6 +411,30 @@ body {
     text-shadow: 0 0 10px #ffaa00;
 }
 
+/* Neon labels for BLUE and ORANGE */
+.score.blue .score-label {
+    font-size: 11px;
+    background: linear-gradient(90deg, #00ffff, #0088ff);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 12px rgba(0, 255, 255, 0.6), 0 0 24px rgba(0, 136, 255, 0.25);
+    letter-spacing: 1px;
+}
+
+.score.orange .score-label {
+    font-size: 11px;
+    background: linear-gradient(90deg, #ffb347, #ff6600);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 0 12px rgba(255, 170, 0, 0.6), 0 0 24px rgba(255, 102, 0, 0.25);
+    letter-spacing: 1px;
+}
+
+/* Fallback generic label styling */
 .score-label {
     font-size: 11px;
     color: #88aaff;
