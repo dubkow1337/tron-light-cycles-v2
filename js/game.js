@@ -69,6 +69,11 @@ function updateGame() {
         updateUI();
         return;
     }
+
+    // === ВЫЗОВ ИИ (если выбран) — делаем это перед движением игроков, чтобы направление применялось сразу ===
+    if (opponentType === 'ai') {
+        if (typeof aiMove === 'function') aiMove();
+    }
     
     // === ДВИЖЕНИЕ ИГРОКОВ ===
     for (let p of players) {
@@ -85,10 +90,10 @@ function updateGame() {
         // Классика — ничего дополнительного не нужно
     } else if (matchMode === 'tournament') {
         // Турнир — ничего дополнительного не нужно
-    } else if (opponentType === 'survival') {
+    }
+
+    if (opponentType === 'survival') {
         if (typeof updateSurvival === 'function') updateSurvival();
-    } else {
-        if (typeof aiMove === 'function') aiMove();
     }
     
     if (typeof updateParticles === 'function') updateParticles();
