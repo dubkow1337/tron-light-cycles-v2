@@ -8,7 +8,7 @@ let countdownValue = 3;
 let currentSteps = 0;
 let bestRecord = localStorage.getItem('tronRecord') ? parseInt(localStorage.getItem('tronRecord')) : 0;
 let MOVE_INTERVAL = 70;
-let paused = false;
+// paused объявлен в ui.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
 // ===== ПОБЕДА =====
 function showVictory(name) {
