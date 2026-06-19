@@ -84,11 +84,11 @@ function aiMove() {
     }
     
     moveScores.sort((a, b) => b.score - a.score);
-    const bestDir = moveScores[0].dir;
+    const bestMove = moveScores[0]; // ✅ ИСПРАВЛЕНИЕ: берём весь объект, а не только dir
     
-    if (bestDir && bestDir.score > -999) {
-        p.dirX = bestDir.dx;
-        p.dirY = bestDir.dy;
+    if (bestMove && bestMove.score > -999) {
+        p.dirX = bestMove.dir.dx;
+        p.dirY = bestMove.dir.dy;
     } else {
         // Запасной вариант — безопасное направление
         const fallbackDirs = [
@@ -114,8 +114,13 @@ function aiMove() {
     // Проверка перед движением
     if (newX < 1 || newX >= WIDTH - 1 || newY < 1 || newY >= HEIGHT - 1) {
         // Если движение ведёт к стене — разворачиваемся
-        p.dirX = -p.dirX || 1;
-        p.dirY = -p.dirY || 1;
+        if (p.dirX !== 0 || p.dirY !== 0) {
+            p.dirX = -p.dirX;
+            p.dirY = -p.dirY;
+        } else {
+            p.dirX = 1;
+            p.dirY = 0;
+        }
         return;
     }
     
