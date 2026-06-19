@@ -25,10 +25,12 @@ function showVictory(name) {
         startFireworks(color, 6);
     }
     
+    // === ТУРНИР ===
     if (matchMode === 'tournament') {
         if (name === 'Синий') tournamentScore[0]++;
         else if (name === 'Оранжевый') tournamentScore[1]++;
         updateUI();
+        
         if (tournamentScore[0] >= tournamentTarget || tournamentScore[1] >= tournamentTarget) {
             let finalWinner = tournamentScore[0] >= tournamentTarget ? 'Синий' : 'Оранжевый';
             showMessage(`🏆 ТУРНИР ВЫИГРАЛ ${finalWinner.toUpperCase()}! 🏆`);
@@ -41,6 +43,7 @@ function showVictory(name) {
         return;
     }
     
+    // === ВЫЖИВАНИЕ (рекорд) ===
     if (opponentType === 'survival' && currentSteps > bestRecord) {
         bestRecord = currentSteps;
         localStorage.setItem('tronRecord', bestRecord);
@@ -49,6 +52,7 @@ function showVictory(name) {
         showMessage(`🏆 НОВЫЙ РЕКОРД: ${bestRecord} шагов!`);
     }
     
+    // Голос победы
     if (typeof speakVictory === 'function') {
         speakVictory(`${name} победил!`);
     }
@@ -58,7 +62,15 @@ function showVictory(name) {
 function updateGame() {
     if (!gameActive) return;
     
-    // Движение игроков
+    // === РЕЖИМ ГОНКИ ===
+    if (matchMode === 'race') {
+        if (typeof updateRace === 'function') updateRace();
+        if (typeof drawRace === 'function') drawRace();
+        updateUI();
+        return;
+    }
+    
+    // === ДВИЖЕНИЕ ИГРОКОВ ===
     for (let p of players) {
         if (!p.alive) continue;
         p.x += p.dirX;
@@ -68,8 +80,12 @@ function updateGame() {
         if (typeof addParticles === 'function') addParticles(p.x, p.y, p.color);
     }
     
-    // Обновление режимов
-    if (opponentType === 'survival') {
+    // === ОБНОВЛЕНИЕ РЕЖИМОВ ===
+    if (matchMode === 'classic') {
+        // Классика — ничего дополнительного не нужно
+    } else if (matchMode === 'tournament') {
+        // Турнир — ничего дополнительного не нужно
+    } else if (opponentType === 'survival') {
         if (typeof updateSurvival === 'function') updateSurvival();
     } else {
         if (typeof aiMove === 'function') aiMove();
@@ -77,7 +93,7 @@ function updateGame() {
     
     if (typeof updateParticles === 'function') updateParticles();
     
-    // Проверка столкновений
+    // === ПРОВЕРКА СТОЛКНОВЕНИЙ ===
     for (let p of players) {
         if (!p.alive) continue;
         
@@ -144,9 +160,27 @@ function updateGame() {
                 if (!p.alive) break;
             }
         }
+        
+        // Босс (только в выживании)
+        if (!p.alive) continue;
+        if (opponentType === 'survival' && typeof boss !== 'undefined' && boss && boss.alive) {
+            for (let dx = 0; dx < boss.size; dx++) {
+                for (let dy = 0; dy < boss.size; dy++) {
+                    const bx = boss.x + dx;
+                    const by = boss.y + dy;
+                    if (p.x === bx && p.y === by) {
+                        p.alive = false;
+                        crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
+                        if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        break;
+                    }
+                }
+                if (!p.alive) break;
+            }
+        }
     }
     
-    // Определение победителя
+    // === ОПРЕДЕЛЕНИЕ ПОБЕДИТЕЛЯ ===
     const alivePlayers = players.filter(p => p.alive);
     if (alivePlayers.length === 1 && opponentType !== 'survival') {
         let winnerIdx = players.findIndex(p => p.alive);
