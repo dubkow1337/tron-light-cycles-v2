@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TRON: Light Cycles</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
+    <div id="menuScreen" class="screen active">
+        <video id="bgVideo" autoplay muted loop playsinline>
+            <source src="assets/videos/tron-bg.mp4" type="video/mp4">
+            <source src="assets/videos/tron-bg.webm" type="video/webm">
+            Ваш браузер не поддерживает видео.
+        </video>
+        
+        <div class="menu-wrapper">
+            <div class="game-title-container">
+                <h1 class="game-title-main">TRON</h1>
+                <h2 class="game-title-sub">LIGHT CYCLES</h2>
+            </div>
+            
+            <div class="menu-container">
+                <!-- ВЫБОР ПРОТИВНИКА -->
+                <div class="menu-section">
+                    <h3>🎮 ПРОТИВНИК</h3>
+                    <div class="menu-grid">
+                        <button id="menuOpponent2p" class="menu-btn" data-group="opponent">ДВА ИГРОКА</button>
+                        <button id="menuOpponentAI" class="menu-btn" data-group="opponent">ПРОТИВ ИИ</button>
+                    </div>
+                </div>
+                
+                <!-- ВЫБОР РЕЖИМА МАТЧА -->
+                <div class="menu-section">
+                    <h3>🏆 РЕЖИМ</h3>
+                    <div class="menu-grid">
+                        <button id="menuMatchClassic" class="menu-btn" data-group="match">КЛАССИКА</button>
+                        <button id="menuMatchTournament" class="menu-btn" data-group="match">ТУРНИР ДО 3</button>
+                        <button id="menuMatchSurvival" class="menu-btn" data-group="match">☠️ ВЫЖИВАНИЕ</button>
+                        <button id="menuMatchRace" class="menu-btn" data-group="match">🏁 ГОНКИ</button>
+                    </div>
+                </div>
+                
+                <!-- КНОПКА ИГРАТЬ -->
+                <div class="menu-section">
+                    <button id="menuPlayBtn" class="play-btn">▶ НАЧАТЬ</button>
+                </div>
+                
+                <!-- НИЖНЯЯ ПАНЕЛЬ -->
+                <div class="menu-footer">
+                    <button id="menuSoundToggle" class="sound-btn">🔊 ЗВУК</button>
+                    <div class="menu-record">🏆 РЕКОРД: <span id="menuRecordDisplay">0</span></div>
+                </div>
+            </div>
+
+            <!-- БЛОКИ ВНИЗУ -->
+            <div class="menu-footer-links">
+                <div class="footer-block">
+                    <h4>🎮 УПРАВЛЕНИЕ</h4>
+                    <p><span class="blue">🔵</span> ↑ ↓ ← →</p>
+                    <p><span class="orange">🟠</span> W A S D</p>
+                    <p>⏸ ESC — пауза</p>
+                </div>
+
+                <div class="footer-block">
+                    <h4>💡 СОВЕТЫ</h4>
+                    <p>• Не врезайся в следы</p>
+                    <p>• Зажимай противника в угол</p>
+                    <p>• В выживании двигайся по кругу</p>
+                    <p>• В гонках уклоняйся от препятствий</p>
+                </div>
+
+                <div class="footer-block">
+                    <h4>📬 КОНТАКТЫ</h4>
+                    <p><a href="https://github.com/dubkow1337" target="_blank">GitHub</a></p>
+                    <p><a href="mailto:dubkow14@gmail.com">dubkow14@gmail.com</a></p>
+                </div>
+
+                <div class="footer-block">
+                    <h4>📋 СТАТУС</h4>
+                    <p><span style="color: #00ff88;">✅</span> 2 игрока, VS AI</p>
+                    <p><span style="color: #00ff88;">✅</span> Классика, Турнир до 3</p>
+                    <p><span style="color: #00ff88;">✅</span> Выживание</p>
+                    <p><span style="color: #00ff88;">✅</span> Гонки</p>
+                    <!-- Бонусы удалены -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ===== ИГРОВОЙ ЭКРАН ===== -->
+    <div id="gameScreen" class="screen">
+        <div class="game-wrapper">
+            <div class="game-top-panel">
+                <button id="backToMenuBtn" class="back-btn">← НАЗАД</button>
+                
+                <div class="game-score">
+                    <div class="score blue">
+                        <span class="score-label">СИНИЙ</span>
+                        <span id="gamePlayer1Score" class="score-value">0</span>
+                    </div>
+                    <div class="score-divider">:</div>
+                    <div class="score orange">
+                        <span class="score-label">ОРАНЖЕВЫЙ</span>
+                        <span id="gamePlayer2Score" class="score-value">0</span>
+                    </div>
+                </div>
+
+                <button id="restartGameBtn" class="restart-btn">⟳ ИГРАТЬ СНОВА</button>
+            </div>
+            
+            <div class="game-area">
+                <canvas id="gameCanvas" width="1200" height="800"></canvas>
+                <div id="gameMessage" class="game-message"></div>
+                <div id="victoryOverlay" class="victory-overlay"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ===== СКРИПТЫ ===== -->
+    <script src="js/utils.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/sounds.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/boss.js"></script>
+    <script src="js/survival.js"></script>
+    <script src="js/race.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
