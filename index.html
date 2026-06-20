@@ -10,7 +10,6 @@
 <body>
     <!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
     <div id="menuScreen" class="screen active">
-        <!-- ФОНОВОЕ ВИДЕО -->
         <video id="bgVideo" autoplay muted loop playsinline>
             <source src="assets/videos/tron-bg.mp4" type="video/mp4">
             <source src="assets/videos/tron-bg.webm" type="video/webm">
@@ -39,6 +38,8 @@
                     <div class="menu-grid">
                         <button id="menuMatchClassic" class="menu-btn" data-group="match">КЛАССИКА</button>
                         <button id="menuMatchTournament" class="menu-btn" data-group="match">ТУРНИР ДО 3</button>
+                        <button id="menuMatchSurvival" class="menu-btn" data-group="match">☠️ ВЫЖИВАНИЕ</button>
+                        <button id="menuMatchRace" class="menu-btn" data-group="match">🏁 ГОНКИ</button>
                     </div>
                 </div>
                 
@@ -60,12 +61,15 @@
                     <h4>🎮 УПРАВЛЕНИЕ</h4>
                     <p><span class="blue">🔵</span> ↑ ↓ ← →</p>
                     <p><span class="orange">🟠</span> W A S D</p>
+                    <p>⏸ ESC — пауза</p>
                 </div>
 
                 <div class="footer-block">
                     <h4>💡 СОВЕТЫ</h4>
                     <p>• Не врезайся в следы</p>
                     <p>• Зажимай противника в угол</p>
+                    <p>• В выживании двигайся по кругу</p>
+                    <p>• В гонках уклоняйся от препятствий</p>
                 </div>
 
                 <div class="footer-block">
@@ -78,8 +82,9 @@
                     <h4>📋 СТАТУС</h4>
                     <p><span style="color: #00ff88;">✅</span> 2 игрока, VS AI</p>
                     <p><span style="color: #00ff88;">✅</span> Классика, Турнир до 3</p>
-                    <p><span style="color: #ffaa00;">⏳</span> Выживание (в плане)</p>
-                    <p><span style="color: #ffaa00;">⏳</span> Гонки (в плане)</p>
+                    <p><span style="color: #00ff88;">✅</span> Выживание</p>
+                    <p><span style="color: #00ff88;">✅</span> Гонки</p>
+                    <p><span style="color: #00ff88;">✅</span> Бонусы</p>
                 </div>
             </div>
         </div>
@@ -88,7 +93,6 @@
     <!-- ===== ИГРОВОЙ ЭКРАН ===== -->
     <div id="gameScreen" class="screen">
         <div class="game-wrapper">
-            <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
             <div class="game-top-panel">
                 <button id="backToMenuBtn" class="back-btn">← НАЗАД</button>
                 
@@ -97,9 +101,6 @@
                         <span class="score-label">СИНИЙ</span>
                         <span id="gamePlayer1Score" class="score-value">0</span>
                     </div>
-                    <div class="score-divider">:</div>
-                    <!-- ТАЙМЕР РАУНДА -->
-                    <div id="roundTimer" class="round-timer">30</div>
                     <div class="score-divider">:</div>
                     <div class="score orange">
                         <span class="score-label">ОРАНЖЕВЫЙ</span>
@@ -110,7 +111,6 @@
                 <button id="restartGameBtn" class="restart-btn">⟳ ИГРАТЬ СНОВА</button>
             </div>
             
-            <!-- ИГРОВОЕ ПОЛЕ -->
             <div class="game-area">
                 <canvas id="gameCanvas" width="1200" height="800"></canvas>
                 <div id="gameMessage" class="game-message"></div>
