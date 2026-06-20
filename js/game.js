@@ -8,6 +8,11 @@ let countdownValue = 3;
 let currentSteps = 0;
 let bestRecord = localStorage.getItem('tronRecord') ? parseInt(localStorage.getItem('tronRecord')) : 0;
 let MOVE_INTERVAL = 70;
+
+// ===== ROUND TIMER =====
+const ROUND_DURATION = 30; // seconds
+let roundEndTime = null; // timestamp in ms
+
 // paused объявлен в ui.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
 // ===== ПОБЕДА =====
@@ -58,9 +63,37 @@ function showVictory(name) {
     }
 }
 
+// ===== HANDLE ROUND TIMEOUT =====
+function handleRoundTimeout() {
+    gameActive = false;
+    showMessage('⏱ Время раунда истекло!');
+    if (typeof stopBgMusic === 'function') stopBgMusic();
+    // В турнире — ничья (ничего не начисляется), запускаем следующий раунд
+    if (matchMode === 'tournament') {
+        setTimeout(() => { resetGame(); }, 1500);
+    } else if (matchMode === 'classic') {
+        // В классике — ничья, показываем и reset
+        setTimeout(() => { resetGame(); }, 1500);
+    } else {
+        // Для других режимов просто reset
+        setTimeout(() => { resetGame(); }, 1500);
+    }
+}
+
 // ===== ОСНОВНОЙ ИГРОВОЙ ЦИКЛ =====
 function updateGame() {
     if (!gameActive) return;
+    
+    // Обновляем таймер раунда (показываем между счётом)
+    const timerEl = document.getElementById('roundTimer');
+    if (timerEl) {
+        const timeLeft = roundEndTime ? Math.max(0, Math.ceil((roundEndTime - Date.now()) / 1000)) : ROUND_DURATION;
+        timerEl.innerText = String(timeLeft);
+        if (timeLeft <= 0) {
+            handleRoundTimeout();
+            return;
+        }
+    }
     
     // === РЕЖИМ ГОНКИ ===
     if (matchMode === 'race') {
@@ -87,7 +120,7 @@ function updateGame() {
     
     // === ОБНОВЛЕНИЕ РЕЖИМОВ ===
     if (matchMode === 'classic') {
-        // Классика — ничего дополнительного не нужно
+        if (typeof updateClassic === 'function') updateClassic();
     } else if (matchMode === 'tournament') {
         // Турнир — ничего дополнительного не нужно
     }
@@ -222,6 +255,9 @@ function updateGame() {
 function initGame() {
     if (typeof resetPlayers === 'function') resetPlayers();
     
+    // сбрасываем таймер раунда
+    roundEndTime = null;
+    
     if (opponentType === 'survival') {
         if (typeof spawnSurvivalEnemies === 'function') spawnSurvivalEnemies();
         players[1].alive = false;
@@ -233,6 +269,10 @@ function initGame() {
     crashEffect.active = false;
     particles = [];
     currentSteps = 0;
+    
+    // показать начальное значение таймера в UI
+    const timerEl = document.getElementById('roundTimer');
+    if (timerEl) timerEl.innerText = String(ROUND_DURATION);
     
     updateUI();
     if (typeof draw === 'function') draw();
@@ -268,6 +308,8 @@ function initGame() {
             countdownActive = false;
             paused = false;
             if (typeof playBgMusic === 'function') playBgMusic();
+            // устанавливаем окончание раунда
+            roundEndTime = Date.now() + ROUND_DURATION * 1000;
             if (gameLoop) clearInterval(gameLoop);
             gameLoop = setInterval(() => {
                 if (paused || !gameActive) return;
