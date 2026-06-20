@@ -1,38 +1,656 @@
-/* Таймер раунда (между счётом) */
-.round-timer {
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+}
+
+body {
+    background: linear-gradient(135deg, #0a0a1a 0%, #03050a 100%);
+    font-family: 'Orbitron', 'Courier New', monospace;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* ===== ЭКРАНЫ ===== */
+.screen {
+    display: none;
+    width: 100%;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ===== ФОНОВОЕ ВИДЕО ===== */
+#bgVideo {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    object-fit: cover;
+    opacity: 0.5;
+    filter: brightness(0.7) saturate(1.2);
+}
+
+#menuScreen::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ===== ЗАГОЛОВОК (ОТДЕЛЬНО, БОЛЬШОЙ) ===== */
+.game-title-container {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px 0;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.game-title-main {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
-    font-size: 18px;
-    color: #ffffff;
-    background: linear-gradient(90deg, rgba(0,0,0,0.45), rgba(0,0,0,0.25));
-    padding: 4px 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 0 10px rgba(255,255,255,0.04), 0 0 20px rgba(0,255,255,0.06);
-    min-width: 46px;
+    font-size: 64px;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    margin: 0;
+    line-height: 1;
+    background: linear-gradient(90deg, #00ffff, #0088ff, #ffaa00, #ff6600, #00ffff);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: neonFlow 4s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.3));
+}
+
+.game-title-sub {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: 12px;
+    text-transform: uppercase;
+    margin: 0;
+    margin-top: -8px;
+    background: linear-gradient(90deg, #ffaa00, #ff6600, #00ffff, #0088ff, #ffaa00);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: neonFlow 4s ease-in-out infinite alternate-reverse;
+    filter: drop-shadow(0 0 20px rgba(255, 170, 0, 0.3));
+}
+
+@keyframes neonFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* ===== ЗАГОЛОВКИ СЕКЦИЙ (ПРОТИВНИК, РЕЖИМ) ===== */
+.menu-section h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
     text-align: center;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, #00ffff, #ffaa00, #00ffff);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: neonFlow 3s ease-in-out infinite;
+    text-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+}
+
+/* ===== ОБЁРТКА МЕНЮ ===== */
+.menu-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 700px;
+    z-index: 2;
+}
+
+/* ===== ГЛАВНОЕ МЕНЮ (СТЕКЛО) ===== */
+.menu-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 30px;
+    padding: 25px 40px;
+    width: 100%;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.5),
+        0 0 60px rgba(0, 255, 255, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ===== СЕКЦИИ МЕНЮ ===== */
+.menu-section {
+    margin-bottom: 18px;
+}
+
+.menu-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ===== КНОПКИ В МЕНЮ ===== */
+.menu-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00ffff;
+    color: #00ffff;
+    padding: 12px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.05);
+}
+
+.menu-btn:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+    background: rgba(0, 255, 255, 0.08);
+}
+
+.menu-btn.active {
+    background: #00ffff;
+    color: #000000;
+    box-shadow: 0 0 40px #00ffff, 0 0 80px rgba(0, 255, 255, 0.2);
+    border-color: #00ffff;
+    transform: scale(1.02);
+}
+
+/* ===== КНОПКА ИГРАТЬ (ГРАДИЕНТ) ===== */
+.play-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 16px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #00ffff, #0088ff, #ff6600, #ffaa00, #00ffff);
+    background-size: 300% 100%;
+    color: #000000;
+    padding: 14px;
+    border-radius: 30px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    animation: neonFlow 3s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.play-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 0 50px rgba(0, 255, 255, 0.4), 0 0 80px rgba(255, 170, 0, 0.2);
+}
+
+.play-btn:active {
+    transform: scale(0.95);
+}
+
+/* ===== НИЖНЯЯ ПАНЕЛЬ (ЗВУК + РЕКОРД) ===== */
+.menu-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.sound-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #ffaa00;
+    color: #ffaa00;
+    padding: 8px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.sound-btn:hover {
+    background: rgba(255, 170, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 170, 0, 0.2);
+}
+
+.menu-record {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: #ffaa00;
+    text-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
+}
+
+/* ===== БЛОКИ ВНИЗУ ===== */
+.menu-footer-links {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(0, 255, 255, 0.08);
+    flex-wrap: wrap;
+}
+
+.footer-block {
+    flex: 1;
+    min-width: 100px;
+}
+
+.footer-block h4 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #00ffff, #ffaa00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+}
+
+.footer-block p {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #88aaff;
+    margin: 3px 0;
+    line-height: 1.5;
+}
+
+.footer-block a {
+    color: #00ffff;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-block a:hover {
+    color: #ffaa00;
+    text-decoration: underline;
+}
+
+.blue {
+    color: #00ffff;
+}
+.orange {
+    color: #ffaa00;
+}
+
+/* ===== ИГРОВОЙ ЭКРАН ===== */
+.game-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+/* ===== ВЕРХНЯЯ ПАНЕЛЬ В ИГРЕ ===== */
+.game-top-panel {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 50px;
+    margin: 0 auto;
+}
+
+.back-btn,
+.restart-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
     letter-spacing: 1px;
+    padding: 8px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    z-index: 50;
+    border: 1px solid;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.6);
 }
 
-/* Неоновая подсветка (переключается в коде при оставшихся <10 сек) */
-.round-timer.neon-blue {
+.back-btn {
+    color: #ff5555;
+    border-color: #ff5555;
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #ff5555, 0 0 50px rgba(255, 85, 85, 0.15);
+}
+
+.restart-btn {
+    color: #00ff88;
+    border-color: #00ff88;
+}
+
+.restart-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px #00ff88, 0 0 50px rgba(0, 255, 136, 0.15);
+}
+
+/* ===== СЧЁТ ===== */
+.game-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 4px 20px;
+    border-radius: 40px;
+    border: 1px solid rgba(0, 255, 255, 0.15);
+    backdrop-filter: blur(5px);
+    flex: 1;
+    max-width: 400px;
+    min-width: 200px;
+}
+
+.score {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Orbitron', monospace;
+}
+
+.score.blue {
     color: #00ffff;
-    text-shadow: 0 0 8px rgba(0,255,255,0.7), 0 0 20px rgba(0,136,255,0.25);
-}
-.round-timer.neon-orange {
-    color: #ffaa00;
-    text-shadow: 0 0 8px rgba(255,170,0,0.7), 0 0 20px rgba(255,102,0,0.25);
+    text-shadow: 0 0 10px #00ffff;
 }
 
-/* Мигание в последние 5 секунд */
-@keyframes flashTimer {
-    0% { opacity: 1; }
-    50% { opacity: 0.25; }
-    100% { opacity: 1; }
+.score.orange {
+    color: #ffaa00;
+    text-shadow: 0 0 10px #ffaa00;
 }
-.round-timer.warn {
-    animation: flashTimer 1s linear infinite;
+
+.score-label {
+    font-size: 11px;
+    color: #88aaff;
+}
+
+.score-value {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0 8px;
+    border-radius: 8px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.score-divider {
+    font-size: 20px;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+/* ===== ИГРОВОЕ ПОЛЕ ===== */
+.game-area {
+    position: relative;
+    border: 3px solid #00ffff;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.25), inset 0 0 30px rgba(0, 255, 255, 0.05);
+    border-radius: 8px;
+}
+
+#gameCanvas {
+    display: block;
+    border-radius: 6px;
+}
+
+.game-message {
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #00ffcc;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 0 0 10px #00ffcc;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 6px;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+}
+
+.victory-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 36px;
+    font-weight: bold;
+    color: #ffaa00;
+    text-shadow: 0 0 20px #ffaa00, 0 0 40px #ff8800;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 15px 30px;
+    border-radius: 20px;
+    white-space: nowrap;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    border: 2px solid #ffaa00;
+}
+
+.victory-overlay.show {
+    opacity: 1;
+}
+
+/* ===== АДАПТАЦИЯ ===== */
+@media (max-width: 1300px) {
+    #gameCanvas {
+        width: 100%;
+        height: auto;
+    }
+    .game-score {
+        font-size: 16px;
+        padding: 6px 15px;
+        gap: 15px;
+    }
+    .menu-container {
+        padding: 25px 30px;
+        max-width: 600px;
+    }
+}
+
+@media (max-width: 900px) {
+    .game-top-panel {
+        gap: 10px;
+        flex-wrap: nowrap;
+        min-height: 40px;
+    }
+    
+    .back-btn,
+    .restart-btn {
+        font-size: 10px;
+        padding: 6px 12px;
+    }
+    
+    .game-score {
+        padding: 2px 12px;
+        gap: 8px;
+        flex: 1;
+        min-width: 120px;
+        max-width: 300px;
+    }
+    
+    .score {
+        font-size: 14px;
+        gap: 4px;
+    }
+    
+    .score-label {
+        font-size: 9px;
+    }
+    
+    .score-value {
+        font-size: 14px;
+        padding: 0 4px;
+        min-width: 20px;
+    }
+    
+    .score-divider {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 800px) {
+    .game-title-main {
+        font-size: 36px;
+        letter-spacing: 4px;
+    }
+    .game-title-sub {
+        font-size: 18px;
+        letter-spacing: 6px;
+    }
+    .menu-container {
+        padding: 20px 18px;
+        border-radius: 20px;
+    }
+    .menu-btn {
+        font-size: 11px;
+        padding: 10px 12px;
+    }
+    .play-btn {
+        font-size: 14px;
+        padding: 12px;
+    }
+    .back-btn {
+        top: -35px;
+        font-size: 11px;
+        padding: 6px 14px;
+    }
+    .score {
+        font-size: 16px;
+    }
+    .game-score {
+        gap: 10px;
+        padding: 5px 12px;
+    }
+    .victory-overlay {
+        font-size: 24px;
+        padding: 12px 20px;
+    }
+    .menu-footer-links {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        text-align: center;
+    }
+    .footer-block {
+        min-width: unset;
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+    .game-top-panel {
+        gap: 6px;
+    }
+    
+    .back-btn,
+    .restart-btn {
+        font-size: 8px;
+        padding: 4px 8px;
+        letter-spacing: 0;
+    }
+    
+    .game-score {
+        padding: 2px 8px;
+        gap: 4px;
+        min-width: 80px;
+        max-width: 200px;
+    }
+    
+    .score {
+        font-size: 11px;
+        gap: 2px;
+    }
+    
+    .score-label {
+        font-size: 7px;
+    }
+    
+    .score-value {
+        font-size: 11px;
+        padding: 0 3px;
+        min-width: 16px;
+    }
+    
+    .score-divider {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 500px) {
+    .game-title-main {
+        font-size: 28px;
+        letter-spacing: 2px;
+    }
+    .game-title-sub {
+        font-size: 14px;
+        letter-spacing: 4px;
+    }
+    .menu-btn {
+        font-size: 10px;
+        padding: 8px;
+    }
+    .menu-footer {
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+    }
+    .sound-btn {
+        text-align: center;
+    }
+    .menu-record {
+        text-align: center;
+    }
 }
