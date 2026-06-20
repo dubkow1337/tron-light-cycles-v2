@@ -5,6 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>TRON: Light Cycles</title>
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- Inline critical styles (fallback if external CSS fails to load) -->
+    <style>
+        /* Critical fallback styles to preserve layout when external CSS fails */
+        html,body{height:100%;}
+        body{
+            margin:0; padding:0; box-sizing:border-box;
+            background:linear-gradient(135deg,#0a0a1a 0%,#03050a 100%);
+            font-family: 'Orbitron', 'Courier New', monospace;
+            display:flex; align-items:center; justify-content:center; overflow:hidden;
+        }
+        .menu-wrapper, .game-wrapper{width:100%;max-width:1200px;display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px}
+        .menu-container{background:rgba(0,0,0,0.35);padding:18px;border-radius:20px;border:1px solid rgba(0,255,255,0.08);}
+        .menu-btn{font-weight:700;background:rgba(0,0,0,0.5);color:#00ffff;border:1px solid #00ffff;padding:8px 12px;border-radius:20px;cursor:pointer}
+        .play-btn{font-weight:900;background:linear-gradient(135deg,#00ffff,#0088ff,#ffaa00);color:#000;padding:10px 18px;border-radius:20px;border:none;cursor:pointer}
+        .game-top-panel{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;max-width:1200px}
+        .back-btn,.restart-btn{padding:6px 12px;border-radius:20px;border:1px solid #888;background:rgba(0,0,0,0.6);cursor:pointer}
+        .game-score{display:flex;align-items:center;justify-content:center;gap:12px;background:rgba(0,0,0,0.5);padding:6px 12px;border-radius:30px;border:1px solid rgba(0,255,255,0.12);min-width:200px}
+        .score{display:flex;align-items:center;gap:6px;font-weight:700}
+        .score-label{font-size:10px;color:#88aaff}
+        .score-value{background:rgba(0,0,0,0.4);padding:0 6px;border-radius:6px;min-width:24px;text-align:center}
+        .score.blue{color:#00ffff;text-shadow:0 0 6px #00ffff}
+        .score.orange{color:#ffaa00;text-shadow:0 0 6px #ffaa00}
+        .score-divider{font-size:18px;color:#fff;font-weight:bold}
+        /* Round timer fallback */
+        .round-timer{font-family:'Orbitron',sans-serif;font-weight:900;font-size:16px;color:#fff;background:rgba(0,0,0,0.45);padding:4px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);min-width:40px;text-align:center}
+        .round-timer.neon-blue{color:#00ffff}
+        .round-timer.neon-orange{color:#ffaa00}
+        .round-timer.warn{animation:flashTimer 1s linear infinite}
+        @keyframes flashTimer{0%{opacity:1}50%{opacity:0.25}100%{opacity:1}}
+        .game-area{position:relative;border-radius:8px}
+        .game-message{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#00ffcc;background:rgba(0,0,0,0.6);padding:6px;border-radius:6px}
+        .victory-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:28px;font-weight:700;color:#ffaa00;background:rgba(0,0,0,0.9);padding:12px 20px;border-radius:14px;z-index:20}
+        /* responsive minimal adjustments */
+        @media(max-width:800px){.game-top-panel{gap:8px}.game-score{min-width:140px}}
+    </style>
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
