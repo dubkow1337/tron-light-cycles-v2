@@ -89,9 +89,23 @@ function updateGame() {
     if (timerEl) {
         const timeLeft = roundEndTime ? Math.max(0, Math.ceil((roundEndTime - Date.now()) / 1000)) : ROUND_DURATION;
         timerEl.innerText = String(timeLeft);
+
+        // сброс классов
+        timerEl.classList.remove('neon-blue', 'neon-orange', 'warn');
+
         if (timeLeft <= 0) {
+            // на 0 — помечаем оранжевым и обрабатываем таймаут
+            timerEl.classList.add('neon-orange');
             handleRoundTimeout();
             return;
+        } else if (timeLeft <= 10) {
+            // <=10 с — оранжевый
+            timerEl.classList.add('neon-orange');
+            // <=5 с — мигаем
+            if (timeLeft <= 5) timerEl.classList.add('warn');
+        } else {
+            // обычный режим — неоновый синий
+            timerEl.classList.add('neon-blue');
         }
     }
     
