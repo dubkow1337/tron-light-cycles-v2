@@ -37,6 +37,7 @@ function setupEventListeners() {
     // ===== ГРУППА 1: ПРОТИВНИК =====
     const btn2p = document.getElementById('menuOpponent2p');
     const btnAI = document.getElementById('menuOpponentAI');
+    // Кнопка "ВЫЖИВАНИЕ" убрана из противников (теперь это режим)
     
     if (btn2p) {
         btn2p.addEventListener('click', () => {
@@ -81,6 +82,8 @@ function setupEventListeners() {
             matchMode = 'survival';
             setMenuActive('match', 'menuMatchSurvival');
             tournamentActive = false;
+            // Для выживания противник всегда survival
+            opponentType = 'survival';
             showMessage('Режим: ВЫЖИВАНИЕ');
         });
     }
@@ -97,6 +100,11 @@ function setupEventListeners() {
     const playBtn = document.getElementById('menuPlayBtn');
     if (playBtn) {
         playBtn.addEventListener('click', () => {
+            // Скрываем старые бонусы
+            if (typeof bonuses !== 'undefined') {
+                bonuses = [];
+            }
+            
             if (matchMode === 'race') {
                 if (typeof startRace === 'function') {
                     startRace();
@@ -135,35 +143,46 @@ function setupEventListeners() {
                 countdownInterval = null;
             }
             
-            // 3. Останавливаем музыку
+            // 3. Останавливаем таймер раунда
+            if (typeof roundTimerInterval !== 'undefined' && roundTimerInterval) {
+                clearInterval(roundTimerInterval);
+                roundTimerInterval = null;
+            }
+            
+            // 4. Останавливаем музыку
             if (typeof stopBgMusic === 'function') {
                 stopBgMusic();
             }
             
-            // 4. Сбрасываем состояние игры
+            // 5. Сбрасываем состояние игры
             if (typeof gameActive !== 'undefined') gameActive = false;
             paused = false;
             
-            // 5. Очищаем врагов (если есть)
+            // 6. Очищаем врагов (если есть)
             if (typeof survivalEnemies !== 'undefined') {
                 survivalEnemies = [];
             }
             
-            // 6. Сбрасываем босса
+            // 7. Сбрасываем босса
             if (typeof resetBoss === 'function') {
                 resetBoss();
             }
             
-            // 7. Переключаемся на меню
+            // 8. Сбрасываем бонусы
+            if (typeof resetBonuses === 'function') {
+                resetBonuses();
+            }
+            
+            // 9. Переключаемся на меню
             showScreen('menuScreen');
             
-            // 8. Обновляем рекорд в меню
+            // 10. Обновляем рекорд в меню
             const recordDisplay = document.getElementById('menuRecordDisplay');
             if (recordDisplay && typeof bestRecord !== 'undefined') {
                 recordDisplay.innerText = bestRecord;
             }
             
-            // 9. Очищаем сообщение
+            // 11. Очищаем сообщение
             showMessage('Выберите противника и режим матча, затем нажмите ИГРАТЬ');
         });
     }
@@ -172,6 +191,14 @@ function setupEventListeners() {
     const restartBtn = document.getElementById('restartGameBtn');
     if (restartBtn) {
         restartBtn.addEventListener('click', () => {
+            // Сбрасываем таймер раунда
+            if (typeof roundTimerInterval !== 'undefined' && roundTimerInterval) {
+                clearInterval(roundTimerInterval);
+                roundTimerInterval = null;
+            }
+            roundTimerActive = false;
+            roundTimer = 30;
+            
             if (matchMode === 'race') {
                 if (typeof startRace === 'function') {
                     startRace();
@@ -191,7 +218,10 @@ function setupEventListeners() {
             const gameScreen = document.getElementById('gameScreen');
             if (gameScreen && gameScreen.classList.contains('active')) {
                 e.preventDefault();
-                if (matchMode === 'race') return;
+                if (matchMode === 'race') {
+                    // В гонках ESC не ставит паузу
+                    return;
+                }
                 if (typeof gameActive !== 'undefined' && gameActive && !countdownActive) {
                     paused = !paused;
                     if (typeof draw === 'function') draw();
@@ -253,35 +283,67 @@ function setupEventListeners() {
 function updateUI() {
     const p1Score = document.getElementById('gamePlayer1Score');
     const p2Score = document.getElementById('gamePlayer2Score');
+    const timerDisplay = document.getElementById('roundTimer');
+    const recordDisplay = document.getElementById('menuRecordDisplay');
     
-    // В режиме гонок показываем прогресс
+    // === РЕЖИМ ГОНКИ ===
     if (matchMode === 'race') {
         if (p1Score) {
-            p1Score.innerText = raceState.player ? raceState.player.x : 0;
+            p1Score.innerText = typeof raceState !== 'undefined' && raceState.player ? raceState.player.x : 0;
         }
         if (p2Score) {
-            p2Score.innerText = raceState.win ? '🏁' : '🚧';
+            p2Score.innerText = typeof raceState !== 'undefined' && raceState.win ? '🏁' : '🚧';
+        }
+        if (timerDisplay) timerDisplay.style.display = 'none';
+        if (recordDisplay && typeof bestRecord !== 'undefined') {
+            recordDisplay.innerText = bestRecord;
         }
         return;
     }
     
-    if (p1Score) {
-        if (matchMode === 'survival') {
+    // === ВЫЖИВАНИЕ ===
+    if (matchMode === 'survival') {
+        if (p1Score) {
             p1Score.innerText = currentSteps || 0;
-        } else {
-            p1Score.innerText = matchMode === 'tournament' ? tournamentScore[0] : players[0].score;
         }
+        if (p2Score) {
+            p2Score.innerText = typeof survivalEnemies !== 'undefined' ? survivalEnemies.length : 0;
+        }
+        if (timerDisplay) timerDisplay.style.display = 'none';
+        if (recordDisplay && typeof bestRecord !== 'undefined') {
+            recordDisplay.innerText = bestRecord;
+        }
+        return;
     }
     
+    // === КЛАССИКА И ТУРНИР ===
+    if (p1Score) {
+        p1Score.innerText = matchMode === 'tournament' ? tournamentScore[0] : players[0].score;
+    }
     if (p2Score) {
-        if (matchMode === 'survival') {
-            p2Score.innerText = survivalEnemies.length;
+        p2Score.innerText = matchMode === 'tournament' ? tournamentScore[1] : players[1].score;
+    }
+    
+    // === ТАЙМЕР РАУНДА ===
+    if (timerDisplay) {
+        if (matchMode === 'classic' || matchMode === 'tournament') {
+            timerDisplay.style.display = 'inline-block';
+            timerDisplay.innerText = roundTimer !== undefined ? roundTimer : 30;
+            // Если осталось 10 секунд или меньше — красный цвет
+            if (roundTimer <= 10 && roundTimer > 0) {
+                timerDisplay.style.color = '#ff3333';
+                timerDisplay.style.textShadow = '0 0 20px #ff3333';
+                timerDisplay.className = 'round-timer warning';
+            } else {
+                timerDisplay.style.color = '#00ffcc';
+                timerDisplay.style.textShadow = '0 0 10px #00ffcc';
+                timerDisplay.className = 'round-timer';
+            }
         } else {
-            p2Score.innerText = matchMode === 'tournament' ? tournamentScore[1] : players[1].score;
+            timerDisplay.style.display = 'none';
         }
     }
     
-    const recordDisplay = document.getElementById('menuRecordDisplay');
     if (recordDisplay && typeof bestRecord !== 'undefined') {
         recordDisplay.innerText = bestRecord;
     }
