@@ -5,6 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>TRON: Light Cycles</title>
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- CSS fallback loader: if external css/style.css fails to load, fetch raw copy from GitHub and inject -->
+    <script>
+    (function(){
+        try {
+            const link = document.querySelector('link[rel="stylesheet"][href="css/style.css"]') || document.querySelector('link[rel="stylesheet"]');
+            if (!link) return;
+            const href = link.href || link.getAttribute('href');
+            // Try to fetch the stylesheet to detect failure
+            fetch(href).then(resp => {
+                if (resp && resp.ok) {
+                    // stylesheet reachable
+                    return;
+                }
+                throw new Error('Stylesheet not reachable');
+            }).catch(() => {
+                const fallbackUrl = 'https://raw.githubusercontent.com/dubkow1337/tron-light-cycles-v2/main/css/style.css';
+                fetch(fallbackUrl).then(r => r.text()).then(css => {
+                    const s = document.createElement('style');
+                    s.setAttribute('data-fallback','true');
+                    s.textContent = css;
+                    document.head.appendChild(s);
+                    console.warn('Fallback CSS applied from', fallbackUrl);
+                    const n = document.createElement('div');
+                    n.style = 'position:fixed;right:12px;bottom:12px;background:#071821;color:#00ffd6;padding:8px 10px;border-radius:6px;font-size:12px;z-index:9999;opacity:0.95;font-family:monospace';
+                    n.textContent = 'Fallback CSS loaded';
+                    document.body.appendChild(n);
+                    setTimeout(() => n.remove(), 4500);
+                }).catch(err => {
+                    console.error('Fallback CSS failed', err);
+                });
+            });
+        } catch (e) {
+            console.error('CSS fallback loader error', e);
+        }
+    })();
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
