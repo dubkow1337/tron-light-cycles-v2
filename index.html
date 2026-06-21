@@ -4,13 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>TRON: Light Cycles</title>
-    <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
     <div id="menuScreen" class="screen active">
-        <!-- ФОНОВОЕ ВИДЕО -->
         <video id="bgVideo" autoplay muted loop playsinline>
             <source src="assets/videos/tron-bg.mp4" type="video/mp4">
             <source src="assets/videos/tron-bg.webm" type="video/webm">
@@ -94,15 +93,14 @@
                 
                 <div class="game-score">
                     <div class="score blue">
-                        <span class="score-label">СИНИЙ</span>
+                        <span class="score-label" style="color: #00ffff; text-shadow: 0 0 15px #00ffff, 0 0 30px rgba(0,255,255,0.5);">СИНИЙ</span>
                         <span id="gamePlayer1Score" class="score-value">0</span>
                     </div>
                     <div class="score-divider">:</div>
-                    <!-- ТАЙМЕР РАУНДА -->
                     <div id="roundTimer" class="round-timer">30</div>
                     <div class="score-divider">:</div>
                     <div class="score orange">
-                        <span class="score-label">ОРАНЖЕВЫЙ</span>
+                        <span class="score-label" style="color: #ffaa00; text-shadow: 0 0 15px #ffaa00, 0 0 30px rgba(255,170,0,0.5);">ОРАНЖЕВЫЙ</span>
                         <span id="gamePlayer2Score" class="score-value">0</span>
                     </div>
                 </div>
