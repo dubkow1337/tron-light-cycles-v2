@@ -148,6 +148,54 @@ function updateGame() {
         cloneData.trail = [];
     }
     
+    // ============================================================
+    // ===== КЛОН АТАКУЕТ ВРАГОВ =====
+    // ============================================================
+    if (cloneActive && players[0].alive && cloneData && cloneData.active) {
+        const cloneX = Math.round(players[0].x + (cloneData.offsetX || 2));
+        const cloneY = Math.round(players[0].y + (cloneData.offsetY || 0));
+        
+        // === VS AI ===
+        if (opponentType === 'ai' && players[1] && players[1].alive) {
+            if (cloneX === Math.round(players[1].x) && cloneY === Math.round(players[1].y)) {
+                players[1].alive = false;
+                if (typeof explode === 'function') explode(players[1].x, players[1].y, '#ff44ff');
+                showMessage('🌀 КЛОН СБИЛ БОТА!');
+                players[0].score++;
+                updateUI();
+            }
+        }
+        
+        // === ВЫЖИВАНИЕ ===
+        if (typeof survivalEnemies !== 'undefined') {
+            for (let e of survivalEnemies) {
+                if (e.alive && cloneX === e.x && cloneY === e.y) {
+                    e.alive = false;
+                    if (typeof explode === 'function') explode(e.x, e.y, '#ff44ff');
+                }
+            }
+        }
+        
+        // === БОСС ===
+        if (typeof boss !== 'undefined' && boss && boss.alive) {
+            for (let dx = 0; dx < boss.size; dx++) {
+                for (let dy = 0; dy < boss.size; dy++) {
+                    if (cloneX === boss.x + dx && cloneY === boss.y + dy) {
+                        boss.health--;
+                        if (typeof explode === 'function') explode(boss.x, boss.y, '#ff44ff');
+                        if (boss.health <= 0) {
+                            boss.alive = false;
+                            showMessage('🌀 КЛОН УНИЧТОЖИЛ БОССА!');
+                            boss = null;
+                        } else {
+                            showMessage(`💥 КЛОН РАНИЛ БОССА! ❤️ ${boss.health}/${boss.maxHealth}`);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     // === ОБНОВЛЕНИЕ РЕЖИМОВ ===
     if (opponentType === 'ai') {
         if (typeof aiMove === 'function') aiMove();
