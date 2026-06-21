@@ -2,14 +2,22 @@
 
 let bonuses = [];
 let bonusTimer = 0;
-const BONUS_SPAWN_INTERVAL = 1000; // 5 секунд между появлением
+const BONUS_SPAWN_INTERVAL = 1000; // 1 секунда между появлением
 const MAX_BONUSES = 3; // максимум бонусов на поле
 
 // Активные эффекты
 let bonusEffects = {
     speed: { active: false, endTime: 0, duration: 5000 },
     shield: { active: false, endTime: 0, duration: 5000 },
-    extraLife: { active: false, endTime: 0, duration: 0 }
+    clone: { active: false, endTime: 0, duration: 3000 } // ← КЛОН вместо ЖИЗНИ
+};
+
+// Данные для клона
+let cloneData = {
+    active: false,
+    offsetX: 2,
+    offsetY: 0,
+    trail: []
 };
 
 const BONUS_TYPES = {
@@ -35,23 +43,27 @@ const BONUS_TYPES = {
             showMessage('🛡️ ЩИТ АКТИВИРОВАН! (5 сек неуязвимости)');
         }
     },
-    extraLife: {
-        name: 'Дополнительная жизнь',
-        color: '#ff44aa',
-        symbol: '❤️',
-        duration: 0,
+    clone: {
+        name: 'Клон',
+        color: '#ff44ff',
+        symbol: '🌀',
+        duration: 3000,
         apply: () => {
-            // Если игрок мёртв — воскрешаем
-            if (players[0] && !players[0].alive) {
-                players[0].alive = true;
-                players[0].x = 5;
-                players[0].y = Math.floor(HEIGHT / 2);
-                players[0].trail = [{ x: players[0].x, y: players[0].y }];
-                showMessage('❤️ ВОСКРЕШЕНИЕ!');
-            } else {
-                // Если жив — даём "жизнь" (можно использовать для счёта)
-                showMessage('❤️ +1 ЖИЗНЬ!');
+            bonusEffects.clone.active = true;
+            bonusEffects.clone.endTime = Date.now() + 3000;
+            
+            // Создаём данные для клона
+            cloneData.active = true;
+            cloneData.offsetX = 2;
+            cloneData.offsetY = 0;
+            cloneData.trail = [];
+            
+            // Копируем текущий след игрока
+            if (players[0] && players[0].trail) {
+                cloneData.trail = [...players[0].trail];
             }
+            
+            showMessage('🌀 КЛОН АКТИВИРОВАН! (3 сек)');
         }
     }
 };
@@ -60,7 +72,7 @@ function spawnBonus() {
     if (bonuses.length >= MAX_BONUSES) return;
     if (typeof players === 'undefined' || !players[0] || !players[0].alive) return;
     
-    const types = ['speed', 'shield', 'extraLife'];
+    const types = ['speed', 'shield', 'clone'];
     const type = types[Math.floor(Math.random() * types.length)];
     
     let x, y;
@@ -72,18 +84,15 @@ function spawnBonus() {
         y = 2 + Math.floor(Math.random() * (HEIGHT - 4));
         free = true;
         
-        // Не спавним на игроке
         if (players[0] && players[0].alive && players[0].x === x && players[0].y === y) {
             free = false;
         }
-        // Не спавним на других бонусах
         for (let b of bonuses) {
             if (b.x === x && b.y === y) {
                 free = false;
                 break;
             }
         }
-        // Не спавним на врагах (если есть)
         if (typeof survivalEnemies !== 'undefined') {
             for (let e of survivalEnemies) {
                 if (e.alive && e.x === x && e.y === y) {
@@ -92,7 +101,6 @@ function spawnBonus() {
                 }
             }
         }
-        // Не спавним на боссе (если есть)
         if (typeof boss !== 'undefined' && boss && boss.alive) {
             for (let dx = 0; dx < boss.size; dx++) {
                 for (let dy = 0; dy < boss.size; dy++) {
@@ -112,7 +120,7 @@ function spawnBonus() {
             x: x,
             y: y,
             type: type,
-            life: 600, // 10 секунд на поле (60 FPS * 10)
+            life: 600,
             color: BONUS_TYPES[type].color,
             symbol: BONUS_TYPES[type].symbol
         });
@@ -120,14 +128,12 @@ function spawnBonus() {
 }
 
 function updateBonuses() {
-    // Спавн новых бонусов
     bonusTimer++;
     if (bonusTimer > BONUS_SPAWN_INTERVAL / 16) {
         bonusTimer = 0;
         spawnBonus();
     }
     
-    // Обновление бонусов на поле
     for (let i = bonuses.length - 1; i >= 0; i--) {
         bonuses[i].life--;
         if (bonuses[i].life <= 0) {
@@ -135,13 +141,17 @@ function updateBonuses() {
         }
     }
     
-    // Обновление эффектов
     const now = Date.now();
     for (let key in bonusEffects) {
         if (bonusEffects[key].active && now > bonusEffects[key].endTime) {
             bonusEffects[key].active = false;
             if (BONUS_TYPES[key]) {
                 showMessage(`⏳ ${BONUS_TYPES[key].name} закончился!`);
+            }
+            // Если закончился клон — очищаем данные
+            if (key === 'clone') {
+                cloneData.active = false;
+                cloneData.trail = [];
             }
         }
     }
@@ -153,7 +163,6 @@ function collectBonus(bonus, player) {
     
     if (config) {
         config.apply();
-        // Удаляем бонус с поля
         const index = bonuses.indexOf(bonus);
         if (index !== -1) bonuses.splice(index, 1);
     }
@@ -166,7 +175,6 @@ function drawBonuses() {
         const y = b.y * CELL_SIZE;
         const size = CELL_SIZE;
         
-        // Свечение
         ctx.shadowBlur = 20;
         ctx.shadowColor = b.color;
         ctx.globalAlpha = pulse;
@@ -175,7 +183,6 @@ function drawBonuses() {
         ctx.globalAlpha = 1;
         ctx.shadowBlur = 0;
         
-        // Символ
         ctx.fillStyle = '#000';
         ctx.font = `${size - 4}px monospace`;
         ctx.textAlign = 'center';
@@ -185,7 +192,6 @@ function drawBonuses() {
 }
 
 function drawBonusIndicators() {
-    // Индикаторы активных эффектов (в левом верхнем углу)
     const now = Date.now();
     let offsetX = 10;
     let offsetY = 80;
@@ -196,19 +202,16 @@ function drawBonusIndicators() {
             const remaining = Math.max(0, Math.ceil((effect.endTime - now) / 1000));
             const config = BONUS_TYPES[key];
             if (config) {
-                // Фон индикатора
                 ctx.fillStyle = 'rgba(0,0,0,0.5)';
                 ctx.roundRect(offsetX - 2, offsetY - 12, 50, 18, 8);
                 ctx.fill();
                 
-                // Иконка
                 ctx.fillStyle = config.color;
                 ctx.font = '14px monospace';
                 ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
                 ctx.fillText(config.symbol, offsetX, offsetY);
                 
-                // Таймер
                 ctx.fillStyle = '#ffffff';
                 ctx.font = '10px monospace';
                 ctx.fillText(`${remaining}s`, offsetX + 20, offsetY);
@@ -224,4 +227,6 @@ function resetBonuses() {
     for (let key in bonusEffects) {
         bonusEffects[key].active = false;
     }
+    cloneData.active = false;
+    cloneData.trail = [];
 }
