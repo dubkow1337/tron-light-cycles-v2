@@ -311,7 +311,7 @@ body {
 }
 
 /* ============================================================
-   ===== ИГРОВОЙ ЭКРАН (ЛАКШЕРИ-НЕОН) =====
+   ===== ИГРОВОЙ ЭКРАН (ЛАКШЕРИ-НЕОН + ПРИКОЛЮХИ) =====
    ============================================================ */
 
 .game-wrapper {
@@ -324,6 +324,135 @@ body {
     max-width: 1200px;
     height: 100vh;
     justify-content: center;
+}
+
+/* ===== ПЕРЕЛИВАЮЩАЯСЯ РАМКА (ОСНОВНАЯ) ===== */
+.game-area {
+    position: relative;
+    border-radius: 16px;
+    padding: 4px;
+    background: #03050a;
+    width: 100%;
+    max-width: 1200px;
+    flex-shrink: 1;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.05);
+}
+
+.game-area::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 20px;
+    padding: 3px;
+    background: conic-gradient(
+        from 0deg,
+        #00ffff,
+        #0088ff,
+        #ffaa00,
+        #ff6600,
+        #00ffff,
+        #0088ff,
+        #ffaa00,
+        #ff6600,
+        #00ffff
+    );
+    background-size: 200% 200%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: borderGlow 4s linear infinite;
+}
+
+.game-area::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border-radius: 12px;
+    pointer-events: none;
+    box-shadow: 
+        inset 0 0 60px rgba(0, 255, 255, 0.04),
+        inset 0 0 30px rgba(255, 170, 0, 0.02);
+    animation: innerGlow 6s ease-in-out infinite alternate;
+}
+
+/* ===== АНИМАЦИИ РАМКИ ===== */
+@keyframes borderGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes innerGlow {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.3; }
+}
+
+/* ===== КАНВАС ===== */
+#gameCanvas {
+    display: block;
+    border-radius: 10px;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 1200px !important;
+    aspect-ratio: 1200 / 720 !important;
+    background: #03050a;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.05),
+        0 0 60px rgba(255, 170, 0, 0.03);
+    animation: canvasGlow 5s ease-in-out infinite alternate;
+}
+
+@keyframes canvasGlow {
+    0% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.05), 0 0 60px rgba(255, 170, 0, 0.02); }
+    50% { box-shadow: 0 0 50px rgba(0, 255, 255, 0.1), 0 0 80px rgba(255, 170, 0, 0.05); }
+    100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.05), 0 0 60px rgba(255, 170, 0, 0.02); }
+}
+
+/* ===== ПЕРЕЛИВАЮЩИЙСЯ СЧЁТ ===== */
+.game-score {
+    position: relative;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 28px;
+    border-radius: 60px;
+    flex: 1;
+    max-width: 460px;
+    min-width: 200px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.06);
+}
+
+.game-score::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 64px;
+    padding: 2px;
+    background: conic-gradient(
+        from 90deg,
+        #00ffff,
+        #0088ff,
+        #ffaa00,
+        #ff6600,
+        #00ffff
+    );
+    background-size: 200% 200%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: borderGlow 4s linear infinite;
+    border-radius: 64px;
 }
 
 /* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
@@ -339,8 +468,10 @@ body {
     flex-shrink: 0;
 }
 
+/* ===== КНОПКИ С ПЕРЕЛИВОМ ПРИ ХОВЕРЕ ===== */
 .back-btn,
 .restart-btn {
+    position: relative;
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
     font-size: clamp(9px, 0.8vw, 12px);
@@ -365,8 +496,27 @@ body {
 
 .back-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(255, 85, 85, 0.25), inset 0 0 30px rgba(255, 85, 85, 0.05);
-    border-color: #ff5555;
+    border-color: transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 30px rgba(255, 85, 85, 0.25);
+}
+
+.back-btn:hover::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 32px;
+    padding: 2px;
+    background: conic-gradient(from 0deg, #ff5555, #ffaa00, #ff5555);
+    background-size: 200% 200%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: borderGlow 2s linear infinite;
+    z-index: -1;
+    border-radius: 32px;
 }
 
 .restart-btn {
@@ -376,31 +526,27 @@ body {
 
 .restart-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.25), inset 0 0 30px rgba(0, 255, 136, 0.05);
-    border-color: #00ff88;
+    border-color: transparent;
+    background-clip: padding-box;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.25);
 }
 
-/* ===== СЧЁТ — СТЕКЛЯННЫЙ С НЕОНОМ ===== */
-.game-score {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    padding: 8px 28px;
-    border-radius: 60px;
-    flex: 1;
-    max-width: 460px;
-    min-width: 200px;
-    flex-wrap: wrap;
-    flex-shrink: 0;
-    box-shadow: 
-        0 0 40px rgba(0, 255, 255, 0.06),
-        inset 0 0 40px rgba(0, 255, 255, 0.04);
-    transition: all 0.3s ease;
+.restart-btn:hover::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 32px;
+    padding: 2px;
+    background: conic-gradient(from 0deg, #00ff88, #00ffff, #00ff88);
+    background-size: 200% 200%;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: borderGlow 2s linear infinite;
+    z-index: -1;
+    border-radius: 32px;
 }
 
 /* ===== НЕОНОВЫЙ СЧЁТ ===== */
@@ -478,61 +624,6 @@ body {
     100% { transform: scale(1.12); opacity: 0.6; }
 }
 
-/* ===== ИГРОВОЕ ПОЛЕ — ДВОЙНАЯ РАМКА ===== */
-.game-area {
-    position: relative;
-    border: 2px solid rgba(0, 255, 255, 0.4);
-    box-shadow: 
-        0 0 30px rgba(0, 255, 255, 0.15),
-        inset 0 0 30px rgba(0, 255, 255, 0.05);
-    border-radius: 16px;
-    padding: 4px;
-    background: #03050a;
-    width: 100%;
-    max-width: 1200px;
-    flex-shrink: 1;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
-}
-
-.game-area::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: -6px;
-    right: -6px;
-    bottom: -6px;
-    border: 1px solid rgba(0, 255, 255, 0.12);
-    border-radius: 20px;
-    pointer-events: none;
-    box-shadow: 
-        0 0 60px rgba(0, 255, 255, 0.04),
-        inset 0 0 60px rgba(0, 255, 255, 0.04);
-}
-
-.game-area::after {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    pointer-events: none;
-    border: 1px solid rgba(0, 255, 255, 0.06);
-    border-radius: 12px;
-}
-
-/* ===== КАНВАС ===== */
-#gameCanvas {
-    display: block;
-    border-radius: 10px;
-    width: 100% !important;
-    height: auto !important;
-    max-width: 1200px !important;
-    aspect-ratio: 1200 / 720 !important;
-    background: #03050a;
-    transition: filter 0.2s ease;
-}
-
 /* ===== СООБЩЕНИЯ ===== */
 .game-message {
     position: absolute;
@@ -582,6 +673,93 @@ body {
 
 .victory-overlay.show {
     opacity: 1;
+}
+
+/* ============================================================
+   ===== ПРИКОЛЮХИ ДЛЯ КРАСОТЫ =====
+   ============================================================ */
+
+/* === 1. ПАДАЮЩИЕ НЕОНОВЫЕ ИСКРЫ (фон) === */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    background-image: 
+        radial-gradient(1px 1px at 10% 20%, rgba(0, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 30% 70%, rgba(255, 170, 0, 0.2), transparent),
+        radial-gradient(1px 1px at 50% 10%, rgba(0, 255, 255, 0.25), transparent),
+        radial-gradient(1px 1px at 70% 80%, rgba(255, 170, 0, 0.15), transparent),
+        radial-gradient(1px 1px at 90% 40%, rgba(0, 255, 255, 0.2), transparent);
+    background-size: 100% 100%;
+    animation: sparkle 8s ease-in-out infinite alternate;
+}
+
+@keyframes sparkle {
+    0% { opacity: 0.3; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.3; }
+}
+
+/* === 2. СВЕТЯЩАЯСЯ ЛИНИЯ ПОД СЧЁТОМ === */
+.game-score::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 20%;
+    width: 60%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ffff, #ffaa00, transparent);
+    filter: blur(4px);
+    opacity: 0.5;
+    animation: linePulse 3s ease-in-out infinite;
+}
+
+@keyframes linePulse {
+    0% { opacity: 0.2; width: 40%; left: 30%; }
+    50% { opacity: 0.8; width: 70%; left: 15%; }
+    100% { opacity: 0.2; width: 40%; left: 30%; }
+}
+
+/* === 3. НЕОНОВЫЙ ШУМ (пиксельный эффект) === */
+#gameCanvas::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 255, 0.01) 0px,
+        rgba(0, 0, 0, 0.02) 2px,
+        rgba(255, 170, 0, 0.01) 4px,
+        rgba(0, 0, 0, 0.02) 6px
+    );
+    animation: scanline 8s linear infinite;
+    border-radius: 10px;
+}
+
+@keyframes scanline {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+}
+
+/* === 4. ПУЛЬСИРУЮЩАЯ ТЕНЬ У КАНВАСА === */
+#gameCanvas {
+    animation: canvasGlow 5s ease-in-out infinite alternate;
+}
+
+@keyframes canvasGlow {
+    0% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.05), 0 0 60px rgba(255, 170, 0, 0.02); }
+    50% { box-shadow: 0 0 50px rgba(0, 255, 255, 0.1), 0 0 80px rgba(255, 170, 0, 0.05); }
+    100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.05), 0 0 60px rgba(255, 170, 0, 0.02); }
 }
 
 /* ============================================================
@@ -735,4 +913,4 @@ body {
         font-size: 13px;
         letter-spacing: 3px;
     }
-}
+        }
