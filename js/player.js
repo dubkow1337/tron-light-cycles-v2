@@ -3,7 +3,7 @@
 // Константы (должны совпадать с canvas)
 const CELL_SIZE = 16;
 const WIDTH = 75;   // 1200 / 16
-const HEIGHT = 50;  // 800 / 16
+const HEIGHT = 45;  // 800 / 16
 
 // Массив игроков
 const players = [
