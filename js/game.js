@@ -21,8 +21,12 @@ let roundTimerActive = false;
 let bonusSpeedActive = false;
 let bonusShieldActive = false;
 let bonusCloneActive = false;
+let cloneActive = false;
 
-// cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
+// След клона (отдельный массив)
+let cloneTrail = [];
+
+// cloneData объявлен в bonuses.js — используем его для позиции
 
 // ===== ПОБЕДА =====
 function showVictory(name) {
@@ -93,7 +97,7 @@ function updateGame() {
     // ============================================================
     let speedMultiplier = 1;
     let shieldActive = false;
-    let cloneActive = false;
+    cloneActive = false;
     
     if (typeof bonusEffects !== 'undefined') {
         if (bonusEffects.speed && bonusEffects.speed.active) {
@@ -107,7 +111,6 @@ function updateGame() {
         }
     }
     
-    // Обновляем глобальные флаги
     bonusSpeedActive = speedMultiplier > 1;
     bonusShieldActive = shieldActive;
     bonusCloneActive = cloneActive;
@@ -125,74 +128,29 @@ function updateGame() {
     }
     
     // ============================================================
-    // ===== ОБНОВЛЕНИЕ СЛЕДА КЛОНА =====
+    // ===== КЛОН: ДВИЖЕНИЕ И СЛЕД =====
     // ============================================================
     if (cloneActive && players[0].alive) {
-        if (typeof cloneData === 'undefined' || !cloneData) {
-            // Если данных нет — создаём (но они должны быть из bonuses.js)
-        }
+        // Клон едет рядом с игроком (смещение на 2 клетки вправо)
+        const cloneX = players[0].x + 2;
+        const cloneY = players[0].y;
+        
+        // Добавляем след клона
+        cloneTrail.push({ x: Math.round(cloneX), y: Math.round(cloneY) });
+        if (cloneTrail.length > 30) cloneTrail.shift();
+        
+        // Сохраняем позицию клона для отрисовки
         if (cloneData) {
             cloneData.active = true;
-            const cloneX = players[0].x + (cloneData.offsetX || 2);
-            const cloneY = players[0].y + (cloneData.offsetY || 0);
-            
-            if (cloneData.trail.length === 0 || 
-                cloneData.trail[cloneData.trail.length-1].x !== Math.round(cloneX) ||
-                cloneData.trail[cloneData.trail.length-1].y !== Math.round(cloneY)) {
-                cloneData.trail.push({ x: Math.round(cloneX), y: Math.round(cloneY) });
-                if (cloneData.trail.length > 30) cloneData.trail.shift();
-            }
+            cloneData.offsetX = 2;
+            cloneData.offsetY = 0;
         }
-    } else if (typeof cloneData !== 'undefined' && cloneData) {
-        cloneData.active = false;
-        cloneData.trail = [];
-    }
-    
-    // ============================================================
-    // ===== КЛОН АТАКУЕТ ВРАГОВ =====
-    // ============================================================
-    if (cloneActive && players[0].alive && cloneData && cloneData.active) {
-        const cloneX = Math.round(players[0].x + (cloneData.offsetX || 2));
-        const cloneY = Math.round(players[0].y + (cloneData.offsetY || 0));
-        
-        // === VS AI ===
-        if (opponentType === 'ai' && players[1] && players[1].alive) {
-            if (cloneX === Math.round(players[1].x) && cloneY === Math.round(players[1].y)) {
-                players[1].alive = false;
-                if (typeof explode === 'function') explode(players[1].x, players[1].y, '#ff44ff');
-                showMessage('🌀 КЛОН СБИЛ БОТА!');
-                players[0].score++;
-                updateUI();
-            }
-        }
-        
-        // === ВЫЖИВАНИЕ ===
-        if (typeof survivalEnemies !== 'undefined') {
-            for (let e of survivalEnemies) {
-                if (e.alive && cloneX === e.x && cloneY === e.y) {
-                    e.alive = false;
-                    if (typeof explode === 'function') explode(e.x, e.y, '#ff44ff');
-                }
-            }
-        }
-        
-        // === БОСС ===
-        if (typeof boss !== 'undefined' && boss && boss.alive) {
-            for (let dx = 0; dx < boss.size; dx++) {
-                for (let dy = 0; dy < boss.size; dy++) {
-                    if (cloneX === boss.x + dx && cloneY === boss.y + dy) {
-                        boss.health--;
-                        if (typeof explode === 'function') explode(boss.x, boss.y, '#ff44ff');
-                        if (boss.health <= 0) {
-                            boss.alive = false;
-                            showMessage('🌀 КЛОН УНИЧТОЖИЛ БОССА!');
-                            boss = null;
-                        } else {
-                            showMessage(`💥 КЛОН РАНИЛ БОССА! ❤️ ${boss.health}/${boss.maxHealth}`);
-                        }
-                    }
-                }
-            }
+    } else {
+        // Если клон не активен — очищаем след
+        cloneTrail = [];
+        if (cloneData) {
+            cloneData.active = false;
+            cloneData.trail = [];
         }
     }
     
@@ -204,7 +162,7 @@ function updateGame() {
     if (typeof updateParticles === 'function') updateParticles();
     
     // ============================================================
-    // ===== ПРОВЕРКА СТОЛКНОВЕНИЙ (с учётом щита) =====
+    // ===== ПРОВЕРКА СТОЛКНОВЕНИЙ =====
     // ============================================================
     for (let p of players) {
         if (!p.alive) continue;
@@ -233,7 +191,9 @@ function updateGame() {
         }
         if (!p.alive) continue;
         
-        // Следы других игроков
+        // ============================================================
+        // ===== СЛЕДЫ ДРУГИХ ИГРОКОВ =====
+        // ============================================================
         for (let other of players) {
             if (other === p) continue;
             for (let i = 0; i < other.trail.length - 1; i++) {
@@ -252,6 +212,76 @@ function updateGame() {
                 }
             }
             if (!p.alive) break;
+        }
+        if (!p.alive) continue;
+        
+        // ============================================================
+        // ===== СЛЕД КЛОНА (ОПАСЕН ТОЛЬКО ДЛЯ БОТА) =====
+        // ============================================================
+        if (cloneTrail.length > 1) {
+            // Проверяем только бота
+            if (p === players[1] && opponentType === 'ai') {
+                for (let i = 0; i < cloneTrail.length - 1; i++) {
+                    const seg = cloneTrail[i];
+                    const nextSeg = cloneTrail[i+1];
+                    const px = p.x * CELL_SIZE + CELL_SIZE/2;
+                    const py = p.y * CELL_SIZE + CELL_SIZE/2;
+                    const dist = pointToSegmentDistance(px, py,
+                        seg.x * CELL_SIZE + CELL_SIZE/2, seg.y * CELL_SIZE + CELL_SIZE/2,
+                        nextSeg.x * CELL_SIZE + CELL_SIZE/2, nextSeg.y * CELL_SIZE + CELL_SIZE/2);
+                    if (dist < CELL_SIZE/2) {
+                        p.alive = false;
+                        if (typeof explode === 'function') explode(p.x, p.y, '#ff44ff');
+                        players[0].score++;
+                        showMessage('🌀 КЛОН СБИЛ БОТА!');
+                        updateUI();
+                        break;
+                    }
+                }
+            }
+            // Игрок НЕ умирает от следа клона (убрали else)
+        }
+        if (!p.alive) continue;
+        
+        // === СЛЕДЫ ВРАГОВ (ВЫЖИВАНИЕ) ===
+        if (typeof survivalEnemies !== 'undefined') {
+            for (let e of survivalEnemies) {
+                if (!e.alive) continue;
+                for (let i = 0; i < e.trail.length - 1; i++) {
+                    const seg = e.trail[i];
+                    const nextSeg = e.trail[i+1];
+                    const px = p.x * CELL_SIZE + CELL_SIZE/2;
+                    const py = p.y * CELL_SIZE + CELL_SIZE/2;
+                    const dist = pointToSegmentDistance(px, py,
+                        seg.x * CELL_SIZE + CELL_SIZE/2, seg.y * CELL_SIZE + CELL_SIZE/2,
+                        nextSeg.x * CELL_SIZE + CELL_SIZE/2, nextSeg.y * CELL_SIZE + CELL_SIZE/2);
+                    if (dist < CELL_SIZE/2) {
+                        p.alive = false;
+                        crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
+                        if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        break;
+                    }
+                }
+                if (!p.alive) break;
+            }
+        }
+        
+        // === БОСС ===
+        if (!p.alive) continue;
+        if (typeof boss !== 'undefined' && boss && boss.alive) {
+            for (let dx = 0; dx < boss.size; dx++) {
+                for (let dy = 0; dy < boss.size; dy++) {
+                    const bx = boss.x + dx;
+                    const by = boss.y + dy;
+                    if (p.x === bx && p.y === by) {
+                        p.alive = false;
+                        crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
+                        if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        break;
+                    }
+                }
+                if (!p.alive) break;
+            }
         }
     }
     
@@ -323,6 +353,14 @@ function initGame() {
     crashEffect.active = false;
     particles = [];
     currentSteps = 0;
+    
+    // === СБРОС КЛОНА ===
+    cloneTrail = [];
+    cloneActive = false;
+    if (typeof cloneData !== 'undefined' && cloneData) {
+        cloneData.active = false;
+        cloneData.trail = [];
+    }
     
     // === СБРОС ТАЙМЕРА РАУНДА ===
     roundTimer = 30;
@@ -400,10 +438,12 @@ function resetGame() {
         roundTimerInterval = null;
     }
     roundTimerActive = false;
-    // Сбрасываем данные клона
+    // Сбрасываем клона
+    cloneTrail = [];
+    cloneActive = false;
     if (typeof cloneData !== 'undefined' && cloneData) {
         cloneData.active = false;
         cloneData.trail = [];
     }
     initGame();
-}
+                }
