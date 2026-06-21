@@ -22,13 +22,7 @@ let bonusSpeedActive = false;
 let bonusShieldActive = false;
 let bonusCloneActive = false;
 
-// Данные для клона (из bonuses.js)
-let cloneData = {
-    active: false,
-    offsetX: 2,
-    offsetY: 0,
-    trail: []
-};
+// cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
 // ===== ПОБЕДА =====
 function showVictory(name) {
@@ -134,27 +128,22 @@ function updateGame() {
     // ===== ОБНОВЛЕНИЕ СЛЕДА КЛОНА =====
     // ============================================================
     if (cloneActive && players[0].alive) {
-        if (!cloneData) {
-            cloneData = {
-                active: true,
-                offsetX: 2,
-                offsetY: 0,
-                trail: []
-            };
+        if (typeof cloneData === 'undefined' || !cloneData) {
+            // Если данных нет — создаём (но они должны быть из bonuses.js)
         }
-        
-        const cloneX = players[0].x + (cloneData.offsetX || 2);
-        const cloneY = players[0].y + (cloneData.offsetY || 0);
-        
-        if (cloneData.trail.length === 0 || 
-            cloneData.trail[cloneData.trail.length-1].x !== Math.round(cloneX) ||
-            cloneData.trail[cloneData.trail.length-1].y !== Math.round(cloneY)) {
-            cloneData.trail.push({ x: Math.round(cloneX), y: Math.round(cloneY) });
-            if (cloneData.trail.length > 30) cloneData.trail.shift();
+        if (cloneData) {
+            cloneData.active = true;
+            const cloneX = players[0].x + (cloneData.offsetX || 2);
+            const cloneY = players[0].y + (cloneData.offsetY || 0);
+            
+            if (cloneData.trail.length === 0 || 
+                cloneData.trail[cloneData.trail.length-1].x !== Math.round(cloneX) ||
+                cloneData.trail[cloneData.trail.length-1].y !== Math.round(cloneY)) {
+                cloneData.trail.push({ x: Math.round(cloneX), y: Math.round(cloneY) });
+                if (cloneData.trail.length > 30) cloneData.trail.shift();
+            }
         }
-        cloneData.active = true;
-    } else if (cloneData) {
-        // Если клон не активен — очищаем след
+    } else if (typeof cloneData !== 'undefined' && cloneData) {
         cloneData.active = false;
         cloneData.trail = [];
     }
@@ -280,14 +269,6 @@ function initGame() {
         resetBonuses();
     }
     
-    // Сбрасываем данные клона
-    cloneData = {
-        active: false,
-        offsetX: 2,
-        offsetY: 0,
-        trail: []
-    };
-    
     gameActive = false;
     countdownActive = true;
     countdownValue = 3;
@@ -371,12 +352,10 @@ function resetGame() {
         roundTimerInterval = null;
     }
     roundTimerActive = false;
-    // Сбрасываем данные клона при рестарте
-    cloneData = {
-        active: false,
-        offsetX: 2,
-        offsetY: 0,
-        trail: []
-    };
+    // Сбрасываем данные клона
+    if (typeof cloneData !== 'undefined' && cloneData) {
+        cloneData.active = false;
+        cloneData.trail = [];
+    }
     initGame();
 }
