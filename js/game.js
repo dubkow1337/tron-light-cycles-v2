@@ -16,12 +16,19 @@ let roundTimerInterval = null;
 let roundTimerActive = false;
 
 // ============================================================
-// ===== БОНУСЫ =====
+// ===== БОНУСЫ (флаги для быстрого доступа) =====
 // ============================================================
-// Флаги эффектов (для быстрого доступа)
 let bonusSpeedActive = false;
 let bonusShieldActive = false;
-let bonusExtraLifeActive = false;
+let bonusCloneActive = false;
+
+// Данные для клона (из bonuses.js)
+let cloneData = {
+    active: false,
+    offsetX: 2,
+    offsetY: 0,
+    trail: []
+};
 
 // ===== ПОБЕДА =====
 function showVictory(name) {
@@ -92,15 +99,24 @@ function updateGame() {
     // ============================================================
     let speedMultiplier = 1;
     let shieldActive = false;
+    let cloneActive = false;
     
     if (typeof bonusEffects !== 'undefined') {
         if (bonusEffects.speed && bonusEffects.speed.active) {
-            speedMultiplier = 1.5; // ускорение на 50%
+            speedMultiplier = 1.5;
         }
         if (bonusEffects.shield && bonusEffects.shield.active) {
             shieldActive = true;
         }
+        if (bonusEffects.clone && bonusEffects.clone.active) {
+            cloneActive = true;
+        }
     }
+    
+    // Обновляем глобальные флаги
+    bonusSpeedActive = speedMultiplier > 1;
+    bonusShieldActive = shieldActive;
+    bonusCloneActive = cloneActive;
     
     // ============================================================
     // ===== ДВИЖЕНИЕ ИГРОКОВ (с ускорением) =====
@@ -112,6 +128,35 @@ function updateGame() {
         p.trail.push({ x: p.x, y: p.y });
         if (p.trail.length > 15) p.trail.shift();
         if (typeof addParticles === 'function') addParticles(p.x, p.y, p.color);
+    }
+    
+    // ============================================================
+    // ===== ОБНОВЛЕНИЕ СЛЕДА КЛОНА =====
+    // ============================================================
+    if (cloneActive && players[0].alive) {
+        if (!cloneData) {
+            cloneData = {
+                active: true,
+                offsetX: 2,
+                offsetY: 0,
+                trail: []
+            };
+        }
+        
+        const cloneX = players[0].x + (cloneData.offsetX || 2);
+        const cloneY = players[0].y + (cloneData.offsetY || 0);
+        
+        if (cloneData.trail.length === 0 || 
+            cloneData.trail[cloneData.trail.length-1].x !== Math.round(cloneX) ||
+            cloneData.trail[cloneData.trail.length-1].y !== Math.round(cloneY)) {
+            cloneData.trail.push({ x: Math.round(cloneX), y: Math.round(cloneY) });
+            if (cloneData.trail.length > 30) cloneData.trail.shift();
+        }
+        cloneData.active = true;
+    } else if (cloneData) {
+        // Если клон не активен — очищаем след
+        cloneData.active = false;
+        cloneData.trail = [];
     }
     
     // === ОБНОВЛЕНИЕ РЕЖИМОВ ===
@@ -129,7 +174,7 @@ function updateGame() {
         
         // === ЩИТ (полная неуязвимость) ===
         if (shieldActive && p === players[0]) {
-            continue; // пропускаем все проверки
+            continue;
         }
         
         // Границы
@@ -235,6 +280,14 @@ function initGame() {
         resetBonuses();
     }
     
+    // Сбрасываем данные клона
+    cloneData = {
+        active: false,
+        offsetX: 2,
+        offsetY: 0,
+        trail: []
+    };
+    
     gameActive = false;
     countdownActive = true;
     countdownValue = 3;
@@ -318,5 +371,12 @@ function resetGame() {
         roundTimerInterval = null;
     }
     roundTimerActive = false;
+    // Сбрасываем данные клона при рестарте
+    cloneData = {
+        active: false,
+        offsetX: 2,
+        offsetY: 0,
+        trail: []
+    };
     initGame();
 }
