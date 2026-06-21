@@ -311,7 +311,7 @@ body {
 }
 
 /* ============================================================
-   ===== ИГРОВОЙ ЭКРАН =====
+   ===== ИГРОВОЙ ЭКРАН (ЛАКШЕРИ-НЕОН) =====
    ============================================================ */
 
 .game-wrapper {
@@ -353,7 +353,9 @@ body {
     z-index: 50;
     border: 1px solid;
     flex-shrink: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
 }
 
 .back-btn {
@@ -363,7 +365,8 @@ body {
 
 .back-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(255, 85, 85, 0.3);
+    box-shadow: 0 0 30px rgba(255, 85, 85, 0.25), inset 0 0 30px rgba(255, 85, 85, 0.05);
+    border-color: #ff5555;
 }
 
 .restart-btn {
@@ -373,27 +376,34 @@ body {
 
 .restart-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.25), inset 0 0 30px rgba(0, 255, 136, 0.05);
+    border-color: #00ff88;
 }
 
-/* ===== СЧЁТ И ТАЙМЕР ===== */
+/* ===== СЧЁТ — СТЕКЛЯННЫЙ С НЕОНОМ ===== */
 .game-score {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     background: rgba(0, 0, 0, 0.5);
-    padding: 4px 18px;
-    border-radius: 40px;
-    border: 1px solid rgba(0, 255, 255, 0.12);
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    padding: 8px 28px;
+    border-radius: 60px;
     flex: 1;
     max-width: 460px;
     min-width: 200px;
     flex-wrap: wrap;
     flex-shrink: 0;
+    box-shadow: 
+        0 0 40px rgba(0, 255, 255, 0.06),
+        inset 0 0 40px rgba(0, 255, 255, 0.04);
+    transition: all 0.3s ease;
 }
 
+/* ===== НЕОНОВЫЙ СЧЁТ ===== */
 .score {
     display: flex;
     align-items: center;
@@ -403,21 +413,20 @@ body {
     font-family: 'Orbitron', monospace;
 }
 
-/* ===== НЕОНОВЫЙ СЧЁТ ===== */
 .score.blue {
     color: #00ffff;
     text-shadow: 
-        0 0 12px #00ffff,
-        0 0 30px rgba(0, 255, 255, 0.5),
-        0 0 60px rgba(0, 255, 255, 0.2);
+        0 0 15px #00ffff,
+        0 0 35px rgba(0, 255, 255, 0.4),
+        0 0 70px rgba(0, 255, 255, 0.15);
 }
 
 .score.orange {
     color: #ffaa00;
     text-shadow: 
-        0 0 12px #ffaa00,
-        0 0 30px rgba(255, 170, 0, 0.5),
-        0 0 60px rgba(255, 170, 0, 0.2);
+        0 0 15px #ffaa00,
+        0 0 35px rgba(255, 170, 0, 0.4),
+        0 0 70px rgba(255, 170, 0, 0.15);
 }
 
 .score-label {
@@ -437,17 +446,20 @@ body {
 
 .score-divider {
     font-size: clamp(14px, 1.5vw, 20px);
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.5);
     font-weight: 300;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
 /* ===== ТАЙМЕР РАУНДА ===== */
 .round-timer {
     font-family: 'Orbitron', monospace;
-    font-size: clamp(18px, 1.8vw, 28px);
+    font-size: clamp(18px, 2vw, 30px);
     font-weight: 700;
     color: #00ffcc;
-    text-shadow: 0 0 20px #00ffcc, 0 0 40px rgba(0, 255, 204, 0.2);
+    text-shadow: 
+        0 0 20px #00ffcc,
+        0 0 50px rgba(0, 255, 204, 0.2);
     min-width: 40px;
     text-align: center;
     transition: all 0.3s ease;
@@ -455,56 +467,94 @@ body {
 
 .round-timer.warning {
     color: #ff3333 !important;
-    text-shadow: 0 0 20px #ff3333, 0 0 50px rgba(255, 51, 51, 0.3) !important;
+    text-shadow: 
+        0 0 20px #ff3333,
+        0 0 50px rgba(255, 51, 51, 0.3) !important;
     animation: timerPulse 0.5s ease-in-out infinite alternate;
 }
 
 @keyframes timerPulse {
-    0% { transform: scale(1); opacity: 1; }
-    100% { transform: scale(1.15); opacity: 0.6; }
+    0% { transform: scale(1); opacity: 0.9; }
+    100% { transform: scale(1.12); opacity: 0.6; }
 }
 
-/* ===== ИГРОВОЕ ПОЛЕ 1200×600 ===== */
+/* ===== ИГРОВОЕ ПОЛЕ — ДВОЙНАЯ РАМКА ===== */
 .game-area {
     position: relative;
-    border: 3px solid rgba(0, 255, 255, 0.4);
+    border: 2px solid rgba(0, 255, 255, 0.4);
     box-shadow: 
-        0 0 40px rgba(0, 255, 255, 0.15),
-        inset 0 0 40px rgba(0, 255, 255, 0.04);
-    border-radius: 12px;
+        0 0 30px rgba(0, 255, 255, 0.15),
+        inset 0 0 30px rgba(0, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 4px;
+    background: #03050a;
     width: 100%;
     max-width: 1200px;
-    background: #03050a;
     flex-shrink: 1;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
+.game-area::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border: 1px solid rgba(0, 255, 255, 0.12);
+    border-radius: 20px;
+    pointer-events: none;
+    box-shadow: 
+        0 0 60px rgba(0, 255, 255, 0.04),
+        inset 0 0 60px rgba(0, 255, 255, 0.04);
+}
+
+.game-area::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    pointer-events: none;
+    border: 1px solid rgba(0, 255, 255, 0.06);
+    border-radius: 12px;
+}
+
+/* ===== КАНВАС ===== */
 #gameCanvas {
     display: block;
     border-radius: 10px;
     width: 100% !important;
     height: auto !important;
     max-width: 1200px !important;
-    aspect-ratio: 1200 / 600 !important;
+    aspect-ratio: 1200 / 720 !important;
     background: #03050a;
+    transition: filter 0.2s ease;
 }
 
 /* ===== СООБЩЕНИЯ ===== */
 .game-message {
     position: absolute;
     bottom: 12px;
-    left: 0;
-    right: 0;
+    left: 50%;
+    transform: translateX(-50%);
     text-align: center;
     color: #00ffcc;
     font-size: clamp(11px, 1vw, 14px);
     font-weight: 700;
-    text-shadow: 0 0 15px #00ffcc;
-    background: rgba(0, 0, 0, 0.5);
-    padding: 6px 12px;
-    backdrop-filter: blur(4px);
+    text-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 255, 204, 0.15);
+    border-radius: 30px;
+    padding: 6px 20px;
     z-index: 10;
+    white-space: nowrap;
 }
 
+/* ===== ПОБЕДНЫЙ ОВЕРЛЕЙ ===== */
 .victory-overlay {
     position: absolute;
     top: 50%;
@@ -515,15 +565,19 @@ body {
     color: #ffaa00;
     text-shadow: 0 0 30px #ffaa00, 0 0 60px #ff8800;
     background: rgba(0, 0, 0, 0.85);
-    padding: 16px 35px;
-    border-radius: 24px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 2px solid #ffaa00;
+    box-shadow: 
+        0 0 60px rgba(255, 170, 0, 0.2),
+        inset 0 0 60px rgba(255, 170, 0, 0.05);
+    border-radius: 30px;
+    padding: 20px 45px;
     white-space: nowrap;
     z-index: 20;
     opacity: 0;
     transition: opacity 0.4s ease;
     pointer-events: none;
-    border: 2px solid #ffaa00;
-    box-shadow: 0 0 60px rgba(255, 170, 0, 0.15);
 }
 
 .victory-overlay.show {
@@ -543,6 +597,21 @@ body {
     }
 }
 
+@media (max-width: 1024px) {
+    .game-score {
+        max-width: 380px;
+        padding: 6px 20px;
+        gap: 8px;
+    }
+    .score {
+        font-size: 16px;
+    }
+    .round-timer {
+        font-size: 20px;
+        min-width: 32px;
+    }
+}
+
 @media (max-width: 768px) {
     .menu-container {
         padding: 16px 18px;
@@ -559,7 +628,7 @@ body {
     .game-score {
         max-width: 320px;
         min-width: 140px;
-        padding: 4px 12px;
+        padding: 6px 16px;
         gap: 6px;
     }
     .score {
@@ -609,7 +678,7 @@ body {
         max-width: 100%;
         min-width: 100px;
         gap: 4px;
-        padding: 4px 10px;
+        padding: 4px 12px;
         order: 3;
         width: 100%;
         justify-content: center;
