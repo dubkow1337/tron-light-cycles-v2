@@ -2,8 +2,8 @@
 
 let bonuses = [];
 let bonusTimer = 0;
-const BONUS_SPAWN_INTERVAL = 5000; // 5 секунд между появлением
-const MAX_BONUSES = 2; // максимум бонусов на поле
+const BONUS_SPAWN_INTERVAL = 1000; // 5 секунд между появлением
+const MAX_BONUSES = 3; // максимум бонусов на поле
 
 // Активные эффекты
 let bonusEffects = {
