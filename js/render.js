@@ -11,13 +11,7 @@ const ctx = canvas.getContext('2d');
 const TRAIL_LENGTH = 30;
 const TRAIL_FADE = true;
 
-// Данные для клона (из bonuses.js)
-let cloneData = {
-    active: false,
-    offsetX: 2,
-    offsetY: 0,
-    trail: []
-};
+// cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
 function explode(x, y, color) {
     const particleCount = 40;
@@ -143,10 +137,8 @@ function draw() {
         }
     }
     
-    // ============================================================
     // ===== СЛЕД КЛОНА (полупрозрачный фиолетовый) =====
-    // ============================================================
-    if (cloneData && cloneData.active && cloneData.trail && cloneData.trail.length > 1) {
+    if (typeof cloneData !== 'undefined' && cloneData && cloneData.active && cloneData.trail && cloneData.trail.length > 1) {
         ctx.globalAlpha = 0.5;
         for (let i = 0; i < cloneData.trail.length - 1; i++) {
             const p1 = cloneData.trail[i];
@@ -296,11 +288,10 @@ function draw() {
     // ============================================================
     // ===== КЛОН (фиолетовый мотоцикл) =====
     // ============================================================
-    if (cloneData && cloneData.active && players[0] && players[0].alive) {
-        const cloneX = players[0].x + cloneData.offsetX;
-        const cloneY = players[0].y + cloneData.offsetY;
+    if (typeof cloneData !== 'undefined' && cloneData && cloneData.active && players[0] && players[0].alive) {
+        const cloneX = players[0].x + (cloneData.offsetX || 2);
+        const cloneY = players[0].y + (cloneData.offsetY || 0);
         
-        // Проверяем, что клон не выходит за границы
         if (cloneX >= 0 && cloneX < WIDTH && cloneY >= 0 && cloneY < HEIGHT) {
             ctx.save();
             ctx.globalAlpha = 0.7;
@@ -321,7 +312,6 @@ function draw() {
             ctx.closePath();
             ctx.fill();
             
-            // Белая точка внутри (глаз)
             ctx.fillStyle = '#ffffff';
             ctx.shadowBlur = 0;
             ctx.beginPath();
