@@ -11,6 +11,14 @@ const ctx = canvas.getContext('2d');
 const TRAIL_LENGTH = 30;
 const TRAIL_FADE = true;
 
+// Данные для клона (из bonuses.js)
+let cloneData = {
+    active: false,
+    offsetX: 2,
+    offsetY: 0,
+    trail: []
+};
+
 function explode(x, y, color) {
     const particleCount = 40;
     for (let i = 0; i < particleCount; i++) {
@@ -135,6 +143,29 @@ function draw() {
         }
     }
     
+    // ============================================================
+    // ===== СЛЕД КЛОНА (полупрозрачный фиолетовый) =====
+    // ============================================================
+    if (cloneData && cloneData.active && cloneData.trail && cloneData.trail.length > 1) {
+        ctx.globalAlpha = 0.5;
+        for (let i = 0; i < cloneData.trail.length - 1; i++) {
+            const p1 = cloneData.trail[i];
+            const p2 = cloneData.trail[i+1];
+            ctx.beginPath();
+            ctx.lineWidth = 3;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = '#ff44ff';
+            ctx.strokeStyle = '#ff44ff';
+            ctx.moveTo(p1.x * CELL_SIZE + CELL_SIZE/2, p1.y * CELL_SIZE + CELL_SIZE/2);
+            ctx.lineTo(p2.x * CELL_SIZE + CELL_SIZE/2, p2.y * CELL_SIZE + CELL_SIZE/2);
+            ctx.stroke();
+        }
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+    }
+    
     // ===== СЛЕДЫ ВРАГОВ (ВЫЖИВАНИЕ) =====
     if (typeof survivalEnemies !== 'undefined') {
         for (let e of survivalEnemies) {
@@ -207,7 +238,7 @@ function draw() {
     }
     
     // ============================================================
-    // ===== ИНДИКАТОРЫ БОНУСОВ (в левом верхнем углу) =====
+    // ===== ИНДИКАТОРЫ БОНУСОВ =====
     // ============================================================
     if (typeof drawBonusIndicators === 'function') {
         drawBonusIndicators();
@@ -226,7 +257,9 @@ function draw() {
         if (crashEffect.timer <= 0) crashEffect.active = false;
     }
     
-    // ===== МОТОЦИКЛЫ ИГРОКОВ =====
+    // ============================================================
+    // ===== МОТОЦИКЛ ИГРОКА =====
+    // ============================================================
     if (typeof players !== 'undefined') {
         for (let p of players) {
             if (p.alive) {
@@ -257,6 +290,50 @@ function draw() {
                 ctx.fill();
                 ctx.restore();
             }
+        }
+    }
+    
+    // ============================================================
+    // ===== КЛОН (фиолетовый мотоцикл) =====
+    // ============================================================
+    if (cloneData && cloneData.active && players[0] && players[0].alive) {
+        const cloneX = players[0].x + cloneData.offsetX;
+        const cloneY = players[0].y + cloneData.offsetY;
+        
+        // Проверяем, что клон не выходит за границы
+        if (cloneX >= 0 && cloneX < WIDTH && cloneY >= 0 && cloneY < HEIGHT) {
+            ctx.save();
+            ctx.globalAlpha = 0.7;
+            ctx.translate(cloneX * CELL_SIZE + CELL_SIZE/2, cloneY * CELL_SIZE + CELL_SIZE/2);
+            
+            if (players[0].dirX === 1) ctx.rotate(0);
+            else if (players[0].dirX === -1) ctx.rotate(Math.PI);
+            else if (players[0].dirY === -1) ctx.rotate(-Math.PI / 2);
+            else if (players[0].dirY === 1) ctx.rotate(Math.PI / 2);
+            
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff44ff';
+            ctx.fillStyle = '#ff44ff';
+            ctx.beginPath();
+            ctx.moveTo(10, 0);
+            ctx.lineTo(-5, -6);
+            ctx.lineTo(-5, 6);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Белая точка внутри (глаз)
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.moveTo(5, 0);
+            ctx.lineTo(-2, -3);
+            ctx.lineTo(-2, 3);
+            ctx.closePath();
+            ctx.fill();
+            
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            ctx.restore();
         }
     }
     
