@@ -15,6 +15,14 @@ let roundTimer = 30;
 let roundTimerInterval = null;
 let roundTimerActive = false;
 
+// ============================================================
+// ===== БОНУСЫ =====
+// ============================================================
+// Флаги эффектов (для быстрого доступа)
+let bonusSpeedActive = false;
+let bonusShieldActive = false;
+let bonusExtraLifeActive = false;
+
 // ===== ПОБЕДА =====
 function showVictory(name) {
     const overlay = document.getElementById('victoryOverlay');
@@ -58,11 +66,49 @@ function showVictory(name) {
 function updateGame() {
     if (!gameActive) return;
     
-    // === ДВИЖЕНИЕ ИГРОКОВ ===
+    // ============================================================
+    // ===== ОБНОВЛЕНИЕ БОНУСОВ =====
+    // ============================================================
+    if (typeof updateBonuses === 'function') {
+        updateBonuses();
+    }
+    
+    // === СБОР БОНУСОВ ===
+    if (typeof bonuses !== 'undefined') {
+        for (let i = 0; i < bonuses.length; i++) {
+            const b = bonuses[i];
+            if (players[0].alive && players[0].x === b.x && players[0].y === b.y) {
+                if (typeof collectBonus === 'function') {
+                    collectBonus(b, players[0]);
+                }
+                bonuses.splice(i, 1);
+                i--;
+            }
+        }
+    }
+    
+    // ============================================================
+    // ===== ПРОВЕРКА ЭФФЕКТОВ БОНУСОВ =====
+    // ============================================================
+    let speedMultiplier = 1;
+    let shieldActive = false;
+    
+    if (typeof bonusEffects !== 'undefined') {
+        if (bonusEffects.speed && bonusEffects.speed.active) {
+            speedMultiplier = 1.5; // ускорение на 50%
+        }
+        if (bonusEffects.shield && bonusEffects.shield.active) {
+            shieldActive = true;
+        }
+    }
+    
+    // ============================================================
+    // ===== ДВИЖЕНИЕ ИГРОКОВ (с ускорением) =====
+    // ============================================================
     for (let p of players) {
         if (!p.alive) continue;
-        p.x += p.dirX;
-        p.y += p.dirY;
+        p.x += p.dirX * speedMultiplier;
+        p.y += p.dirY * speedMultiplier;
         p.trail.push({ x: p.x, y: p.y });
         if (p.trail.length > 15) p.trail.shift();
         if (typeof addParticles === 'function') addParticles(p.x, p.y, p.color);
@@ -75,9 +121,16 @@ function updateGame() {
     
     if (typeof updateParticles === 'function') updateParticles();
     
-    // === ПРОВЕРКА СТОЛКНОВЕНИЙ ===
+    // ============================================================
+    // ===== ПРОВЕРКА СТОЛКНОВЕНИЙ (с учётом щита) =====
+    // ============================================================
     for (let p of players) {
         if (!p.alive) continue;
+        
+        // === ЩИТ (полная неуязвимость) ===
+        if (shieldActive && p === players[0]) {
+            continue; // пропускаем все проверки
+        }
         
         // Границы
         if (p.x < 0 || p.x >= WIDTH || p.y < 0 || p.y >= HEIGHT) {
@@ -176,6 +229,11 @@ function updateGame() {
 // ===== ИНИЦИАЛИЗАЦИЯ ИГРЫ =====
 function initGame() {
     if (typeof resetPlayers === 'function') resetPlayers();
+    
+    // === СБРОС БОНУСОВ ===
+    if (typeof resetBonuses === 'function') {
+        resetBonuses();
+    }
     
     gameActive = false;
     countdownActive = true;
