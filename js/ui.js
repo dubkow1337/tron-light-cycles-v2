@@ -37,7 +37,6 @@ function setupEventListeners() {
     // ===== ГРУППА 1: ПРОТИВНИК =====
     const btn2p = document.getElementById('menuOpponent2p');
     const btnAI = document.getElementById('menuOpponentAI');
-    // Кнопка "ВЫЖИВАНИЕ" убрана из противников (теперь это режим)
     
     if (btn2p) {
         btn2p.addEventListener('click', () => {
@@ -82,7 +81,6 @@ function setupEventListeners() {
             matchMode = 'survival';
             setMenuActive('match', 'menuMatchSurvival');
             tournamentActive = false;
-            // Для выживания противник всегда survival
             opponentType = 'survival';
             showMessage('Режим: ВЫЖИВАНИЕ');
         });
@@ -100,7 +98,6 @@ function setupEventListeners() {
     const playBtn = document.getElementById('menuPlayBtn');
     if (playBtn) {
         playBtn.addEventListener('click', () => {
-            // Скрываем старые бонусы
             if (typeof bonuses !== 'undefined') {
                 bonuses = [];
             }
@@ -127,62 +124,51 @@ function setupEventListeners() {
         });
     }
     
-    // ===== КНОПКА НАЗАД (ПОЛНАЯ ОСТАНОВКА ИГРЫ) =====
+    // ===== КНОПКА НАЗАД (ПОЛНАЯ ОСТАНОВКА) =====
     const backBtn = document.getElementById('backToMenuBtn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
-            // 1. Останавливаем игровой цикл
             if (typeof gameLoop !== 'undefined' && gameLoop) {
                 clearInterval(gameLoop);
                 gameLoop = null;
             }
             
-            // 2. Останавливаем таймер обратного отсчёта
             if (typeof countdownInterval !== 'undefined' && countdownInterval) {
                 clearInterval(countdownInterval);
                 countdownInterval = null;
             }
             
-            // 3. Останавливаем таймер раунда
             if (typeof roundTimerInterval !== 'undefined' && roundTimerInterval) {
                 clearInterval(roundTimerInterval);
                 roundTimerInterval = null;
             }
             
-            // 4. Останавливаем музыку
             if (typeof stopBgMusic === 'function') {
                 stopBgMusic();
             }
             
-            // 5. Сбрасываем состояние игры
             if (typeof gameActive !== 'undefined') gameActive = false;
             paused = false;
             
-            // 6. Очищаем врагов (если есть)
             if (typeof survivalEnemies !== 'undefined') {
                 survivalEnemies = [];
             }
             
-            // 7. Сбрасываем босса
             if (typeof resetBoss === 'function') {
                 resetBoss();
             }
             
-            // 8. Сбрасываем бонусы
             if (typeof resetBonuses === 'function') {
                 resetBonuses();
             }
             
-            // 9. Переключаемся на меню
             showScreen('menuScreen');
             
-            // 10. Обновляем рекорд в меню
             const recordDisplay = document.getElementById('menuRecordDisplay');
             if (recordDisplay && typeof bestRecord !== 'undefined') {
                 recordDisplay.innerText = bestRecord;
             }
             
-            // 11. Очищаем сообщение
             showMessage('Выберите противника и режим матча, затем нажмите ИГРАТЬ');
         });
     }
@@ -191,7 +177,6 @@ function setupEventListeners() {
     const restartBtn = document.getElementById('restartGameBtn');
     if (restartBtn) {
         restartBtn.addEventListener('click', () => {
-            // Сбрасываем таймер раунда
             if (typeof roundTimerInterval !== 'undefined' && roundTimerInterval) {
                 clearInterval(roundTimerInterval);
                 roundTimerInterval = null;
@@ -213,15 +198,11 @@ function setupEventListeners() {
     
     // ===== КЛАВИАТУРА =====
     document.addEventListener('keydown', (e) => {
-        // ESC — пауза (только в обычных режимах)
         if (e.key === 'Escape') {
             const gameScreen = document.getElementById('gameScreen');
             if (gameScreen && gameScreen.classList.contains('active')) {
                 e.preventDefault();
-                if (matchMode === 'race') {
-                    // В гонках ESC не ставит паузу
-                    return;
-                }
+                if (matchMode === 'race') return;
                 if (typeof gameActive !== 'undefined' && gameActive && !countdownActive) {
                     paused = !paused;
                     if (typeof draw === 'function') draw();
@@ -229,11 +210,9 @@ function setupEventListeners() {
             }
         }
         
-        // Управление в обычных режимах (не гонки)
         const gameScreen = document.getElementById('gameScreen');
         if (!gameScreen || !gameScreen.classList.contains('active')) return;
         
-        // Если режим гонок — управление через race.js
         if (matchMode === 'race') {
             if (typeof raceState !== 'undefined' && raceState.active && !raceState.gameOver) {
                 const p = raceState.player;
@@ -245,7 +224,6 @@ function setupEventListeners() {
             return;
         }
         
-        // Обычное управление для 2p, AI, выживание
         if (typeof gameActive === 'undefined' || !gameActive || paused || countdownActive) return;
         
         if (players[0].alive) {
@@ -329,7 +307,6 @@ function updateUI() {
         if (matchMode === 'classic' || matchMode === 'tournament') {
             timerDisplay.style.display = 'inline-block';
             timerDisplay.innerText = roundTimer !== undefined ? roundTimer : 30;
-            // Если осталось 10 секунд или меньше — красный цвет
             if (roundTimer <= 10 && roundTimer > 0) {
                 timerDisplay.style.color = '#ff3333';
                 timerDisplay.style.textShadow = '0 0 20px #ff3333';
