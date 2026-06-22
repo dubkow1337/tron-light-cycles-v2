@@ -113,7 +113,6 @@ function drawFallingLights() {
         ctx.shadowColor = 'rgba(0, 200, 255, 0.3)';
         ctx.fillStyle = '#00ccff';
         ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
-        ctx.fillRect(p.x - p.size/2 - 1, p.y - p.size/2 - 1, p.size + 2, p.size + 2);
     }
     ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
@@ -159,11 +158,11 @@ function drawBackground() {
     ctx.globalAlpha = 1;
 }
 
-// ===== ОТРИСОВКА КРАСИВОЙ СЕТКИ =====
+// ===== ОТРИСОВКА СЕТКИ (ПРАВИЛЬНЫЙ РАЗМЕР) =====
 function drawGrid() {
     const time = Date.now() * 0.001;
     
-    // Основная сетка
+    // Основная сетка - используем WIDTH и HEIGHT из player.js
     ctx.strokeStyle = 'rgba(15, 63, 58, 0.2)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= WIDTH; i++) {
@@ -185,7 +184,7 @@ function drawGrid() {
         ctx.stroke();
     }
     
-    // Акцентные линии (каждые 5 клеток)
+    // Акцентные линии (каждые 5 клеток) - тоже с правильным размером
     ctx.lineWidth = 1.5;
     for (let i = 0; i <= WIDTH; i += 5) {
         const x = i * CELL_SIZE;
@@ -227,7 +226,7 @@ function drawNeonBorder() {
     ctx.lineWidth = 1.5;
     ctx.strokeRect(padding, padding, w - padding * 2, h - padding * 2);
     
-    // Внутренняя рамка (тонкая)
+    // Внутренняя рамка
     ctx.shadowBlur = 40 + 20 * pulse;
     ctx.shadowColor = `rgba(0, 200, 255, ${0.1 + 0.1 * pulse})`;
     ctx.strokeStyle = `rgba(0, 200, 255, ${0.15 + 0.1 * pulse})`;
@@ -467,7 +466,7 @@ function draw() {
     updateFallingLights();
     drawFallingLights();
     
-    // ===== 6. СЕТКА =====
+    // ===== 6. СЕТКА (ПРАВИЛЬНЫЙ РАЗМЕР) =====
     drawGrid();
     
     // ===== 7. НЕОНОВАЯ РАМКА =====
@@ -701,7 +700,8 @@ function startFireworks(color, count = 6) {
         setTimeout(() => {
             fireworkActive = false;
             fireworkParticles = [];
-        }, 5000);
+        }, 3000);
+        
     } catch(e) {
         console.warn('Салют не удался:', e);
     }
@@ -757,4 +757,4 @@ function drawFireworks() {
         ctx.globalAlpha = 1;
         ctx.shadowBlur = 0;
     } catch(e) {}
-        }
+}
