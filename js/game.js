@@ -274,7 +274,7 @@ function updateGame() {
         p.x += p.dirX * speedMultiplier;
         p.y += p.dirY * speedMultiplier;
         p.trail.push({ x: p.x, y: p.y });
-        if (p.trail.length > 15) p.trail.shift();
+        if (p.trail.length > 50) p.trail.shift();
         if (typeof addParticles === 'function') addParticles(p.x, p.y, p.color);
     }
     
