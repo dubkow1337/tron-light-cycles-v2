@@ -16,23 +16,6 @@ const ctx = canvas.getContext('2d');
 const TRAIL_LENGTH = 50;
 const TRAIL_FADE = true;
 
-// ===== ФОНОВОЕ ИЗОБРАЖЕНИЕ (ЗА ПОЛЕМ) =====
-let bgImage = null;
-
-function loadBackground() {
-    const img = new Image();
-    img.src = 'assets/images/tron-bg.webp';
-    img.onload = function() {
-        bgImage = img;
-        console.log('✅ Фоновое изображение загружено');
-    };
-    img.onerror = function() {
-        console.warn('⚠️ Не удалось загрузить фон, используем черный');
-        bgImage = null;
-    };
-}
-loadBackground();
-
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
 function explode(x, y, color) {
@@ -208,32 +191,18 @@ function drawExplosionEffects() {
 function draw() {
     if (!ctx) return;
     
-    // ============================================================
-    // ===== 1. СНАЧАЛА РИСУЕМ ФОН (ЗА ПОЛЕМ) =====
-    // ============================================================
-    if (bgImage) {
-        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-        // Легкое затемнение чтобы было видно игровые элементы
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    } else {
-        ctx.fillStyle = '#03050a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    // ===== ЧИСТЫЙ ТЕМНЫЙ ФОН =====
+    ctx.fillStyle = '#03050a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.shadowBlur = 0;
     
-    // ============================================================
-    // ===== 2. СВЕРХУ РИСУЕМ ИГРОВОЕ ПОЛЕ =====
-    // ============================================================
-    
-    // Салют
+    // ===== САЛЮТ ПОВЕРХ ФОНА =====
     if (typeof drawFireworks === 'function') {
         drawFireworks();
     }
     
-    ctx.shadowBlur = 0;
-    
-    // Сетка (полупрозрачная, чтобы фон просвечивал)
-    ctx.strokeStyle = 'rgba(15, 63, 58, 0.3)';
+    // ===== СЕТКА =====
+    ctx.strokeStyle = '#0f3f3a';
     ctx.lineWidth = 1;
     for (let i = 0; i <= WIDTH; i++) {
         ctx.beginPath();
@@ -534,4 +503,4 @@ function drawFireworks() {
         ctx.globalAlpha = 1;
         ctx.shadowBlur = 0;
     } catch(e) {}
-        }
+}
