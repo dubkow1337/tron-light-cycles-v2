@@ -4,6 +4,11 @@ let particles = [];
 let crashEffect = { active: false, x: 0, y: 0, color: '#ffffff', timer: 0 };
 // boss объявлен в boss.js
 
+// Эффекты взрыва - используем глобальную переменную
+if (typeof window.explosionEffects === 'undefined') {
+    window.explosionEffects = [];
+}
+
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -102,6 +107,91 @@ function drawTrail(trail, color, shadowColor, lineWidth) {
     }
     ctx.globalAlpha = 1;
     ctx.shadowBlur = 0;
+}
+
+// ========== ЭФФЕКТЫ ВЗРЫВА ==========
+function createExplosionEffect(centerX, centerY, radius) {
+    // Используем глобальный массив
+    const effects = window.explosionEffects;
+    
+    // Создаем волну взрыва
+    effects.push({
+        x: centerX * CELL_SIZE + CELL_SIZE / 2,
+        y: centerY * CELL_SIZE + CELL_SIZE / 2,
+        radius: 0,
+        maxRadius: radius * CELL_SIZE,
+        life: 1.0,
+        color: '#ff4400'
+    });
+    
+    // Создаем частицы
+    const count = 60 + Math.floor(Math.random() * 40);
+    for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 8 + 3;
+        const colors = ['#ff4400', '#ff8800', '#ffcc00', '#ff2200', '#ffffff'];
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        particles.push({
+            x: centerX * CELL_SIZE + CELL_SIZE / 2,
+            y: centerY * CELL_SIZE + CELL_SIZE / 2,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            life: 1.0,
+            color: color,
+            size: Math.random() * 6 + 2
+        });
+    }
+}
+
+function updateExplosionEffects() {
+    const effects = window.explosionEffects;
+    for (let i = effects.length - 1; i >= 0; i--) {
+        const e = effects[i];
+        e.radius += 2; // Скорость расширения
+        e.life -= 0.02;
+        
+        if (e.life <= 0 || e.radius >= e.maxRadius) {
+            effects.splice(i, 1);
+        }
+    }
+}
+
+function drawExplosionEffects() {
+    const effects = window.explosionEffects;
+    for (let e of effects) {
+        ctx.save();
+        ctx.globalAlpha = e.life * 0.6;
+        
+        // Внешнее свечение
+        ctx.shadowBlur = 40;
+        ctx.shadowColor = e.color;
+        ctx.strokeStyle = e.color;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Внутреннее свечение
+        ctx.shadowBlur = 60;
+        ctx.shadowColor = '#ff8800';
+        ctx.strokeStyle = '#ff8800';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, e.radius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Яркая точка в центре
+        if (e.radius < e.maxRadius * 0.3) {
+            ctx.shadowBlur = 80;
+            ctx.shadowColor = '#ffffff';
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(e.x, e.y, 4 * (1 - e.radius / (e.maxRadius * 0.3)), 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        ctx.restore();
+    }
 }
 
 function draw() {
@@ -224,6 +314,13 @@ function draw() {
     
     // ===== ЧАСТИЦЫ =====
     drawParticles();
+    
+    // ============================================================
+    // ===== ЭФФЕКТЫ ВЗРЫВА =====
+    // ============================================================
+    if (typeof drawExplosionEffects === 'function') {
+        drawExplosionEffects();
+    }
     
     // ===== ЭФФЕКТ СТОЛКНОВЕНИЯ =====
     if (crashEffect.active) {
