@@ -15,6 +15,16 @@ let roundTimer = 30;
 let roundTimerInterval = null;
 let roundTimerActive = false;
 
+// ===== ЗАДЕРЖКА МЕЖДУ РАУНДАМИ =====
+let roundDelayTimer = null;
+let roundDelayActive = false;
+const ROUND_DELAY = 2500; // 2.5 секунды задержки
+
+// ===== ОТСРОЧКА ПОБЕДЫ =====
+let victoryPending = false;
+let victoryPendingTimer = null;
+let victoryFreezeTimer = null;
+
 // ============================================================
 // ===== БОНУСЫ (флаги для быстрого доступа) =====
 // ============================================================
@@ -27,6 +37,47 @@ let cloneActive = false;
 let cloneTrail = [];
 
 // cloneData объявлен в bonuses.js — используем его для позиции
+
+// ===== ЗАДЕРЖКА МЕЖДУ РАУНДАМИ =====
+function startRoundDelay(callback) {
+    // Отменяем предыдущую задержку если была
+    if (roundDelayTimer) {
+        clearTimeout(roundDelayTimer);
+        roundDelayTimer = null;
+    }
+    
+    roundDelayActive = true;
+    
+    // Показываем таймер задержки на экране
+    let remaining = Math.ceil(ROUND_DELAY / 1000);
+    showMessage(`⏳ Следующий раунд через ${remaining}...`);
+    
+    // Обновляем таймер каждую секунду
+    const timerInterval = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+            showMessage(`⏳ Следующий раунд через ${remaining}...`);
+        } else {
+            clearInterval(timerInterval);
+        }
+    }, 1000);
+    
+    // Запускаем задержку
+    roundDelayTimer = setTimeout(() => {
+        roundDelayActive = false;
+        clearInterval(timerInterval);
+        showMessage('');
+        if (callback) callback();
+    }, ROUND_DELAY);
+}
+
+function cancelRoundDelay() {
+    if (roundDelayTimer) {
+        clearTimeout(roundDelayTimer);
+        roundDelayTimer = null;
+    }
+    roundDelayActive = false;
+}
 
 // ===== ПОБЕДА =====
 function showVictory(name) {
@@ -43,33 +94,133 @@ function showVictory(name) {
         startFireworks(color, 6);
     }
     
-    // === ТУРНИР ===
-    if (matchMode === 'tournament') {
-        if (name === 'Синий') tournamentScore[0]++;
-        else if (name === 'Оранжевый') tournamentScore[1]++;
-        updateUI();
-        
-        if (tournamentScore[0] >= tournamentTarget || tournamentScore[1] >= tournamentTarget) {
-            let finalWinner = tournamentScore[0] >= tournamentTarget ? 'Синий' : 'Оранжевый';
-            showMessage(`🏆 ТУРНИР ВЫИГРАЛ ${finalWinner.toUpperCase()}! 🏆`);
-            tournamentScore = [0, 0];
-            tournamentActive = false;
-            return;
-        }
-        resetGame();
-        showMessage(`Счёт турнира: ${tournamentScore[0]} : ${tournamentScore[1]} (до ${tournamentTarget})`);
-        return;
-    }
-    
     // Голос победы
     if (typeof speakVictory === 'function') {
         speakVictory(`${name} победил!`);
     }
 }
 
+// ===== ПРОВЕРКА ПОБЕДЫ С ЗАДЕРЖКОЙ =====
+function checkVictoryWithDelay() {
+    // Если уже есть ожидающая победа - не проверяем
+    if (victoryPending) return;
+    
+    const alivePlayers = players.filter(p => p.alive);
+    
+    // Если остался 1 игрок
+    if (alivePlayers.length === 1) {
+        victoryPending = true;
+        let winnerIdx = players.findIndex(p => p.alive);
+        let winnerName = players[winnerIdx].name;
+        
+        // Увеличиваем счет сразу
+        players[winnerIdx].score++;
+        
+        // Обновляем турнирный счет
+        if (matchMode === 'tournament') {
+            if (winnerName === 'Синий') tournamentScore[0]++;
+            else if (winnerName === 'Оранжевый') tournamentScore[1]++;
+        }
+        
+        // Останавливаем таймер
+        if (roundTimerInterval) {
+            clearInterval(roundTimerInterval);
+            roundTimerInterval = null;
+        }
+        roundTimerActive = false;
+        gameActive = false;
+        
+        // Останавливаем музыку
+        if (typeof stopBgMusic === 'function') stopBgMusic();
+        
+        // Обновляем UI
+        updateUI();
+        if (typeof draw === 'function') draw();
+        
+        // ===== ЗАДЕРЖКА 3 СЕКУНДЫ - ДАЕМ ВЗРЫВУ ДОИГРАТЬ =====
+        showMessage(`🏆 ${winnerName} победил! Эффекты доигрывают...`);
+        
+        victoryPendingTimer = setTimeout(() => {
+            victoryPending = false;
+            victoryPendingTimer = null;
+            
+            // Скрываем сообщение
+            showMessage('');
+            
+            // Теперь показываем полноценное табло
+            showVictory(winnerName);
+            
+            // === ТУРНИР ===
+            if (matchMode === 'tournament') {
+                // Проверяем, достиг ли кто-то цели
+                if (tournamentScore[0] >= tournamentTarget || tournamentScore[1] >= tournamentTarget) {
+                    let finalWinner = tournamentScore[0] >= tournamentTarget ? 'Синий' : 'Оранжевый';
+                    showMessage(`🏆 ТУРНИР ВЫИГРАЛ ${finalWinner.toUpperCase()}! 🏆`);
+                    // Сбрасываем турнирный счет только после окончания турнира
+                    tournamentScore = [0, 0];
+                    tournamentActive = false;
+                    // Задержка перед возвратом в меню
+                    setTimeout(() => {
+                        showScreen('menuScreen');
+                    }, 3000);
+                    return;
+                }
+                
+                // Сохраняем счет перед рестартом
+                const savedScore = [...tournamentScore];
+                startRoundDelay(() => {
+                    resetGame();
+                    // Восстанавливаем счет после рестарта
+                    tournamentScore = savedScore;
+                    updateUI();
+                    showMessage(`Счёт турнира: ${tournamentScore[0]} : ${tournamentScore[1]} (до ${tournamentTarget})`);
+                });
+            } else {
+                // Классика
+                startRoundDelay(() => {
+                    resetGame();
+                    showMessage('Новый раунд!');
+                });
+            }
+        }, 3000);
+    }
+    
+    // Если все умерли - ничья
+    if (alivePlayers.length === 0) {
+        gameActive = false;
+        if (roundTimerInterval) {
+            clearInterval(roundTimerInterval);
+            roundTimerInterval = null;
+        }
+        roundTimerActive = false;
+        showMessage('🤝 Ничья!');
+        if (typeof stopBgMusic === 'function') stopBgMusic();
+        if (typeof draw === 'function') draw();
+        
+        setTimeout(() => {
+            resetGame();
+        }, 2000);
+    }
+}
+
 // ===== ОСНОВНОЙ ИГРОВОЙ ЦИКЛ =====
 function updateGame() {
-    if (!gameActive) return;
+    // Если игра не активна, но есть ожидающая победа - продолжаем обновлять эффекты
+    if (!gameActive && !victoryPending) return;
+    
+    // ============================================================
+    // ===== ОБНОВЛЕНИЕ ЭФФЕКТОВ ВЗРЫВА (ВСЕГДА) =====
+    // ============================================================
+    if (typeof updateExplosionEffects === 'function') {
+        updateExplosionEffects();
+    }
+    
+    // Если игра не активна - только эффекты, больше ничего не делаем
+    if (!gameActive) {
+        if (typeof updateParticles === 'function') updateParticles();
+        if (typeof draw === 'function') draw();
+        return;
+    }
     
     // ============================================================
     // ===== ОБНОВЛЕНИЕ БОНУСОВ =====
@@ -131,22 +282,18 @@ function updateGame() {
     // ===== КЛОН: ДВИЖЕНИЕ И СЛЕД =====
     // ============================================================
     if (cloneActive && players[0].alive) {
-        // Клон едет рядом с игроком (смещение на 2 клетки вправо)
         const cloneX = players[0].x + 2;
         const cloneY = players[0].y;
         
-        // Добавляем след клона
         cloneTrail.push({ x: Math.round(cloneX), y: Math.round(cloneY) });
         if (cloneTrail.length > 30) cloneTrail.shift();
         
-        // Сохраняем позицию клона для отрисовки
         if (cloneData) {
             cloneData.active = true;
             cloneData.offsetX = 2;
             cloneData.offsetY = 0;
         }
     } else {
-        // Если клон не активен — очищаем след
         cloneTrail = [];
         if (cloneData) {
             cloneData.active = false;
@@ -167,12 +314,10 @@ function updateGame() {
     for (let p of players) {
         if (!p.alive) continue;
         
-        // === ЩИТ (полная неуязвимость) ===
         if (shieldActive && p === players[0]) {
             continue;
         }
         
-        // Границы
         if (p.x < 0 || p.x >= WIDTH || p.y < 0 || p.y >= HEIGHT) {
             p.alive = false;
             crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
@@ -180,7 +325,6 @@ function updateGame() {
             continue;
         }
         
-        // Свой след
         for (let i = 0; i < p.trail.length - 2; i++) {
             if (p.trail[i].x === p.x && p.trail[i].y === p.y) {
                 p.alive = false;
@@ -191,9 +335,6 @@ function updateGame() {
         }
         if (!p.alive) continue;
         
-        // ============================================================
-        // ===== СЛЕДЫ ДРУГИХ ИГРОКОВ =====
-        // ============================================================
         for (let other of players) {
             if (other === p) continue;
             for (let i = 0; i < other.trail.length - 1; i++) {
@@ -215,11 +356,7 @@ function updateGame() {
         }
         if (!p.alive) continue;
         
-        // ============================================================
-        // ===== СЛЕД КЛОНА (ОПАСЕН ТОЛЬКО ДЛЯ БОТА) =====
-        // ============================================================
         if (cloneTrail.length > 1) {
-            // Проверяем только бота
             if (p === players[1] && opponentType === 'ai') {
                 for (let i = 0; i < cloneTrail.length - 1; i++) {
                     const seg = cloneTrail[i];
@@ -239,11 +376,9 @@ function updateGame() {
                     }
                 }
             }
-            // Игрок НЕ умирает от следа клона (убрали else)
         }
         if (!p.alive) continue;
         
-        // === СЛЕДЫ ВРАГОВ (ВЫЖИВАНИЕ) ===
         if (typeof survivalEnemies !== 'undefined') {
             for (let e of survivalEnemies) {
                 if (!e.alive) continue;
@@ -266,7 +401,6 @@ function updateGame() {
             }
         }
         
-        // === БОСС ===
         if (!p.alive) continue;
         if (typeof boss !== 'undefined' && boss && boss.alive) {
             for (let dx = 0; dx < boss.size; dx++) {
@@ -298,40 +432,16 @@ function updateGame() {
             if (typeof stopBgMusic === 'function') stopBgMusic();
             updateUI();
             if (typeof draw === 'function') draw();
+            
+            setTimeout(() => {
+                resetGame();
+            }, 2000);
             return;
         }
     }
     
     // === ОПРЕДЕЛЕНИЕ ПОБЕДИТЕЛЯ ===
-    const alivePlayers = players.filter(p => p.alive);
-    if (alivePlayers.length === 1) {
-        let winnerIdx = players.findIndex(p => p.alive);
-        players[winnerIdx].score++;
-        gameActive = false;
-        if (roundTimerInterval) {
-            clearInterval(roundTimerInterval);
-            roundTimerInterval = null;
-        }
-        roundTimerActive = false;
-        showVictory(players[winnerIdx].name);
-        updateUI();
-        if (typeof draw === 'function') draw();
-        showMessage(`${players[winnerIdx].name} победил! Нажмите ИГРАТЬ`);
-        if (typeof stopBgMusic === 'function') stopBgMusic();
-        return;
-    }
-    
-    if (alivePlayers.length === 0) {
-        gameActive = false;
-        if (roundTimerInterval) {
-            clearInterval(roundTimerInterval);
-            roundTimerInterval = null;
-        }
-        roundTimerActive = false;
-        showMessage('Ничья!');
-        if (typeof stopBgMusic === 'function') stopBgMusic();
-        return;
-    }
+    checkVictoryWithDelay();
     
     currentSteps++;
     updateUI();
@@ -342,7 +452,6 @@ function updateGame() {
 function initGame() {
     if (typeof resetPlayers === 'function') resetPlayers();
     
-    // === СБРОС БОНУСОВ ===
     if (typeof resetBonuses === 'function') {
         resetBonuses();
     }
@@ -354,7 +463,6 @@ function initGame() {
     particles = [];
     currentSteps = 0;
     
-    // === СБРОС КЛОНА ===
     cloneTrail = [];
     cloneActive = false;
     if (typeof cloneData !== 'undefined' && cloneData) {
@@ -362,13 +470,19 @@ function initGame() {
         cloneData.trail = [];
     }
     
-    // === СБРОС ТАЙМЕРА РАУНДА ===
     roundTimer = 30;
     roundTimerActive = false;
     if (roundTimerInterval) {
         clearInterval(roundTimerInterval);
         roundTimerInterval = null;
     }
+    
+    // Сброс состояния победы
+    if (victoryPendingTimer) {
+        clearTimeout(victoryPendingTimer);
+        victoryPendingTimer = null;
+    }
+    victoryPending = false;
     
     updateUI();
     if (typeof draw === 'function') draw();
@@ -404,7 +518,6 @@ function initGame() {
             countdownActive = false;
             paused = false;
             
-            // === ЗАПУСК ТАЙМЕРА РАУНДА ===
             if (matchMode === 'classic' || matchMode === 'tournament') {
                 roundTimer = 30;
                 roundTimerActive = true;
@@ -422,7 +535,14 @@ function initGame() {
             if (typeof playBgMusic === 'function') playBgMusic();
             if (gameLoop) clearInterval(gameLoop);
             gameLoop = setInterval(() => {
-                if (paused || !gameActive) return;
+                if (paused || !gameActive) {
+                    if (typeof updateExplosionEffects === 'function') {
+                        updateExplosionEffects();
+                    }
+                    if (typeof updateParticles === 'function') updateParticles();
+                    if (typeof draw === 'function') draw();
+                    return;
+                }
                 updateGame();
             }, MOVE_INTERVAL);
         }
@@ -430,6 +550,16 @@ function initGame() {
 }
 
 function resetGame() {
+    // Отменяем ожидающую победу
+    if (victoryPendingTimer) {
+        clearTimeout(victoryPendingTimer);
+        victoryPendingTimer = null;
+    }
+    victoryPending = false;
+    
+    // Отменяем задержку между раундами
+    cancelRoundDelay();
+    
     if (gameLoop) clearInterval(gameLoop);
     gameLoop = null;
     paused = false;
@@ -438,12 +568,12 @@ function resetGame() {
         roundTimerInterval = null;
     }
     roundTimerActive = false;
-    // Сбрасываем клона
     cloneTrail = [];
     cloneActive = false;
     if (typeof cloneData !== 'undefined' && cloneData) {
         cloneData.active = false;
         cloneData.trail = [];
     }
+    // Эффекты взрыва НЕ сбрасываем
     initGame();
-                }
+}
