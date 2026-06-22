@@ -80,7 +80,7 @@ function showVictory(name) {
     if (overlay) {
         overlay.innerText = `${name.toUpperCase()} ПОБЕДИЛ!`;
         overlay.classList.add('show');
-        setTimeout(() => overlay.classList.remove('show'), 2000);
+        setTimeout(() => overlay.classList.remove('show'), 4000);
     }
     
     if (typeof startFireworks === 'function') {
