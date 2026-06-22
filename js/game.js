@@ -75,21 +75,76 @@ function cancelRoundDelay() {
 }
 
 // ===== ПОБЕДА =====
-function showVictory(name) {
+function showVictory(name, isTournamentFinal = false) {
     const overlay = document.getElementById('victoryOverlay');
     if (overlay) {
-        overlay.innerText = `${name.toUpperCase()} ПОБЕДИЛ!`;
-        overlay.classList.add('show');
-        setTimeout(() => overlay.classList.remove('show'), 4000);
-    }
-    
-    if (typeof startFireworks === 'function') {
-        const color = name === 'Синий' ? '#00ffff' : '#ffaa00';
-        startFireworks(color, 6);
-    }
-    
-    if (typeof speakVictory === 'function') {
-        speakVictory(`${name} победил!`);
+        // ===== ТУРНИРНЫЙ ФИНАЛ =====
+        if (isTournamentFinal) {
+            overlay.innerText = `🏆 ${name.toUpperCase()} ВЫИГРАЛ ТУРНИР! 🏆`;
+            overlay.style.fontSize = 'clamp(32px, 5vw, 56px)';
+            overlay.style.borderColor = '#ffd700';
+            overlay.style.boxShadow = '0 0 80px rgba(255, 215, 0, 0.4), inset 0 0 80px rgba(255, 215, 0, 0.1)';
+            overlay.style.textShadow = '0 0 40px #ffd700, 0 0 80px #ff8800, 0 0 120px #ff4400';
+            overlay.classList.add('show');
+            overlay.classList.add('tournament');
+            
+            // ===== МЕГА-САЛЮТ (в 3 раза больше) =====
+            if (typeof startFireworks === 'function') {
+                const color = name === 'Синий' ? '#00ffff' : '#ffaa00';
+                // Тройной салют
+                setTimeout(() => startFireworks(color, 12), 0);
+                setTimeout(() => startFireworks('#ffd700', 8), 500);
+                setTimeout(() => startFireworks('#ff4400', 8), 1000);
+                setTimeout(() => startFireworks(color, 10), 1500);
+            }
+            
+            // ===== ЗВУК ПОБЕДЫ В ТУРНИРЕ =====
+            if (typeof playTournamentWinSound === 'function') {
+                playTournamentWinSound();
+            }
+            
+            // ===== Голос =====
+            if (typeof speakVictory === 'function') {
+                speakVictory(`${name} выиграл турнир! Поздравляем!`);
+            }
+            
+            // ===== Показываем финальный счет =====
+            showMessage(`🏆 ФИНАЛЬНЫЙ СЧЁТ: ${tournamentScore[0]} : ${tournamentScore[1]}`);
+            
+            // ===== Задержка 6 секунд и выход в меню =====
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                overlay.classList.remove('tournament');
+                overlay.style.fontSize = '';
+                overlay.style.borderColor = '';
+                overlay.style.boxShadow = '';
+                overlay.style.textShadow = '';
+                showScreen('menuScreen');
+            }, 6000);
+            
+        } else {
+            // ===== ОБЫЧНАЯ ПОБЕДА (раунд) =====
+            overlay.innerText = `${name.toUpperCase()} ПОБЕДИЛ!`;
+            overlay.style.fontSize = '';
+            overlay.style.borderColor = '';
+            overlay.style.boxShadow = '';
+            overlay.style.textShadow = '';
+            overlay.classList.remove('tournament');
+            overlay.classList.add('show');
+            
+            // Обычный салют
+            if (typeof startFireworks === 'function') {
+                const color = name === 'Синий' ? '#00ffff' : '#ffaa00';
+                startFireworks(color, 6);
+            }
+            
+            // Голос
+            if (typeof speakVictory === 'function') {
+                speakVictory(`${name} победил!`);
+            }
+            
+            setTimeout(() => overlay.classList.remove('show'), 4000);
+        }
     }
 }
 
@@ -131,21 +186,21 @@ function checkVictoryWithDelay() {
             
             showMessage('');
             
-            showVictory(winnerName);
+            // ===== ПРОВЕРКА: ЭТО ФИНАЛ ТУРНИРА? =====
+            const isTournamentFinal = matchMode === 'tournament' && 
+                (tournamentScore[0] >= tournamentTarget || tournamentScore[1] >= tournamentTarget);
             
-            if (matchMode === 'tournament') {
-                if (tournamentScore[0] >= tournamentTarget || tournamentScore[1] >= tournamentTarget) {
-                    let finalWinner = tournamentScore[0] >= tournamentTarget ? 'Синий' : 'Оранжевый';
-                    showMessage(`🏆 ТУРНИР ВЫИГРАЛ ${finalWinner.toUpperCase()}! 🏆`);
-                    tournamentScore = [0, 0];
-                    tournamentActive = false;
-                    setTimeout(() => {
-                        showScreen('menuScreen');
-                    }, 3000);
-                    return;
-                }
-                
+            // ===== ПОКАЗЫВАЕМ ПОБЕДУ =====
+            if (isTournamentFinal) {
+                // Финальная победа в турнире
+                showVictory(winnerName, true);
+                // Сбрасываем турнирный счет
+                tournamentScore = [0, 0];
+                tournamentActive = false;
+            } else if (matchMode === 'tournament') {
+                // Обычная победа в турнире (не финал)
                 const savedScore = [...tournamentScore];
+                showVictory(winnerName, false);
                 startRoundDelay(() => {
                     resetGame();
                     tournamentScore = savedScore;
@@ -153,6 +208,8 @@ function checkVictoryWithDelay() {
                     showMessage(`Счёт турнира: ${tournamentScore[0]} : ${tournamentScore[1]} (до ${tournamentTarget})`);
                 });
             } else {
+                // Классика
+                showVictory(winnerName, false);
                 startRoundDelay(() => {
                     resetGame();
                     showMessage('Новый раунд!');
@@ -240,22 +297,20 @@ function updateGame() {
     }
     
     // ============================================================
-    // ===== КЛОН: ДВИЖЕНИЕ И СЛЕД (ИСПРАВЛЕНО) =====
+    // ===== КЛОН: ДВИЖЕНИЕ И СЛЕД =====
     // ============================================================
     if (cloneActive && players[0].alive) {
         const cloneX = players[0].x + 2;
         const cloneY = players[0].y;
         
-        // Добавляем след клона
         cloneTrail.push({ x: Math.round(cloneX), y: Math.round(cloneY) });
         if (cloneTrail.length > 50) cloneTrail.shift();
         
-        // ОБНОВЛЯЕМ cloneData.trail ДЛЯ ОТРИСОВКИ
         if (cloneData) {
             cloneData.active = true;
             cloneData.offsetX = 2;
             cloneData.offsetY = 0;
-            cloneData.trail = cloneTrail; // <--- КЛЮЧЕВАЯ СТРОКА!
+            cloneData.trail = cloneTrail;
         }
     } else {
         cloneTrail = [];
@@ -317,7 +372,6 @@ function updateGame() {
         }
         if (!p.alive) continue;
         
-        // ===== СЛЕД КЛОНА (ОПАСЕН ДЛЯ БОТА) =====
         if (cloneTrail.length > 1) {
             if (p === players[1] && opponentType === 'ai') {
                 for (let i = 0; i < cloneTrail.length - 1; i++) {
@@ -532,4 +586,4 @@ function resetGame() {
         cloneData.trail = [];
     }
     initGame();
-}
+            }
