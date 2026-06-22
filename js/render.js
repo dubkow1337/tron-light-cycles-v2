@@ -13,7 +13,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // Единые настройки следа
-const TRAIL_LENGTH = 30;
+const TRAIL_LENGTH = 50;
 const TRAIL_FADE = true;
 
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
