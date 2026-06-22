@@ -16,7 +16,7 @@ const ctx = canvas.getContext('2d');
 const TRAIL_LENGTH = 50;
 const TRAIL_FADE = true;
 
-// ===== ФОНОВОЕ ИЗОБРАЖЕНИЕ =====
+// ===== ФОНОВОЕ ИЗОБРАЖЕНИЕ (ЗА ПОЛЕМ) =====
 let bgImage = null;
 
 function loadBackground() {
@@ -136,8 +136,7 @@ function createExplosionEffect(centerX, centerY, radius) {
         radius: 0,
         maxRadius: radius * CELL_SIZE,
         life: 1.0,
-        color: '#ff4400',
-        persistent: true
+        color: '#ff4400'
     });
     
     const count = 60 + Math.floor(Math.random() * 40);
@@ -153,8 +152,7 @@ function createExplosionEffect(centerX, centerY, radius) {
             vy: Math.sin(angle) * speed,
             life: 1.0,
             color: color,
-            size: Math.random() * 6 + 2,
-            persistent: true
+            size: Math.random() * 6 + 2
         });
     }
 }
@@ -210,25 +208,31 @@ function drawExplosionEffects() {
 function draw() {
     if (!ctx) return;
     
+    // ============================================================
+    // ===== 1. СНАЧАЛА РИСУЕМ ФОН (ЗА ПОЛЕМ) =====
+    // ============================================================
+    if (bgImage) {
+        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+        // Легкое затемнение чтобы было видно игровые элементы
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+        ctx.fillStyle = '#03050a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    
+    // ============================================================
+    // ===== 2. СВЕРХУ РИСУЕМ ИГРОВОЕ ПОЛЕ =====
+    // ============================================================
+    
+    // Салют
     if (typeof drawFireworks === 'function') {
         drawFireworks();
     }
     
-    // ===== РИСУЕМ ФОН =====
-    if (bgImage) {
-        // Растягиваем изображение на весь канвас
-        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-        // Затемнение для лучшей видимости игровых элементов
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    } else {
-        // Запасной вариант — черный фон
-        ctx.fillStyle = '#03050a';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
     ctx.shadowBlur = 0;
     
-    // Сетка
+    // Сетка (полупрозрачная, чтобы фон просвечивал)
     ctx.strokeStyle = 'rgba(15, 63, 58, 0.3)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= WIDTH; i++) {
@@ -242,16 +246,19 @@ function draw() {
         ctx.stroke();
     }
     
+    // ===== СЛЕДЫ ИГРОКОВ =====
     if (typeof players !== 'undefined') {
         for (let p of players) {
             drawTrail(p.trail, p.trailColor, p.trailColor, 3);
         }
     }
     
+    // ===== СЛЕД КЛОНА =====
     if (typeof cloneData !== 'undefined' && cloneData && cloneData.active && cloneData.trail && cloneData.trail.length > 1) {
         drawTrail(cloneData.trail, '#ff44ff', '#ff44ff', 3);
     }
     
+    // ===== СЛЕДЫ ВРАГОВ =====
     if (typeof survivalEnemies !== 'undefined') {
         for (let e of survivalEnemies) {
             drawTrail(e.trail, e.trailColor, e.trailColor, 3);
@@ -278,6 +285,7 @@ function draw() {
         }
     }
     
+    // ===== БОСС =====
     if (typeof boss !== 'undefined' && boss && boss.alive) {
         drawTrail(boss.trail, boss.trailColor || '#ff2200', boss.trailColor || '#ff2200', 5);
         const size = boss.size || 3;
@@ -314,20 +322,25 @@ function draw() {
         }
     }
     
+    // ===== БОНУСЫ =====
     if (typeof drawBonuses === 'function') {
         drawBonuses();
     }
     
+    // ===== ИНДИКАТОРЫ БОНУСОВ =====
     if (typeof drawBonusIndicators === 'function') {
         drawBonusIndicators();
     }
     
+    // ===== ЧАСТИЦЫ =====
     drawParticles();
     
+    // ===== ЭФФЕКТЫ ВЗРЫВА =====
     if (typeof drawExplosionEffects === 'function') {
         drawExplosionEffects();
     }
     
+    // ===== ЭФФЕКТ СТОЛКНОВЕНИЯ =====
     if (crashEffect.active) {
         ctx.shadowBlur = 15;
         ctx.shadowColor = '#ffffff';
@@ -337,6 +350,7 @@ function draw() {
         if (crashEffect.timer <= 0) crashEffect.active = false;
     }
     
+    // ===== МОТОЦИКЛ ИГРОКА =====
     if (typeof players !== 'undefined') {
         for (let p of players) {
             if (p.alive) {
@@ -370,6 +384,7 @@ function draw() {
         }
     }
     
+    // ===== КЛОН =====
     if (typeof cloneData !== 'undefined' && cloneData && cloneData.active && players[0] && players[0].alive) {
         const cloneX = players[0].x + (cloneData.offsetX || 2);
         const cloneY = players[0].y + (cloneData.offsetY || 0);
@@ -409,6 +424,7 @@ function draw() {
         }
     }
     
+    // ===== ОБРАТНЫЙ ОТСЧЁТ =====
     if (typeof countdownActive !== 'undefined' && countdownActive) {
         ctx.font = 'bold 64px "Courier New"';
         ctx.shadowBlur = 20;
@@ -426,6 +442,7 @@ function draw() {
         }
     }
     
+    // ===== ПАУЗА =====
     if (paused && gameActive && !countdownActive) {
         ctx.font = 'bold 36px "Courier New"';
         ctx.shadowBlur = 10;
@@ -517,4 +534,4 @@ function drawFireworks() {
         ctx.globalAlpha = 1;
         ctx.shadowBlur = 0;
     } catch(e) {}
-}
+        }
