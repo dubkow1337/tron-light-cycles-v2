@@ -21,9 +21,10 @@ let cloneData = {
     trail: []
 };
 
-// ===== ОТДЕЛЬНАЯ СИСТЕМА ЭФФЕКТОВ ВЗРЫВА (НЕ ЗАВИСИТ ОТ ИГРЫ) =====
-// Используем window для глобального доступа
-window.explosionEffects = window.explosionEffects || [];
+// Эффекты взрыва (глобальный массив)
+if (typeof window.explosionEffects === 'undefined') {
+    window.explosionEffects = [];
+}
 
 const BONUS_TYPES = {
     speed: {
@@ -60,11 +61,7 @@ const BONUS_TYPES = {
             cloneData.active = true;
             cloneData.offsetX = 2;
             cloneData.offsetY = 0;
-            cloneData.trail = [];
-            
-            if (players[0] && players[0].trail) {
-                cloneData.trail = [...players[0].trail];
-            }
+            // НЕ ОБНУЛЯЕМ trail ЗДЕСЬ — он будет обновляться в game.js
             
             showMessage('🌀 КЛОН АКТИВИРОВАН! (3 сек)');
         }
@@ -91,7 +88,7 @@ function triggerExplosion(player) {
     const centerX = player.x;
     const centerY = player.y;
     
-    // ===== СОЗДАЕМ ЭФФЕКТ ВЗРЫВА (НЕЗАВИСИМО ОТ ИГРЫ) =====
+    // Создаем эффект взрыва
     createExplosionEffect(centerX, centerY, radius);
     
     // Звук взрыва
@@ -124,7 +121,6 @@ function triggerExplosion(player) {
                 players[1].score++;
             }
             
-            // Маленький эффект на месте врага
             createExplosionEffect(p.x, p.y, 2);
         }
     }
@@ -204,7 +200,6 @@ function triggerExplosion(player) {
         showMessage('💥 ВЗРЫВ НЕ ЗАДЕЛ ВРАГОВ!');
     }
     
-    // Проверяем победу
     const alivePlayers = players.filter(p => p.alive);
     if (alivePlayers.length === 1 && destroyedCount > 0) {
         let winnerIdx = players.findIndex(p => p.alive);
@@ -217,22 +212,20 @@ function triggerExplosion(player) {
     }
 }
 
-// ===== ЭФФЕКТЫ ВЗРЫВА (ПОЛНОСТЬЮ САМОСТОЯТЕЛЬНАЯ СИСТЕМА) =====
+// ===== ЭФФЕКТЫ ВЗРЫВА =====
 function createExplosionEffect(centerX, centerY, radius) {
-    // Создаем волну взрыва в глобальном массиве
-    window.explosionEffects.push({
+    const effects = window.explosionEffects;
+    
+    effects.push({
         x: centerX * CELL_SIZE + CELL_SIZE / 2,
         y: centerY * CELL_SIZE + CELL_SIZE / 2,
         radius: 0,
         maxRadius: radius * CELL_SIZE,
         life: 1.0,
         color: '#ff4400',
-        // Флаг, что эффект должен жить ДО КОНЦА анимации
-        // даже если игра перезапустится
         persistent: true
     });
     
-    // Создаем частицы (тоже в глобальном массиве particles)
     const count = 60 + Math.floor(Math.random() * 40);
     for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -248,31 +241,31 @@ function createExplosionEffect(centerX, centerY, radius) {
                 life: 1.0,
                 color: color,
                 size: Math.random() * 6 + 2,
-                persistent: true // Частицы тоже живут до конца
+                persistent: true
             });
         }
     }
 }
 
-// Обновление эффектов взрыва (вызывается из game.js)
 function updateExplosionEffects() {
-    for (let i = window.explosionEffects.length - 1; i >= 0; i--) {
-        const e = window.explosionEffects[i];
+    const effects = window.explosionEffects;
+    for (let i = effects.length - 1; i >= 0; i--) {
+        const e = effects[i];
         e.radius += 2;
         e.life -= 0.02;
         
         if (e.life <= 0 || e.radius >= e.maxRadius) {
-            window.explosionEffects.splice(i, 1);
+            effects.splice(i, 1);
         }
     }
 }
 
 function drawExplosionEffects() {
-    for (let e of window.explosionEffects) {
+    const effects = window.explosionEffects;
+    for (let e of effects) {
         ctx.save();
         ctx.globalAlpha = e.life * 0.6;
         
-        // Внешнее свечение
         ctx.shadowBlur = 40;
         ctx.shadowColor = e.color;
         ctx.strokeStyle = e.color;
@@ -281,7 +274,6 @@ function drawExplosionEffects() {
         ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
         ctx.stroke();
         
-        // Внутреннее свечение
         ctx.shadowBlur = 60;
         ctx.shadowColor = '#ff8800';
         ctx.strokeStyle = '#ff8800';
@@ -290,7 +282,6 @@ function drawExplosionEffects() {
         ctx.arc(e.x, e.y, e.radius * 0.7, 0, Math.PI * 2);
         ctx.stroke();
         
-        // Яркая точка в центре
         if (e.radius < e.maxRadius * 0.3) {
             ctx.shadowBlur = 80;
             ctx.shadowColor = '#ffffff';
@@ -304,7 +295,6 @@ function drawExplosionEffects() {
     }
 }
 
-// ===== ОСТАЛЬНЫЕ ФУНКЦИИ =====
 function spawnBonus() {
     if (bonuses.length >= MAX_BONUSES) return;
     if (typeof players === 'undefined' || !players[0] || !players[0].alive) return;
@@ -392,7 +382,6 @@ function updateBonuses() {
         }
     }
     
-    // Обновляем эффекты взрыва
     if (typeof updateExplosionEffects === 'function') {
         updateExplosionEffects();
     }
@@ -435,7 +424,6 @@ function drawBonuses() {
         ctx.fillText(b.symbol, x + size/2, y + size/2 + 1);
     }
     
-    // Отрисовываем эффекты взрыва
     if (typeof drawExplosionEffects === 'function') {
         drawExplosionEffects();
     }
@@ -483,5 +471,5 @@ function resetBonuses() {
     }
     cloneData.active = false;
     cloneData.trail = [];
-    // НЕ ТРОГАЕМ window.explosionEffects - они живут своей жизнью!
+    // НЕ ТРОГАЕМ window.explosionEffects
 }
