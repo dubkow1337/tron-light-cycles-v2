@@ -16,6 +16,23 @@ const ctx = canvas.getContext('2d');
 const TRAIL_LENGTH = 50;
 const TRAIL_FADE = true;
 
+// ===== ФОНОВОЕ ИЗОБРАЖЕНИЕ =====
+let bgImage = null;
+
+function loadBackground() {
+    const img = new Image();
+    img.src = 'assets/images/tron-bg.webp';
+    img.onload = function() {
+        bgImage = img;
+        console.log('✅ Фоновое изображение загружено');
+    };
+    img.onerror = function() {
+        console.warn('⚠️ Не удалось загрузить фон, используем черный');
+        bgImage = null;
+    };
+}
+loadBackground();
+
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
 function explode(x, y, color) {
@@ -111,20 +128,18 @@ function drawTrail(trail, color, shadowColor, lineWidth) {
 
 // ========== ЭФФЕКТЫ ВЗРЫВА ==========
 function createExplosionEffect(centerX, centerY, radius) {
-    // Используем глобальный массив
     const effects = window.explosionEffects;
     
-    // Создаем волну взрыва
     effects.push({
         x: centerX * CELL_SIZE + CELL_SIZE / 2,
         y: centerY * CELL_SIZE + CELL_SIZE / 2,
         radius: 0,
         maxRadius: radius * CELL_SIZE,
         life: 1.0,
-        color: '#ff4400'
+        color: '#ff4400',
+        persistent: true
     });
     
-    // Создаем частицы
     const count = 60 + Math.floor(Math.random() * 40);
     for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
@@ -138,7 +153,8 @@ function createExplosionEffect(centerX, centerY, radius) {
             vy: Math.sin(angle) * speed,
             life: 1.0,
             color: color,
-            size: Math.random() * 6 + 2
+            size: Math.random() * 6 + 2,
+            persistent: true
         });
     }
 }
@@ -147,7 +163,7 @@ function updateExplosionEffects() {
     const effects = window.explosionEffects;
     for (let i = effects.length - 1; i >= 0; i--) {
         const e = effects[i];
-        e.radius += 2; // Скорость расширения
+        e.radius += 2;
         e.life -= 0.02;
         
         if (e.life <= 0 || e.radius >= e.maxRadius) {
@@ -162,7 +178,6 @@ function drawExplosionEffects() {
         ctx.save();
         ctx.globalAlpha = e.life * 0.6;
         
-        // Внешнее свечение
         ctx.shadowBlur = 40;
         ctx.shadowColor = e.color;
         ctx.strokeStyle = e.color;
@@ -171,7 +186,6 @@ function drawExplosionEffects() {
         ctx.arc(e.x, e.y, e.radius, 0, Math.PI * 2);
         ctx.stroke();
         
-        // Внутреннее свечение
         ctx.shadowBlur = 60;
         ctx.shadowColor = '#ff8800';
         ctx.strokeStyle = '#ff8800';
@@ -180,7 +194,6 @@ function drawExplosionEffects() {
         ctx.arc(e.x, e.y, e.radius * 0.7, 0, Math.PI * 2);
         ctx.stroke();
         
-        // Яркая точка в центре
         if (e.radius < e.maxRadius * 0.3) {
             ctx.shadowBlur = 80;
             ctx.shadowColor = '#ffffff';
@@ -197,17 +210,26 @@ function drawExplosionEffects() {
 function draw() {
     if (!ctx) return;
     
-    // Салют на заднем фоне
     if (typeof drawFireworks === 'function') {
         drawFireworks();
     }
     
-    ctx.fillStyle = '#03050a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // ===== РИСУЕМ ФОН =====
+    if (bgImage) {
+        // Растягиваем изображение на весь канвас
+        ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+        // Затемнение для лучшей видимости игровых элементов
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+        // Запасной вариант — черный фон
+        ctx.fillStyle = '#03050a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
     ctx.shadowBlur = 0;
     
     // Сетка
-    ctx.strokeStyle = '#0f3f3a';
+    ctx.strokeStyle = 'rgba(15, 63, 58, 0.3)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= WIDTH; i++) {
         ctx.beginPath();
@@ -220,21 +242,16 @@ function draw() {
         ctx.stroke();
     }
     
-    // ===== СЛЕДЫ ИГРОКОВ =====
     if (typeof players !== 'undefined') {
         for (let p of players) {
             drawTrail(p.trail, p.trailColor, p.trailColor, 3);
         }
     }
     
-    // ============================================================
-    // ===== СЛЕД КЛОНА (использует ту же функцию, что и игрок) =====
-    // ============================================================
     if (typeof cloneData !== 'undefined' && cloneData && cloneData.active && cloneData.trail && cloneData.trail.length > 1) {
         drawTrail(cloneData.trail, '#ff44ff', '#ff44ff', 3);
     }
     
-    // ===== СЛЕДЫ ВРАГОВ (ВЫЖИВАНИЕ) =====
     if (typeof survivalEnemies !== 'undefined') {
         for (let e of survivalEnemies) {
             drawTrail(e.trail, e.trailColor, e.trailColor, 3);
@@ -261,7 +278,6 @@ function draw() {
         }
     }
     
-    // ===== БОСС =====
     if (typeof boss !== 'undefined' && boss && boss.alive) {
         drawTrail(boss.trail, boss.trailColor || '#ff2200', boss.trailColor || '#ff2200', 5);
         const size = boss.size || 3;
@@ -298,31 +314,20 @@ function draw() {
         }
     }
     
-    // ============================================================
-    // ===== ОТРИСОВКА БОНУСОВ =====
-    // ============================================================
     if (typeof drawBonuses === 'function') {
         drawBonuses();
     }
     
-    // ============================================================
-    // ===== ИНДИКАТОРЫ БОНУСОВ =====
-    // ============================================================
     if (typeof drawBonusIndicators === 'function') {
         drawBonusIndicators();
     }
     
-    // ===== ЧАСТИЦЫ =====
     drawParticles();
     
-    // ============================================================
-    // ===== ЭФФЕКТЫ ВЗРЫВА =====
-    // ============================================================
     if (typeof drawExplosionEffects === 'function') {
         drawExplosionEffects();
     }
     
-    // ===== ЭФФЕКТ СТОЛКНОВЕНИЯ =====
     if (crashEffect.active) {
         ctx.shadowBlur = 15;
         ctx.shadowColor = '#ffffff';
@@ -332,9 +337,6 @@ function draw() {
         if (crashEffect.timer <= 0) crashEffect.active = false;
     }
     
-    // ============================================================
-    // ===== МОТОЦИКЛ ИГРОКА =====
-    // ============================================================
     if (typeof players !== 'undefined') {
         for (let p of players) {
             if (p.alive) {
@@ -368,9 +370,6 @@ function draw() {
         }
     }
     
-    // ============================================================
-    // ===== КЛОН (фиолетовый мотоцикл) =====
-    // ============================================================
     if (typeof cloneData !== 'undefined' && cloneData && cloneData.active && players[0] && players[0].alive) {
         const cloneX = players[0].x + (cloneData.offsetX || 2);
         const cloneY = players[0].y + (cloneData.offsetY || 0);
@@ -410,7 +409,6 @@ function draw() {
         }
     }
     
-    // ===== ОБРАТНЫЙ ОТСЧЁТ =====
     if (typeof countdownActive !== 'undefined' && countdownActive) {
         ctx.font = 'bold 64px "Courier New"';
         ctx.shadowBlur = 20;
@@ -428,7 +426,6 @@ function draw() {
         }
     }
     
-    // ===== ПАУЗА =====
     if (paused && gameActive && !countdownActive) {
         ctx.font = 'bold 36px "Courier New"';
         ctx.shadowBlur = 10;
