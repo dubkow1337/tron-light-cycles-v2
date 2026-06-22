@@ -137,25 +137,11 @@ function draw() {
         }
     }
     
-    // ===== СЛЕД КЛОНА (полупрозрачный фиолетовый) =====
+    // ============================================================
+    // ===== СЛЕД КЛОНА (использует ту же функцию, что и игрок) =====
+    // ============================================================
     if (typeof cloneData !== 'undefined' && cloneData && cloneData.active && cloneData.trail && cloneData.trail.length > 1) {
-        ctx.globalAlpha = 0.5;
-        for (let i = 0; i < cloneData.trail.length - 1; i++) {
-            const p1 = cloneData.trail[i];
-            const p2 = cloneData.trail[i+1];
-            ctx.beginPath();
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = '#ff44ff';
-            ctx.strokeStyle = '#ff44ff';
-            ctx.moveTo(p1.x * CELL_SIZE + CELL_SIZE/2, p1.y * CELL_SIZE + CELL_SIZE/2);
-            ctx.lineTo(p2.x * CELL_SIZE + CELL_SIZE/2, p2.y * CELL_SIZE + CELL_SIZE/2);
-            ctx.stroke();
-        }
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
+        drawTrail(cloneData.trail, '#ff44ff', '#ff44ff', 3);
     }
     
     // ===== СЛЕДЫ ВРАГОВ (ВЫЖИВАНИЕ) =====
