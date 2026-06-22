@@ -720,7 +720,7 @@ function createFireworkBurst(x, y, colors) {
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             life: 1.0,
-            decay: 0.005 + Math.random() * 0.012,
+            decay: 0.01 + Math.random() * 0.02,
             color: color,
             size: size
         });
