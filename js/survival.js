@@ -1,5 +1,5 @@
 // ========== РЕЖИМ ВЫЖИВАНИЯ (БЕСКОНЕЧНОЕ НАКОПЛЕНИЕ) ==========
- 
+
 let survivalEnemies = [];
 let spawnTimer = 0;
 let lastSpawnTime = 0;
@@ -87,6 +87,8 @@ function spawnSingleEnemy() {
 }
 
 function updateSurvival() {
+    // ===== ЕСЛИ ИГРА НЕ АКТИВНА — НИЧЕГО НЕ ДЕЛАЕМ =====
+    if (typeof gameActive === 'undefined' || !gameActive) return;
     if (matchMode !== 'survival') return;
     
     const player = players[0];
@@ -94,6 +96,11 @@ function updateSurvival() {
         survivalEnemies = [];
         if (typeof resetBoss === 'function') {
             resetBoss();
+        }
+        // ===== ОСТАНАВЛИВАЕМ ИГРОВОЙ ЦИКЛ =====
+        if (typeof gameLoop !== 'undefined' && gameLoop) {
+            clearInterval(gameLoop);
+            gameLoop = null;
         }
         return;
     }
@@ -299,6 +306,11 @@ function updateSurvival() {
                 if (typeof stopBgMusic === 'function') stopBgMusic();
                 if (typeof resetBoss === 'function') {
                     resetBoss();
+                }
+                // ===== ОСТАНАВЛИВАЕМ ИГРОВОЙ ЦИКЛ =====
+                if (typeof gameLoop !== 'undefined' && gameLoop) {
+                    clearInterval(gameLoop);
+                    gameLoop = null;
                 }
                 return;
             }
