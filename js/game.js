@@ -78,7 +78,11 @@ function cancelRoundDelay() {
 function showVictory(name, isTournamentFinal = false) {
     const overlay = document.getElementById('victoryOverlay');
     if (overlay) {
-        // ===== ТУРНИРНЫЙ ФИНАЛ =====
+        // ===== ЦВЕТ ЗАВИСИТ ОТ ПОБЕДИТЕЛЯ =====
+        const isBlue = name === 'Синий';
+        const mainColor = isBlue ? '#00ffff' : '#ffaa00';
+        const glowColor = isBlue ? '#0088ff' : '#ff6600';
+        
         if (isTournamentFinal) {
             overlay.innerText = `🏆 ${name.toUpperCase()} ВЫИГРАЛ ТУРНИР! 🏆`;
             overlay.style.fontSize = 'clamp(32px, 5vw, 56px)';
@@ -88,30 +92,18 @@ function showVictory(name, isTournamentFinal = false) {
             overlay.classList.add('show');
             overlay.classList.add('tournament');
             
-            // ===== МЕГА-САЛЮТ (в 3 раза больше) =====
+            // ===== МЕГА-САЛЮТ =====
             if (typeof startFireworks === 'function') {
-                const color = name === 'Синий' ? '#00ffff' : '#ffaa00';
-                // Тройной салют
-                setTimeout(() => startFireworks(color, 12), 0);
+                setTimeout(() => startFireworks(mainColor, 12), 0);
                 setTimeout(() => startFireworks('#ffd700', 8), 500);
                 setTimeout(() => startFireworks('#ff4400', 8), 1000);
-                setTimeout(() => startFireworks(color, 10), 1500);
+                setTimeout(() => startFireworks(mainColor, 10), 1500);
             }
             
-            // ===== ЗВУК ПОБЕДЫ В ТУРНИРЕ =====
-            if (typeof playTournamentWinSound === 'function') {
-                playTournamentWinSound();
-            }
-            
-            // ===== Голос =====
-            if (typeof speakVictory === 'function') {
-                speakVictory(`${name} выиграл турнир! Поздравляем!`);
-            }
-            
-            // ===== Показываем финальный счет =====
+            // ===== ПОКАЗЫВАЕМ ФИНАЛЬНЫЙ СЧЕТ =====
             showMessage(`🏆 ФИНАЛЬНЫЙ СЧЁТ: ${tournamentScore[0]} : ${tournamentScore[1]}`);
             
-            // ===== Задержка 6 секунд и выход в меню =====
+            // ===== ЗАДЕРЖКА 6 СЕКУНД И ВЫХОД В МЕНЮ =====
             setTimeout(() => {
                 overlay.classList.remove('show');
                 overlay.classList.remove('tournament');
@@ -126,24 +118,27 @@ function showVictory(name, isTournamentFinal = false) {
             // ===== ОБЫЧНАЯ ПОБЕДА (раунд) =====
             overlay.innerText = `${name.toUpperCase()} ПОБЕДИЛ!`;
             overlay.style.fontSize = '';
-            overlay.style.borderColor = '';
-            overlay.style.boxShadow = '';
-            overlay.style.textShadow = '';
+            overlay.style.borderColor = mainColor;
+            overlay.style.boxShadow = `0 0 60px rgba(${isBlue ? '0, 255, 255' : '255, 170, 0'}, 0.4), inset 0 0 60px rgba(${isBlue ? '0, 255, 255' : '255, 170, 0'}, 0.1)`;
+            overlay.style.textShadow = `0 0 30px ${mainColor}, 0 0 60px ${glowColor}`;
+            overlay.style.color = mainColor;
             overlay.classList.remove('tournament');
             overlay.classList.add('show');
             
-            // Обычный салют
+            // ===== САЛЮТ =====
             if (typeof startFireworks === 'function') {
-                const color = name === 'Синий' ? '#00ffff' : '#ffaa00';
-                startFireworks(color, 6);
+                startFireworks(mainColor, 6);
             }
             
-            // Голос
-            if (typeof speakVictory === 'function') {
-                speakVictory(`${name} победил!`);
-            }
+            // ===== ОЗВУЧКА ОТКЛЮЧЕНА =====
             
-            setTimeout(() => overlay.classList.remove('show'), 4000);
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                overlay.style.color = '';
+                overlay.style.borderColor = '';
+                overlay.style.boxShadow = '';
+                overlay.style.textShadow = '';
+            }, 4000);
         }
     }
 }
@@ -586,4 +581,4 @@ function resetGame() {
         cloneData.trail = [];
     }
     initGame();
-            }
+}
