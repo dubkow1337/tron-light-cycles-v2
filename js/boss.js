@@ -105,6 +105,10 @@ function updateBoss() {
                     clearInterval(gameLoop);
                     gameLoop = null;
                 }
+                // ===== ПОКАЗЫВАЕМ ТАБЛО GAME OVER =====
+                if (typeof showGameOver === 'function') {
+                    setTimeout(() => showGameOver(), 300);
+                }
                 return;
             }
         }
@@ -124,6 +128,10 @@ function updateBoss() {
             if (typeof gameLoop !== 'undefined' && gameLoop) {
                 clearInterval(gameLoop);
                 gameLoop = null;
+            }
+            // ===== ПОКАЗЫВАЕМ ТАБЛО GAME OVER =====
+            if (typeof showGameOver === 'function') {
+                setTimeout(() => showGameOver(), 300);
             }
             return;
         }
@@ -186,7 +194,7 @@ function updateBoss() {
     }
     
     // ============================================================
-    // ===== ДВИЖЕНИЕ БОССА (упрощённое, без проверки на свой след) =====
+    // ===== ДВИЖЕНИЕ БОССА =====
     // ============================================================
     boss.dirChangeTimer++;
     if (boss.dirChangeTimer > 4 + Math.floor(Math.random() * 5)) {
@@ -195,7 +203,6 @@ function updateBoss() {
         const dx = player.x - boss.x;
         const dy = player.y - boss.y;
         
-        // С вероятностью 70% едем к игроку, 30% — случайно
         if (Math.random() < 0.7) {
             if (Math.abs(dx) > Math.abs(dy)) {
                 boss.dirX = dx > 0 ? 1 : -1;
@@ -220,7 +227,6 @@ function updateBoss() {
         const newX = boss.x + boss.dirX;
         const newY = boss.y + boss.dirY;
         
-        // Если упираемся в стену — меняем направление
         if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) {
             const dirs = [
                 { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
