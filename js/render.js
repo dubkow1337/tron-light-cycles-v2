@@ -18,7 +18,7 @@ const TRAIL_FADE = true;
 
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
-// ===== ОБЛАКА (парят над всем) =====
+// ===== ОБЛАКА (белые, 30 штук, цикличные) =====
 let cloudParticles = [];
 let cloudInitialized = false;
 
@@ -30,10 +30,10 @@ function initClouds() {
         cloudParticles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            size: 30 + Math.random() * 120, // Разная форма
-            speed: 0.6 + Math.random() * 0.8, // Разная скорость
-            opacity: 0.15 + Math.random() * 0.10, // Разная прозрачность
-            offsetY: Math.random() * 200, // Смещение по Y
+            size: 30 + Math.random() * 120,
+            speed: 0.3 + Math.random() * 0.5,
+            opacity: 0.10 + Math.random() * 0.08,
+            offsetY: Math.random() * 200,
             phase: Math.random() * Math.PI * 2
         });
     }
@@ -43,25 +43,25 @@ function initClouds() {
 function updateClouds() {
     const time = Date.now() * 0.001;
     for (let p of cloudParticles) {
-        // Движение только вправо
-        p.x += p.speed * 0.5;
+        // Движение вправо
+        p.x += p.speed * 0.4;
         
-        // Легкое колебание по Y для естественности
+        // Легкое колебание по Y
         p.y += Math.sin(time * 0.02 + p.phase) * 0.05;
         
-        // Зацикливание: когда уходит за правый край — появляется слева
-        if (p.x > canvas.width + 200) {
-            p.x = -200;
+        // ЦИКЛИЧНОСТЬ: уходит за правый край — появляется слева
+        if (p.x > canvas.width + 150) {
+            p.x = -150;
             p.y = Math.random() * canvas.height;
             p.size = 30 + Math.random() * 120;
-            p.speed = 0.2 + Math.random() * 0.5;
-            p.opacity = 0.04 + Math.random() * 0.08;
+            p.speed = 0.3 + Math.random() * 0.5;
+            p.opacity = 0.10 + Math.random() * 0.08;
         }
-        if (p.x < -200) {
-            p.x = canvas.width + 200;
+        if (p.x < -150) {
+            p.x = canvas.width + 150;
         }
-        if (p.y < -200) p.y = canvas.height + 200;
-        if (p.y > canvas.height + 200) p.y = -200;
+        if (p.y < -150) p.y = canvas.height + 150;
+        if (p.y > canvas.height + 150) p.y = -150;
     }
 }
 
@@ -71,7 +71,7 @@ function drawClouds() {
         const cy = p.y + p.offsetY * 0.1;
         const size = p.size;
         
-        // ===== БЕЛЫЕ ОБЛАКА =====
+        // Белые облака
         const gradient = ctx.createRadialGradient(
             cx - size * 0.2, cy - size * 0.1, 0,
             cx, cy, size
@@ -112,6 +112,117 @@ function drawClouds() {
     }
 }
 
+// ===== НЕОНОВАЯ СЕТКА (бирюзовая, волны диагонально) =====
+function drawGrid() {
+    const time = Date.now() * 0.001;
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    // ===== 1. ФОНОВЫЕ ЛИНИИ (очень бледные) =====
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= WIDTH; i++) {
+        const x = i * CELL_SIZE;
+        // Диагональная волна
+        const wave = Math.sin(time * 0.3 + i * 0.03 + 0.5) * 0.5 + 0.5;
+        const alpha = 0.02 + 0.02 * wave;
+        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+    }
+    for (let i = 0; i <= HEIGHT; i++) {
+        const y = i * CELL_SIZE;
+        const wave = Math.sin(time * 0.25 + i * 0.04 + 0.3) * 0.5 + 0.5;
+        const alpha = 0.02 + 0.02 * wave;
+        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+    }
+    
+    // ===== 2. ОСНОВНЫЕ ЛИНИИ (каждые 5 клеток) =====
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= WIDTH; i += 5) {
+        const x = i * CELL_SIZE;
+        const distFromCenter = Math.abs(i - WIDTH/2) / (WIDTH/2);
+        // Диагональная волна для живости
+        const wave = Math.sin(time * 0.5 + i * 0.04 + 0.7) * 0.3 + 0.7;
+        const alpha = (0.08 + 0.12 * (1 - distFromCenter)) * wave;
+        
+        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha * 0.8})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `rgba(0, 255, 204, ${alpha * 0.2})`;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+    }
+    for (let i = 0; i <= HEIGHT; i += 5) {
+        const y = i * CELL_SIZE;
+        const distFromCenter = Math.abs(i - HEIGHT/2) / (HEIGHT/2);
+        const wave = Math.sin(time * 0.45 + i * 0.05 + 0.2) * 0.3 + 0.7;
+        const alpha = (0.08 + 0.12 * (1 - distFromCenter)) * wave;
+        
+        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha * 0.8})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `rgba(0, 255, 204, ${alpha * 0.2})`;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+    
+    // ===== 3. ЦЕНТРАЛЬНЫЙ КРЕСТ (ярче) =====
+    const crossWave = Math.sin(time * 0.6 + 0.5) * 0.15 + 0.85;
+    const crossAlpha = 0.15 * crossWave;
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = `rgba(0, 255, 204, ${crossAlpha})`;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = `rgba(0, 255, 204, 0.15)`;
+    
+    const centerX = Math.round(WIDTH/2) * CELL_SIZE;
+    ctx.beginPath();
+    ctx.moveTo(centerX, 0);
+    ctx.lineTo(centerX, h);
+    ctx.stroke();
+    
+    const centerY = Math.round(HEIGHT/2) * CELL_SIZE;
+    ctx.beginPath();
+    ctx.moveTo(0, centerY);
+    ctx.lineTo(w, centerY);
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+    
+    // ===== 4. УГЛОВЫЕ МАРКЕРЫ =====
+    const cornerSize = 12;
+    const margin = 4;
+    const cornerWave = Math.sin(time * 0.5 + 0.8) * 0.2 + 0.8;
+    const cornerAlpha = 0.15 * cornerWave;
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = `rgba(0, 255, 204, ${cornerAlpha})`;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = `rgba(0, 255, 204, 0.15)`;
+    
+    const corners = [
+        [margin, margin, 1, 1],
+        [w - margin, margin, -1, 1],
+        [margin, h - margin, 1, -1],
+        [w - margin, h - margin, -1, -1]
+    ];
+    
+    for (let [cx, cy, dx, dy] of corners) {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy + dy * cornerSize);
+        ctx.lineTo(cx, cy);
+        ctx.lineTo(cx + dx * cornerSize, cy);
+        ctx.stroke();
+    }
+    ctx.shadowBlur = 0;
+}
+
 function explode(x, y, color) {
     const particleCount = 40;
     for (let i = 0; i < particleCount; i++) {
@@ -148,7 +259,7 @@ function updateParticles() {
     for (let i = 0; i < particles.length; i++) {
         particles[i].x += particles[i].vx;
         particles[i].y += particles[i].vy;
-        particles[i].life -= 0.03; // Быстрее затухают
+        particles[i].life -= 0.03;
         if (particles[i].life <= 0) {
             particles.splice(i, 1);
             i--;
@@ -168,7 +279,7 @@ function drawParticles() {
     ctx.globalAlpha = 1;
 }
 
-// ===== УНИВЕРСАЛЬНАЯ ОТРИСОВКА СЛЕДА С ЗАТУХАНИЕМ =====
+// ===== УНИВЕРСАЛЬНАЯ ОТРИСОВКА СЛЕДА =====
 function drawTrail(trail, color, shadowColor, lineWidth) {
     if (!trail || trail.length < 2) return;
     
@@ -295,19 +406,8 @@ function draw() {
         drawFireworks();
     }
     
-    // ===== СЕТКА =====
-    ctx.strokeStyle = '#0f3f3a';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= WIDTH; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * CELL_SIZE, 0);
-        ctx.lineTo(i * CELL_SIZE, canvas.height);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(0, i * CELL_SIZE);
-        ctx.lineTo(canvas.width, i * CELL_SIZE);
-        ctx.stroke();
-    }
+    // ===== СЕТКА (бирюзовая, живой неон) =====
+    drawGrid();
     
     // ===== СЛЕДЫ ИГРОКОВ =====
     if (typeof players !== 'undefined') {
@@ -524,7 +624,7 @@ function draw() {
     ctx.shadowBlur = 0;
 }
 
-// ========== САЛЮТ (БЫСТРЕЕ ЗАТУХАЕТ) ==========
+// ========== САЛЮТ ==========
 
 let fireworkParticles = [];
 let fireworkActive = false;
@@ -567,7 +667,7 @@ function createFireworkBurst(x, y, colors) {
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             life: 1.0,
-            decay: 0.015 + Math.random() * 0.025, // Быстрее затухает
+            decay: 0.015 + Math.random() * 0.025,
             color: color,
             size: size
         });
