@@ -74,6 +74,45 @@ function cancelRoundDelay() {
     roundDelayActive = false;
 }
 
+// ===== СБРОС ИГРОКОВ =====
+function resetPlayers() {
+    // Если режим выживания — только один игрок
+    if (matchMode === 'survival') {
+        players[0].x = 5;
+        players[0].y = Math.floor(HEIGHT / 2);
+        players[0].dirX = 1;
+        players[0].dirY = 0;
+        players[0].trail = [{ x: players[0].x, y: players[0].y }];
+        players[0].alive = true;
+        players[0].score = 0;
+        
+        // Второго игрока выключаем
+        players[1].alive = false;
+        players[1].x = -10;
+        players[1].y = -10;
+        players[1].trail = [];
+        players[1].score = 0;
+        return;
+    }
+    
+    // Для классики и турнира — два игрока
+    players[0].x = 5;
+    players[0].y = Math.floor(HEIGHT / 2);
+    players[0].dirX = 1;
+    players[0].dirY = 0;
+    players[0].trail = [{ x: players[0].x, y: players[0].y }];
+    players[0].alive = true;
+    players[0].score = 0;
+    
+    players[1].x = WIDTH - 6;
+    players[1].y = Math.floor(HEIGHT / 2);
+    players[1].dirX = -1;
+    players[1].dirY = 0;
+    players[1].trail = [{ x: players[1].x, y: players[1].y }];
+    players[1].alive = true;
+    players[1].score = 0;
+}
+
 // ===== ПОБЕДА =====
 function showVictory(name, isTournamentFinal = false) {
     const overlay = document.getElementById('victoryOverlay');
@@ -310,7 +349,8 @@ function updateGame() {
         }
     }
     
-    if (opponentType === 'ai') {
+    // ===== ИИ ТОЛЬКО В РЕЖИМЕ VS AI (НЕ В ВЫЖИВАНИИ) =====
+    if (opponentType === 'ai' && matchMode !== 'survival') {
         if (typeof aiMove === 'function') aiMove();
     }
     
@@ -369,7 +409,7 @@ function updateGame() {
         
         // ===== СЛЕД КЛОНА (ОПАСЕН ТОЛЬКО ДЛЯ БОТА) =====
         if (cloneTrail.length > 1) {
-            if (p === players[1] && opponentType === 'ai') {
+            if (p === players[1] && opponentType === 'ai' && matchMode !== 'survival') {
                 for (let i = 0; i < cloneTrail.length - 1; i++) {
                     const seg = cloneTrail[i];
                     const nextSeg = cloneTrail[i+1];
