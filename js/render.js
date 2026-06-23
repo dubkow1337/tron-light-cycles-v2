@@ -18,59 +18,96 @@ const TRAIL_FADE = true;
 
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
-// ===== ТУМАН =====
-let fogParticles = [];
-let fogInitialized = false;
+// ===== ОБЛАКА (парят над всем) =====
+let cloudParticles = [];
+let cloudInitialized = false;
 
-function initFog() {
-    if (fogInitialized) return;
-    fogParticles = [];
-    const count = 80; // Количество облачков
+function initClouds() {
+    if (cloudInitialized) return;
+    cloudParticles = [];
+    const count = 50;
     for (let i = 0; i < count; i++) {
-        fogParticles.push({
+        cloudParticles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            size: 40 + Math.random() * 100, // Размер облачка
-            speed: 0.08 + Math.random() * 0.15,
-            angle: Math.random() * Math.PI * 2,
-            opacity: 0.08 + Math.random() * 0.12, // Яркость 8-20%
-            offset: Math.random() * 1000
+            size: 30 + Math.random() * 120, // Разная форма
+            speed: 0.2 + Math.random() * 0.5, // Разная скорость
+            opacity: 0.04 + Math.random() * 0.08, // Разная прозрачность
+            offsetY: Math.random() * 200, // Смещение по Y
+            phase: Math.random() * Math.PI * 2
         });
     }
-    fogInitialized = true;
+    cloudInitialized = true;
 }
 
-function updateFog() {
+function updateClouds() {
     const time = Date.now() * 0.001;
-    for (let p of fogParticles) {
-        p.x += Math.cos(p.angle + time * 0.05) * p.speed * 0.3;
-        p.y += Math.sin(p.angle + time * 0.07) * p.speed * 0.3;
+    for (let p of cloudParticles) {
+        // Движение только вправо
+        p.x += p.speed * 0.5;
         
-        if (p.x < -150) p.x = canvas.width + 150;
-        if (p.x > canvas.width + 150) p.x = -150;
-        if (p.y < -150) p.y = canvas.height + 150;
-        if (p.y > canvas.height + 150) p.y = -150;
+        // Легкое колебание по Y для естественности
+        p.y += Math.sin(time * 0.02 + p.phase) * 0.05;
         
-        // Мерцание
-        p.opacity = (0.08 + Math.random() * 0.1) * (0.7 + 0.3 * Math.sin(time * 0.08 + p.offset));
+        // Зацикливание: когда уходит за правый край — появляется слева
+        if (p.x > canvas.width + 200) {
+            p.x = -200;
+            p.y = Math.random() * canvas.height;
+            p.size = 30 + Math.random() * 120;
+            p.speed = 0.2 + Math.random() * 0.5;
+            p.opacity = 0.04 + Math.random() * 0.08;
+        }
+        if (p.x < -200) {
+            p.x = canvas.width + 200;
+        }
+        if (p.y < -200) p.y = canvas.height + 200;
+        if (p.y > canvas.height + 200) p.y = -200;
     }
 }
 
-function drawFog() {
-    for (let p of fogParticles) {
+function drawClouds() {
+    for (let p of cloudParticles) {
         const cx = p.x;
-        const cy = p.y;
+        const cy = p.y + p.offsetY * 0.1;
         const size = p.size;
         
-        // Градиент для каждого облачка
-        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, size);
-        gradient.addColorStop(0, `rgba(0, 200, 255, ${p.opacity * 0.6})`);
-        gradient.addColorStop(0.5, `rgba(0, 180, 255, ${p.opacity * 0.3})`);
+        // Каждое облако — градиент с разной формой
+        const gradient = ctx.createRadialGradient(
+            cx - size * 0.2, cy - size * 0.1, 0,
+            cx, cy, size
+        );
+        gradient.addColorStop(0, `rgba(0, 200, 255, ${p.opacity * 0.8})`);
+        gradient.addColorStop(0.3, `rgba(0, 180, 255, ${p.opacity * 0.5})`);
+        gradient.addColorStop(0.7, `rgba(0, 150, 255, ${p.opacity * 0.2})`);
         gradient.addColorStop(1, `rgba(0, 100, 200, 0)`);
         
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(cx, cy, size, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Второй "лепесток" для неправильной формы
+        const gradient2 = ctx.createRadialGradient(
+            cx + size * 0.4, cy - size * 0.2, 0,
+            cx + size * 0.4, cy - size * 0.2, size * 0.7
+        );
+        gradient2.addColorStop(0, `rgba(0, 190, 255, ${p.opacity * 0.4})`);
+        gradient2.addColorStop(1, `rgba(0, 100, 200, 0)`);
+        ctx.fillStyle = gradient2;
+        ctx.beginPath();
+        ctx.arc(cx + size * 0.4, cy - size * 0.2, size * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Третий "лепесток"
+        const gradient3 = ctx.createRadialGradient(
+            cx - size * 0.5, cy + size * 0.3, 0,
+            cx - size * 0.5, cy + size * 0.3, size * 0.6
+        );
+        gradient3.addColorStop(0, `rgba(0, 200, 255, ${p.opacity * 0.3})`);
+        gradient3.addColorStop(1, `rgba(0, 100, 200, 0)`);
+        ctx.fillStyle = gradient3;
+        ctx.beginPath();
+        ctx.arc(cx - size * 0.5, cy + size * 0.3, size * 0.6, 0, Math.PI * 2);
         ctx.fill();
     }
 }
@@ -111,7 +148,7 @@ function updateParticles() {
     for (let i = 0; i < particles.length; i++) {
         particles[i].x += particles[i].vx;
         particles[i].y += particles[i].vy;
-        particles[i].life -= 0.02;
+        particles[i].life -= 0.03; // Быстрее затухают
         if (particles[i].life <= 0) {
             particles.splice(i, 1);
             i--;
@@ -253,15 +290,6 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.shadowBlur = 0;
     
-    // ===== ИНИЦИАЛИЗАЦИЯ ТУМАНА =====
-    if (!fogInitialized) {
-        initFog();
-    }
-    updateFog();
-    
-    // ===== РИСУЕМ ТУМАН (ПОД ВСЕМИ ЭЛЕМЕНТАМИ) =====
-    drawFog();
-    
     // ===== САЛЮТ =====
     if (typeof drawFireworks === 'function') {
         drawFireworks();
@@ -293,7 +321,7 @@ function draw() {
         drawTrail(cloneData.trail, '#ff44ff', '#ff44ff', 3);
     }
     
-    // ===== СЛЕДЫ ВРАГОВ (ВЫЖИВАНИЕ) =====
+    // ===== СЛЕДЫ ВРАГОВ =====
     if (typeof survivalEnemies !== 'undefined') {
         for (let e of survivalEnemies) {
             drawTrail(e.trail, e.trailColor, e.trailColor, 3);
@@ -459,6 +487,13 @@ function draw() {
         }
     }
     
+    // ===== ОБЛАКА (ПАРЯТ НАД ВСЕМ, КРОМЕ ТЕКСТА) =====
+    if (!cloudInitialized) {
+        initClouds();
+    }
+    updateClouds();
+    drawClouds();
+    
     // ===== ОБРАТНЫЙ ОТСЧЁТ =====
     if (typeof countdownActive !== 'undefined' && countdownActive) {
         ctx.font = 'bold 64px "Courier New"';
@@ -489,7 +524,7 @@ function draw() {
     ctx.shadowBlur = 0;
 }
 
-// ========== САЛЮТ ==========
+// ========== САЛЮТ (БЫСТРЕЕ ЗАТУХАЕТ) ==========
 
 let fireworkParticles = [];
 let fireworkActive = false;
@@ -513,26 +548,26 @@ function startFireworks(color, count = 6) {
         setTimeout(() => {
             fireworkActive = false;
             fireworkParticles = [];
-        }, 3000);
+        }, 2000);
     } catch(e) {
         console.warn('Салют не удался:', e);
     }
 }
 
 function createFireworkBurst(x, y, colors) {
-    const count = 50 + Math.floor(Math.random() * 40);
+    const count = 40 + Math.floor(Math.random() * 30);
     for (let i = 0; i < count; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = 1 + Math.random() * 4;
+        const speed = 1 + Math.random() * 3;
         const color = colors[Math.floor(Math.random() * colors.length)];
-        const size = 2 + Math.random() * 4;
+        const size = 1.5 + Math.random() * 3;
         fireworkParticles.push({
             x: x,
             y: y,
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             life: 1.0,
-            decay: 0.005 + Math.random() * 0.012,
+            decay: 0.015 + Math.random() * 0.025, // Быстрее затухает
             color: color,
             size: size
         });
@@ -546,8 +581,8 @@ function updateFireworks() {
             const p = fireworkParticles[i];
             p.x += p.vx;
             p.y += p.vy;
-            p.vy += 0.03;
-            p.vx *= 0.99;
+            p.vy += 0.04;
+            p.vx *= 0.98;
             p.life -= p.decay;
             if (p.life <= 0) {
                 fireworkParticles.splice(i, 1);
@@ -561,7 +596,7 @@ function drawFireworks() {
     try {
         for (const p of fireworkParticles) {
             ctx.globalAlpha = p.life;
-            ctx.shadowBlur = 10;
+            ctx.shadowBlur = 8;
             ctx.shadowColor = p.color;
             ctx.fillStyle = p.color;
             ctx.fillRect(p.x - p.size/2, p.y - p.size/2, p.size, p.size);
