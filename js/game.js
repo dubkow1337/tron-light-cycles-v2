@@ -119,7 +119,9 @@ function showGameOver() {
     if (!overlay) return;
     
     // Останавливаем музыку
-    if (typeof stopBgMusic === 'function') {
+    if (typeof stopAllMusic === 'function') {
+        stopAllMusic();
+    } else if (typeof stopBgMusic === 'function') {
         stopBgMusic();
     }
     
@@ -261,7 +263,12 @@ function checkVictoryWithDelay() {
         roundTimerActive = false;
         gameActive = false;
         
-        if (typeof stopBgMusic === 'function') stopBgMusic();
+        // Останавливаем музыку
+        if (typeof stopAllMusic === 'function') {
+            stopAllMusic();
+        } else if (typeof stopBgMusic === 'function') {
+            stopBgMusic();
+        }
         
         updateUI();
         if (typeof draw === 'function') draw();
@@ -308,7 +315,11 @@ function checkVictoryWithDelay() {
         }
         roundTimerActive = false;
         showMessage('🤝 Ничья!');
-        if (typeof stopBgMusic === 'function') stopBgMusic();
+        if (typeof stopAllMusic === 'function') {
+            stopAllMusic();
+        } else if (typeof stopBgMusic === 'function') {
+            stopBgMusic();
+        }
         if (typeof draw === 'function') draw();
         
         setTimeout(() => {
@@ -557,7 +568,11 @@ function updateGame() {
             }
             roundTimerActive = false;
             showMessage('⏰ НИЧЬЯ! ВРЕМЯ ВЫШЛО!');
-            if (typeof stopBgMusic === 'function') stopBgMusic();
+            if (typeof stopAllMusic === 'function') {
+                stopAllMusic();
+            } else if (typeof stopBgMusic === 'function') {
+                stopBgMusic();
+            }
             updateUI();
             if (typeof draw === 'function') draw();
             
@@ -688,7 +703,11 @@ function initGame() {
                 }
             }
             
-            if (typeof playBgMusic === 'function') playBgMusic();
+            // ===== ЗАПУСКАЕМ ИГРОВУЮ МУЗЫКУ (МЕНЮ ОСТАНАВЛИВАЕТ UI) =====
+            if (typeof playBgMusic === 'function') {
+                playBgMusic();
+            }
+            
             if (gameLoop) clearInterval(gameLoop);
             gameLoop = setInterval(() => {
                 if (paused || !gameActive) {
@@ -749,4 +768,4 @@ function resetGame() {
     }
     
     initGame();
-}
+            }
