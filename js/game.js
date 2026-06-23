@@ -347,6 +347,10 @@ function updateGame() {
         if (typeof updateSurvival === 'function') {
             updateSurvival();
         }
+        // ===== БОСС В ВЫЖИВАНИИ =====
+        if (typeof updateBoss === 'function' && boss && boss.alive) {
+            updateBoss();
+        }
     }
     
     // ===== ИИ ТОЛЬКО В РЕЖИМЕ VS AI (НЕ В ВЫЖИВАНИИ) =====
