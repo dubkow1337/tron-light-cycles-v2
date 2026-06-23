@@ -59,7 +59,6 @@ function spawnBoss() {
         invincible: false,
         invincibleTimer: 0,
         hitCooldown: 0,
-        // Добавляем таймер смены направления как у врагов
         dirChangeTimer: 0
     };
     
@@ -168,7 +167,6 @@ function updateBoss() {
                             return;
                         } else {
                             showMessage(`💥 LIGHT RUNNER РАНЕН! ❤️ ${boss.health}/${boss.maxHealth}`);
-                            // Отталкиваем босса
                             boss.dirX = -boss.dirX || 1;
                             boss.dirY = -boss.dirY || 1;
                         }
@@ -196,7 +194,6 @@ function updateBoss() {
                 const bx = Math.round(boss.x + dx);
                 const by = Math.round(boss.y + dy);
                 if (bx === Math.round(seg.x) && by === Math.round(seg.y)) {
-                    // Меняем направление на случайное
                     const dirs = [
                         { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
                         { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
@@ -211,9 +208,8 @@ function updateBoss() {
     }
     
     // ============================================================
-    // ===== ДВИЖЕНИЕ БОССА (упрощенная логика как в ai.js) =====
+    // ===== ДВИЖЕНИЕ БОССА (упрощенно) =====
     // ============================================================
-    // Меняем направление каждые 5-10 кадров
     boss.dirChangeTimer++;
     if (boss.dirChangeTimer > 5 + Math.floor(Math.random() * 6)) {
         boss.dirChangeTimer = 0;
@@ -221,9 +217,7 @@ function updateBoss() {
         const dx = player.x - boss.x;
         const dy = player.y - boss.y;
         
-        // С вероятностью 70% едем к игроку, 30% — случайно
         if (Math.random() < 0.7) {
-            // Едем к игроку
             if (Math.abs(dx) > Math.abs(dy)) {
                 boss.dirX = dx > 0 ? 1 : -1;
                 boss.dirY = 0;
@@ -232,7 +226,6 @@ function updateBoss() {
                 boss.dirY = dy > 0 ? 1 : -1;
             }
         } else {
-            // Случайное направление
             const dirs = [
                 { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
                 { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
@@ -248,7 +241,6 @@ function updateBoss() {
         const newX = boss.x + boss.dirX;
         const newY = boss.y + boss.dirY;
         
-        // Если упираемся в стену — меняем направление
         if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) {
             const dirs = [
                 { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
