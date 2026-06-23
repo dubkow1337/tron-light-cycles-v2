@@ -113,6 +113,68 @@ function resetPlayers() {
     players[1].score = 0;
 }
 
+// ===== GAME OVER (ДЛЯ РЕЖИМА ВЫЖИВАНИЯ) =====
+function showGameOver() {
+    const overlay = document.getElementById('victoryOverlay');
+    if (!overlay) return;
+    
+    // Останавливаем музыку
+    if (typeof stopBgMusic === 'function') {
+        stopBgMusic();
+    }
+    
+    const steps = currentSteps || 0;
+    
+    // Обновляем рекорд
+    if (steps > bestRecord) {
+        bestRecord = steps;
+        localStorage.setItem('tronRecord', bestRecord.toString());
+        const recordDisplay = document.getElementById('menuRecordDisplay');
+        if (recordDisplay) recordDisplay.innerText = bestRecord;
+    }
+    
+    overlay.innerText = `💀 GAME OVER\n🏆 СЧЁТ: ${steps}`;
+    overlay.style.fontSize = 'clamp(28px, 4vw, 48px)';
+    overlay.style.borderColor = '#ff3333';
+    overlay.style.boxShadow = '0 0 80px rgba(255, 0, 0, 0.4), inset 0 0 80px rgba(255, 0, 0, 0.1)';
+    overlay.style.textShadow = '0 0 40px #ff3333, 0 0 80px #ff0000, 0 0 120px #cc0000';
+    overlay.style.color = '#ff3333';
+    overlay.style.whiteSpace = 'pre-line';
+    overlay.style.textAlign = 'center';
+    overlay.style.lineHeight = '1.4';
+    overlay.classList.remove('tournament');
+    overlay.classList.add('show');
+    
+    // Задержка 4 секунды и выход в меню
+    setTimeout(() => {
+        overlay.classList.remove('show');
+        overlay.style.whiteSpace = '';
+        overlay.style.textAlign = '';
+        overlay.style.color = '';
+        overlay.style.borderColor = '';
+        overlay.style.boxShadow = '';
+        overlay.style.textShadow = '';
+        overlay.style.fontSize = '';
+        overlay.style.lineHeight = '';
+        
+        // Полная остановка игры
+        if (typeof gameLoop !== 'undefined' && gameLoop) {
+            clearInterval(gameLoop);
+            gameLoop = null;
+        }
+        gameActive = false;
+        
+        // Сбрасываем бонусы, врагов и босса
+        if (typeof resetBonuses === 'function') resetBonuses();
+        if (typeof resetBoss === 'function') resetBoss();
+        if (typeof survivalEnemies !== 'undefined') survivalEnemies = [];
+        if (typeof resetSurvivalTimer === 'function') resetSurvivalTimer();
+        
+        showScreen('menuScreen');
+        showMessage('Выберите режим и нажмите ИГРАТЬ');
+    }, 4000);
+}
+
 // ===== ПОБЕДА =====
 function showVictory(name, isTournamentFinal = false) {
     const overlay = document.getElementById('victoryOverlay');
