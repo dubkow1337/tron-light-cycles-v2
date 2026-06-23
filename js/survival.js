@@ -87,12 +87,14 @@ function spawnSingleEnemy() {
 }
 
 function updateSurvival() {
-    // ===== ЕСЛИ ИГРА НЕ АКТИВНА — НИЧЕГО НЕ ДЕЛАЕМ =====
+    // ===== ЕСЛИ ИГРА НЕ АКТИВНА — ВЫХОДИМ =====
     if (typeof gameActive === 'undefined' || !gameActive) return;
     if (matchMode !== 'survival') return;
     
     const player = players[0];
-    if (!player.alive) {
+    
+    // ===== ЕСЛИ ИГРОК МЕРТВ — ПОЛНАЯ ОСТАНОВКА =====
+    if (!player || !player.alive) {
         survivalEnemies = [];
         if (typeof resetBoss === 'function') {
             resetBoss();
@@ -101,6 +103,10 @@ function updateSurvival() {
         if (typeof gameLoop !== 'undefined' && gameLoop) {
             clearInterval(gameLoop);
             gameLoop = null;
+        }
+        // ===== ГАРАНТИРУЕМ gameActive = false =====
+        if (typeof gameActive !== 'undefined') {
+            gameActive = false;
         }
         return;
     }
@@ -307,7 +313,8 @@ function updateSurvival() {
                 if (typeof resetBoss === 'function') {
                     resetBoss();
                 }
-                // ===== ОСТАНАВЛИВАЕМ ИГРОВОЙ ЦИКЛ =====
+                // ===== ПОЛНАЯ ОСТАНОВКА ИГРЫ =====
+                survivalEnemies = [];
                 if (typeof gameLoop !== 'undefined' && gameLoop) {
                     clearInterval(gameLoop);
                     gameLoop = null;
