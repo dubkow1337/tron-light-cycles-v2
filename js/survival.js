@@ -80,7 +80,7 @@ function spawnSingleEnemy() {
         alive: true,
         color: colors[colorIndex],
         trailColor: trailColors[colorIndex],
-        spawnProtection: 30,
+        spawnProtection: 0, // <-- НЕТ НЕУЯЗВИМОСТИ
         role: isHunter ? 'hunter' : 'flanker',
         speed: 1 + difficulty * 0.05
     });
@@ -99,12 +99,10 @@ function updateSurvival() {
         if (typeof resetBoss === 'function') {
             resetBoss();
         }
-        // ===== ОСТАНАВЛИВАЕМ ИГРОВОЙ ЦИКЛ =====
         if (typeof gameLoop !== 'undefined' && gameLoop) {
             clearInterval(gameLoop);
             gameLoop = null;
         }
-        // ===== ГАРАНТИРУЕМ gameActive = false =====
         if (typeof gameActive !== 'undefined') {
             gameActive = false;
         }
@@ -165,10 +163,6 @@ function updateSurvival() {
     for (let i = 0; i < survivalEnemies.length; i++) {
         let e = survivalEnemies[i];
         if (!e.alive) continue;
-        
-        if (e.spawnProtection > 0) {
-            e.spawnProtection--;
-        }
         
         const dx = player.x - e.x;
         const dy = player.y - e.y;
@@ -292,7 +286,8 @@ function updateSurvival() {
             }
         }
         
-        if (!enemyDied && e.spawnProtection === 0) {
+        // ===== СЛЕД ИГРОКА УБИВАЕТ ВРАГА (БЕЗ НЕУЯЗВИМОСТИ) =====
+        if (!enemyDied) {
             for (let t = 0; t < player.trail.length - 1; t++) {
                 if (player.trail[t].x === e.x && player.trail[t].y === e.y) {
                     enemyDied = true;
@@ -301,8 +296,8 @@ function updateSurvival() {
             }
         }
         
-        // ===== СТОЛКНОВЕНИЕ С ИГРОКОМ =====
-        if (!enemyDied && e.spawnProtection === 0 && player.alive) {
+        // ===== СТОЛКНОВЕНИЕ С ИГРОКОМ (БЕЗ НЕУЯЗВИМОСТИ) =====
+        if (!enemyDied && player.alive) {
             if (Math.round(e.x) === Math.round(player.x) && Math.round(e.y) === Math.round(player.y)) {
                 player.alive = false;
                 enemyDied = true;
@@ -313,7 +308,6 @@ function updateSurvival() {
                 if (typeof resetBoss === 'function') {
                     resetBoss();
                 }
-                // ===== ПОЛНАЯ ОСТАНОВКА ИГРЫ =====
                 survivalEnemies = [];
                 if (typeof gameLoop !== 'undefined' && gameLoop) {
                     clearInterval(gameLoop);
