@@ -25,15 +25,15 @@ let cloudInitialized = false;
 function initClouds() {
     if (cloudInitialized) return;
     cloudParticles = [];
-    const count = 50;
+    const count = 30; // Меньше плотность (было 50)
     for (let i = 0; i < count; i++) {
         cloudParticles.push({
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
-            size: 30 + Math.random() * 120, // Разная форма
-            speed: 0.6 + Math.random() * 0.8, // Разная скорость
-            opacity: 0.15 + Math.random() * 0.10, // Разная прозрачность
-            offsetY: Math.random() * 200, // Смещение по Y
+            size: 40 + Math.random() * 120,
+            speed: 0.6 + Math.random() * 0.8,
+            opacity: 0.10 + Math.random() * 0.08,
+            offsetY: Math.random() * 200,
             phase: Math.random() * Math.PI * 2
         });
     }
@@ -44,24 +44,24 @@ function updateClouds() {
     const time = Date.now() * 0.001;
     for (let p of cloudParticles) {
         // Движение только вправо
-        p.x += p.speed * 0.5;
+        p.x += p.speed * 0.4;
         
-        // Легкое колебание по Y для естественности
+        // Легкое колебание по Y
         p.y += Math.sin(time * 0.02 + p.phase) * 0.05;
         
-        // Зацикливание: когда уходит за правый край — появляется слева
-        if (p.x > canvas.width + 200) {
-            p.x = -200;
+        // ЦИКЛИЧНОСТЬ: когда уходит за правый край — появляется слева
+        if (p.x > canvas.width + 150) {
+            p.x = -150;
             p.y = Math.random() * canvas.height;
-            p.size = 30 + Math.random() * 120;
-            p.speed = 0.2 + Math.random() * 0.5;
-            p.opacity = 0.04 + Math.random() * 0.08;
+            p.size = 40 + Math.random() * 120;
+            p.speed = 0.3 + Math.random() * 0.5;
+            p.opacity = 0.10 + Math.random() * 0.08;
         }
-        if (p.x < -200) {
-            p.x = canvas.width + 200;
+        if (p.x < -150) {
+            p.x = canvas.width + 150;
         }
-        if (p.y < -200) p.y = canvas.height + 200;
-        if (p.y > canvas.height + 200) p.y = -200;
+        if (p.y < -150) p.y = canvas.height + 150;
+        if (p.y > canvas.height + 150) p.y = -150;
     }
 }
 
@@ -71,15 +71,15 @@ function drawClouds() {
         const cy = p.y + p.offsetY * 0.1;
         const size = p.size;
         
-        // ===== БЕЛЫЕ ОБЛАКА =====
+        // ===== ТЕМНО-СИНИЕ ОБЛАКА (КАК РАМКА) =====
         const gradient = ctx.createRadialGradient(
             cx - size * 0.2, cy - size * 0.1, 0,
             cx, cy, size
         );
-        gradient.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * 0.8})`);
-        gradient.addColorStop(0.3, `rgba(255, 255, 255, ${p.opacity * 0.5})`);
-        gradient.addColorStop(0.7, `rgba(255, 255, 255, ${p.opacity * 0.2})`);
-        gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
+        gradient.addColorStop(0, `rgba(20, 60, 90, ${p.opacity * 0.8})`);
+        gradient.addColorStop(0.3, `rgba(15, 50, 80, ${p.opacity * 0.5})`);
+        gradient.addColorStop(0.7, `rgba(10, 40, 70, ${p.opacity * 0.2})`);
+        gradient.addColorStop(1, `rgba(5, 30, 60, 0)`);
         
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -91,8 +91,8 @@ function drawClouds() {
             cx + size * 0.4, cy - size * 0.2, 0,
             cx + size * 0.4, cy - size * 0.2, size * 0.7
         );
-        gradient2.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * 0.4})`);
-        gradient2.addColorStop(1, `rgba(255, 255, 255, 0)`);
+        gradient2.addColorStop(0, `rgba(20, 60, 90, ${p.opacity * 0.4})`);
+        gradient2.addColorStop(1, `rgba(5, 30, 60, 0)`);
         ctx.fillStyle = gradient2;
         ctx.beginPath();
         ctx.arc(cx + size * 0.4, cy - size * 0.2, size * 0.7, 0, Math.PI * 2);
@@ -103,8 +103,8 @@ function drawClouds() {
             cx - size * 0.5, cy + size * 0.3, 0,
             cx - size * 0.5, cy + size * 0.3, size * 0.6
         );
-        gradient3.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * 0.3})`);
-        gradient3.addColorStop(1, `rgba(255, 255, 255, 0)`);
+        gradient3.addColorStop(0, `rgba(15, 50, 80, ${p.opacity * 0.3})`);
+        gradient3.addColorStop(1, `rgba(5, 30, 60, 0)`);
         ctx.fillStyle = gradient3;
         ctx.beginPath();
         ctx.arc(cx - size * 0.5, cy + size * 0.3, size * 0.6, 0, Math.PI * 2);
@@ -148,7 +148,7 @@ function updateParticles() {
     for (let i = 0; i < particles.length; i++) {
         particles[i].x += particles[i].vx;
         particles[i].y += particles[i].vy;
-        particles[i].life -= 0.03; // Быстрее затухают
+        particles[i].life -= 0.03;
         if (particles[i].life <= 0) {
             particles.splice(i, 1);
             i--;
@@ -567,7 +567,7 @@ function createFireworkBurst(x, y, colors) {
             vx: Math.cos(angle) * speed,
             vy: Math.sin(angle) * speed,
             life: 1.0,
-            decay: 0.015 + Math.random() * 0.025, // Быстрее затухает
+            decay: 0.015 + Math.random() * 0.025,
             color: color,
             size: size
         });
