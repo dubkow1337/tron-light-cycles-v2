@@ -199,10 +199,29 @@ function setupEventListeners() {
                 cloneActive = false;
             }
             
-            // ===== 9. ВОЗВРАЩАЕМСЯ В МЕНЮ =====
+            // ===== 9. СБРОС РЕЖИМА ВЫЖИВАНИЯ =====
+            if (matchMode === 'survival') {
+                if (typeof survivalEnemies !== 'undefined') {
+                    survivalEnemies = [];
+                }
+                if (typeof resetSurvivalTimer === 'function') {
+                    resetSurvivalTimer();
+                }
+                if (typeof resetBoss === 'function') {
+                    resetBoss();
+                }
+                if (typeof clearSurvivalEnemies === 'function') {
+                    clearSurvivalEnemies();
+                }
+                if (typeof currentSteps !== 'undefined') {
+                    currentSteps = 0;
+                }
+            }
+            
+            // ===== 10. ВОЗВРАЩАЕМСЯ В МЕНЮ =====
             showScreen('menuScreen');
             
-            // ===== 10. ОБНОВЛЯЕМ РЕКОРД =====
+            // ===== 11. ОБНОВЛЯЕМ РЕКОРД =====
             const recordDisplay = document.getElementById('menuRecordDisplay');
             if (recordDisplay && typeof bestRecord !== 'undefined') {
                 recordDisplay.innerText = bestRecord;
@@ -343,7 +362,8 @@ function updateUI() {
             p1Score.innerText = currentSteps || 0;
         }
         if (p2Score) {
-            p2Score.innerText = typeof survivalEnemies !== 'undefined' ? survivalEnemies.length : 0;
+            const alive = typeof survivalEnemies !== 'undefined' ? survivalEnemies.filter(e => e.alive).length : 0;
+            p2Score.innerText = alive;
         }
         if (timerDisplay) timerDisplay.style.display = 'none';
         if (recordDisplay && typeof bestRecord !== 'undefined') {
