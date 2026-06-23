@@ -43,13 +43,9 @@ function initClouds() {
 function updateClouds() {
     const time = Date.now() * 0.001;
     for (let p of cloudParticles) {
-        // Движение вправо
         p.x += p.speed * 0.4;
-        
-        // Легкое колебание по Y
         p.y += Math.sin(time * 0.02 + p.phase) * 0.05;
         
-        // ЦИКЛИЧНОСТЬ: уходит за правый край — появляется слева
         if (p.x > canvas.width + 150) {
             p.x = -150;
             p.y = Math.random() * canvas.height;
@@ -71,7 +67,6 @@ function drawClouds() {
         const cy = p.y + p.offsetY * 0.1;
         const size = p.size;
         
-        // Белые облака
         const gradient = ctx.createRadialGradient(
             cx - size * 0.2, cy - size * 0.1, 0,
             cx, cy, size
@@ -86,7 +81,6 @@ function drawClouds() {
         ctx.arc(cx, cy, size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Второй "лепесток"
         const gradient2 = ctx.createRadialGradient(
             cx + size * 0.4, cy - size * 0.2, 0,
             cx + size * 0.4, cy - size * 0.2, size * 0.7
@@ -98,7 +92,6 @@ function drawClouds() {
         ctx.arc(cx + size * 0.4, cy - size * 0.2, size * 0.7, 0, Math.PI * 2);
         ctx.fill();
         
-        // Третий "лепесток"
         const gradient3 = ctx.createRadialGradient(
             cx - size * 0.5, cy + size * 0.3, 0,
             cx - size * 0.5, cy + size * 0.3, size * 0.6
@@ -112,20 +105,44 @@ function drawClouds() {
     }
 }
 
-// ===== НЕОНОВАЯ СЕТКА (бирюзовая, волны диагонально) =====
+// ===== СЕТКА С ГРАДИЕНТНЫМИ КЛЕТКАМИ (линии серые) =====
 function drawGrid() {
     const time = Date.now() * 0.001;
     const w = canvas.width;
     const h = canvas.height;
     
-    // ===== 1. ФОНОВЫЕ ЛИНИИ (очень бледные) =====
-    ctx.lineWidth = 0.5;
+    // ===== 1. ГРАДИЕНТНАЯ ЗАЛИВКА КЛЕТОК =====
+    for (let row = 0; row < HEIGHT; row++) {
+        for (let col = 0; col < WIDTH; col++) {
+            const x = col * CELL_SIZE;
+            const y = row * CELL_SIZE;
+            
+            const grad = ctx.createRadialGradient(
+                x + CELL_SIZE/2, y + CELL_SIZE/2, 0,
+                x + CELL_SIZE/2, y + CELL_SIZE/2, CELL_SIZE/2
+            );
+            
+            const wave1 = Math.sin(time * 0.3 + row * 0.1 + col * 0.08) * 0.3 + 0.7;
+            const wave2 = Math.sin(time * 0.25 + row * 0.12 + col * 0.06 + 1.5) * 0.3 + 0.7;
+            
+            const alpha1 = 0.02 + 0.05 * wave1;
+            const alpha2 = 0.01 + 0.03 * wave2;
+            
+            grad.addColorStop(0, `rgba(0, 255, 204, ${alpha1})`);
+            grad.addColorStop(0.5, `rgba(0, 220, 200, ${alpha1 * 0.6})`);
+            grad.addColorStop(1, `rgba(0, 180, 180, ${alpha2})`);
+            
+            ctx.fillStyle = grad;
+            ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+        }
+    }
+    
+    // ===== 2. ЛИНИИ СЕТКИ (серые, как были) =====
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#0f3f3a';
     for (let i = 0; i <= WIDTH; i++) {
         const x = i * CELL_SIZE;
-        // Диагональная волна
-        const wave = Math.sin(time * 0.3 + i * 0.03 + 0.5) * 0.5 + 0.5;
-        const alpha = 0.02 + 0.02 * wave;
-        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha})`;
         ctx.beginPath();
         ctx.moveTo(x, 0);
         ctx.lineTo(x, h);
@@ -133,94 +150,11 @@ function drawGrid() {
     }
     for (let i = 0; i <= HEIGHT; i++) {
         const y = i * CELL_SIZE;
-        const wave = Math.sin(time * 0.25 + i * 0.04 + 0.3) * 0.5 + 0.5;
-        const alpha = 0.02 + 0.02 * wave;
-        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha})`;
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(w, y);
         ctx.stroke();
     }
-    
-    // ===== 2. ОСНОВНЫЕ ЛИНИИ (каждые 5 клеток) =====
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= WIDTH; i += 5) {
-        const x = i * CELL_SIZE;
-        const distFromCenter = Math.abs(i - WIDTH/2) / (WIDTH/2);
-        // Диагональная волна для живости
-        const wave = Math.sin(time * 0.5 + i * 0.04 + 0.7) * 0.3 + 0.7;
-        const alpha = (0.08 + 0.12 * (1 - distFromCenter)) * wave;
-        
-        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha * 0.8})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = `rgba(0, 255, 204, ${alpha * 0.2})`;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-    }
-    for (let i = 0; i <= HEIGHT; i += 5) {
-        const y = i * CELL_SIZE;
-        const distFromCenter = Math.abs(i - HEIGHT/2) / (HEIGHT/2);
-        const wave = Math.sin(time * 0.45 + i * 0.05 + 0.2) * 0.3 + 0.7;
-        const alpha = (0.08 + 0.12 * (1 - distFromCenter)) * wave;
-        
-        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha * 0.8})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = `rgba(0, 255, 204, ${alpha * 0.2})`;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-    }
-    ctx.shadowBlur = 0;
-    
-    // ===== 3. ЦЕНТРАЛЬНЫЙ КРЕСТ (ярче) =====
-    const crossWave = Math.sin(time * 0.6 + 0.5) * 0.15 + 0.85;
-    const crossAlpha = 0.15 * crossWave;
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = `rgba(0, 255, 204, ${crossAlpha})`;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = `rgba(0, 255, 204, 0.15)`;
-    
-    const centerX = Math.round(WIDTH/2) * CELL_SIZE;
-    ctx.beginPath();
-    ctx.moveTo(centerX, 0);
-    ctx.lineTo(centerX, h);
-    ctx.stroke();
-    
-    const centerY = Math.round(HEIGHT/2) * CELL_SIZE;
-    ctx.beginPath();
-    ctx.moveTo(0, centerY);
-    ctx.lineTo(w, centerY);
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-    
-    // ===== 4. УГЛОВЫЕ МАРКЕРЫ =====
-    const cornerSize = 12;
-    const margin = 4;
-    const cornerWave = Math.sin(time * 0.5 + 0.8) * 0.2 + 0.8;
-    const cornerAlpha = 0.15 * cornerWave;
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = `rgba(0, 255, 204, ${cornerAlpha})`;
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = `rgba(0, 255, 204, 0.15)`;
-    
-    const corners = [
-        [margin, margin, 1, 1],
-        [w - margin, margin, -1, 1],
-        [margin, h - margin, 1, -1],
-        [w - margin, h - margin, -1, -1]
-    ];
-    
-    for (let [cx, cy, dx, dy] of corners) {
-        ctx.beginPath();
-        ctx.moveTo(cx, cy + dy * cornerSize);
-        ctx.lineTo(cx, cy);
-        ctx.lineTo(cx + dx * cornerSize, cy);
-        ctx.stroke();
-    }
-    ctx.shadowBlur = 0;
 }
 
 function explode(x, y, color) {
@@ -406,7 +340,7 @@ function draw() {
         drawFireworks();
     }
     
-    // ===== СЕТКА (бирюзовая, живой неон) =====
+    // ===== СЕТКА (градиентные клетки, серые линии) =====
     drawGrid();
     
     // ===== СЛЕДЫ ИГРОКОВ =====
