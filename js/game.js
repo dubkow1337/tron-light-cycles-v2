@@ -324,6 +324,7 @@ function updateGame() {
             continue;
         }
         
+        // Границы
         if (p.x < 0 || p.x >= WIDTH || p.y < 0 || p.y >= HEIGHT) {
             p.alive = false;
             crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
@@ -331,6 +332,7 @@ function updateGame() {
             continue;
         }
         
+        // Свой след
         for (let i = 0; i < p.trail.length - 2; i++) {
             if (p.trail[i].x === p.x && p.trail[i].y === p.y) {
                 p.alive = false;
@@ -341,27 +343,31 @@ function updateGame() {
         }
         if (!p.alive) continue;
         
-        for (let other of players) {
-            if (other === p) continue;
-            for (let i = 0; i < other.trail.length - 1; i++) {
-                const seg = other.trail[i];
-                const nextSeg = other.trail[i+1];
-                const px = p.x * CELL_SIZE + CELL_SIZE/2;
-                const py = p.y * CELL_SIZE + CELL_SIZE/2;
-                const dist = pointToSegmentDistance(px, py,
-                    seg.x * CELL_SIZE + CELL_SIZE/2, seg.y * CELL_SIZE + CELL_SIZE/2,
-                    nextSeg.x * CELL_SIZE + CELL_SIZE/2, nextSeg.y * CELL_SIZE + CELL_SIZE/2);
-                if (dist < CELL_SIZE/2) {
-                    p.alive = false;
-                    crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
-                    if (typeof explode === 'function') explode(p.x, p.y, p.color);
-                    break;
+        // ===== СЛЕДЫ ДРУГИХ ИГРОКОВ (ТОЛЬКО НЕ В ВЫЖИВАНИИ) =====
+        if (matchMode !== 'survival') {
+            for (let other of players) {
+                if (other === p) continue;
+                for (let i = 0; i < other.trail.length - 1; i++) {
+                    const seg = other.trail[i];
+                    const nextSeg = other.trail[i+1];
+                    const px = p.x * CELL_SIZE + CELL_SIZE/2;
+                    const py = p.y * CELL_SIZE + CELL_SIZE/2;
+                    const dist = pointToSegmentDistance(px, py,
+                        seg.x * CELL_SIZE + CELL_SIZE/2, seg.y * CELL_SIZE + CELL_SIZE/2,
+                        nextSeg.x * CELL_SIZE + CELL_SIZE/2, nextSeg.y * CELL_SIZE + CELL_SIZE/2);
+                    if (dist < CELL_SIZE/2) {
+                        p.alive = false;
+                        crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
+                        if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        break;
+                    }
                 }
+                if (!p.alive) break;
             }
-            if (!p.alive) break;
         }
         if (!p.alive) continue;
         
+        // ===== СЛЕД КЛОНА (ОПАСЕН ТОЛЬКО ДЛЯ БОТА) =====
         if (cloneTrail.length > 1) {
             if (p === players[1] && opponentType === 'ai') {
                 for (let i = 0; i < cloneTrail.length - 1; i++) {
@@ -385,6 +391,7 @@ function updateGame() {
         }
         if (!p.alive) continue;
         
+        // ===== ВРАГИ (ВЫЖИВАНИЕ) =====
         if (typeof survivalEnemies !== 'undefined') {
             for (let e of survivalEnemies) {
                 if (!e.alive) continue;
@@ -407,6 +414,7 @@ function updateGame() {
             }
         }
         
+        // ===== БОСС =====
         if (!p.alive) continue;
         if (typeof boss !== 'undefined' && boss && boss.alive) {
             for (let dx = 0; dx < boss.size; dx++) {
@@ -425,6 +433,7 @@ function updateGame() {
         }
     }
     
+    // ===== ТАЙМЕР РАУНДА (ТОЛЬКО ДЛЯ КЛАССИКИ И ТУРНИРА) =====
     if ((matchMode === 'classic' || matchMode === 'tournament') && roundTimerActive) {
         if (roundTimer <= 0) {
             gameActive = false;
@@ -445,7 +454,10 @@ function updateGame() {
         }
     }
     
-    checkVictoryWithDelay();
+    // ===== ПРОВЕРКА ПОБЕДЫ (ТОЛЬКО ДЛЯ КЛАССИКИ И ТУРНИРА) =====
+    if (matchMode === 'classic' || matchMode === 'tournament') {
+        checkVictoryWithDelay();
+    }
     
     currentSteps++;
     updateUI();
@@ -534,6 +546,7 @@ function initGame() {
             countdownActive = false;
             paused = false;
             
+            // ===== ЗАПУСК ТАЙМЕРА (ТОЛЬКО ДЛЯ КЛАССИКИ И ТУРНИРА) =====
             if (matchMode === 'classic' || matchMode === 'tournament') {
                 roundTimer = 30;
                 roundTimerActive = true;
@@ -546,6 +559,12 @@ function initGame() {
                     updateUI();
                     if (typeof draw === 'function') draw();
                 }, 1000);
+            } else if (matchMode === 'survival') {
+                roundTimerActive = false;
+                if (roundTimerInterval) {
+                    clearInterval(roundTimerInterval);
+                    roundTimerInterval = null;
+                }
             }
             
             // ===== ЗАПУСК РЕЖИМА ВЫЖИВАНИЯ =====
