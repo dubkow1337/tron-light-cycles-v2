@@ -1,5 +1,5 @@
 // ========== ГЛАВНАЯ ЛОГИКА ИГРЫ ==========
-
+ 
 let gameActive = true;
 let gameLoop = null;
 let countdownInterval = null;
