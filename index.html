@@ -8,8 +8,28 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <!-- ===== ЗАГРУЗОЧНЫЙ ЭКРАН (СПЛАШ) ===== -->
+    <div id="splashScreen" class="screen active">
+        <div class="splash-wrapper">
+            <div class="splash-title">
+                <span class="splash-tron">TRON</span>
+                <span class="splash-sub">LIGHT CYCLES</span>
+            </div>
+            <div class="splash-tagline">
+                <span class="tagline-line">⚡ ДОБРО ПОЖАЛОВАТЬ В ЦИФРОВОЙ МИР ⚡</span>
+            </div>
+            <button id="splashEnterBtn" class="splash-btn">
+                <span class="btn-text">НАЧАТЬ ПОГРУЖЕНИЕ</span>
+                <span class="btn-glow"></span>
+            </button>
+            <div class="splash-footer">
+                <span>⚡ ЗВУК АКТИВИРУЕТСЯ ПРИ ВХОДЕ ⚡</span>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
-    <div id="menuScreen" class="screen active">
+    <div id="menuScreen" class="screen">
         <video id="bgVideo" autoplay muted loop playsinline>
             <source src="assets/videos/tron-bg.mp4" type="video/mp4">
             <source src="assets/videos/tron-bg.webm" type="video/webm">
