@@ -1,29 +1,78 @@
 // ========== ЗВУК ==========
 let bgMusic = null;
+let menuMusic = null;
 let soundEnabled = true;
+let currentMusicType = 'menu'; // 'menu' или 'game'
 
 function initSound() {
     try {
+        // ===== ИГРОВАЯ МУЗЫКА =====
         bgMusic = new Audio('assets/sounds/tron-music.mp3');
         bgMusic.loop = true;
         bgMusic.volume = 0.45;
         bgMusic.preload = 'auto';
         console.log('🔊 bgMusic инициализирован');
+        
+        // ===== МУЗЫКА ДЛЯ МЕНЮ =====
+        menuMusic = new Audio('assets/sounds/menu-music.mp3');
+        menuMusic.loop = true;
+        menuMusic.volume = 0.35;
+        menuMusic.preload = 'auto';
+        console.log('🔊 menuMusic инициализирован');
     } catch (e) {
         console.warn('Не удалось инициализировать звук:', e);
     }
 
     const btn = document.getElementById('menuSoundToggle');
     if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
+    
+    // ===== ЗАПУСКАЕМ МУЗЫКУ МЕНЮ ПРИ СТАРТЕ =====
+    setTimeout(() => {
+        playMenuMusic();
+    }, 500);
 }
 
+// ===== МУЗЫКА МЕНЮ =====
+function playMenuMusic() {
+    if (!soundEnabled || !menuMusic) return;
+    // Останавливаем игровую музыку если играла
+    if (bgMusic && !bgMusic.paused) {
+        try { bgMusic.pause(); } catch(e) {}
+    }
+    if (menuMusic.paused) {
+        const p = menuMusic.play();
+        if (p && typeof p.then === 'function') {
+            p.catch(err => {
+                console.warn('playMenuMusic() rejected:', err);
+            });
+        }
+        currentMusicType = 'menu';
+    }
+}
+
+function stopMenuMusic() {
+    if (!menuMusic) return;
+    try {
+        menuMusic.pause();
+        menuMusic.currentTime = 0;
+    } catch (e) {}
+}
+
+// ===== ИГРОВАЯ МУЗЫКА =====
 function playBgMusic() {
     if (!soundEnabled || !bgMusic) return;
-    const p = bgMusic.play();
-    if (p && typeof p.then === 'function') {
-        p.catch(err => {
-            console.warn('playBgMusic() rejected:', err);
-        });
+    // Останавливаем музыку меню
+    if (menuMusic && !menuMusic.paused) {
+        try { menuMusic.pause(); } catch(e) {}
+    }
+    if (bgMusic.paused) {
+        const p = bgMusic.play();
+        if (p && typeof p.then === 'function') {
+            p.catch(err => {
+                console.warn('playBgMusic() rejected:', err);
+            });
+        }
+        currentMusicType = 'game';
     }
 }
 
@@ -35,15 +84,43 @@ function stopBgMusic() {
     } catch (e) {}
 }
 
+// ===== ОСТАНОВКА ВСЕЙ МУЗЫКИ =====
+function stopAllMusic() {
+    stopMenuMusic();
+    stopBgMusic();
+}
+
+// ===== ПЕРЕКЛЮЧЕНИЕ МУЗЫКИ В ЗАВИСИМОСТИ ОТ ЭКРАНА =====
+function switchMusicForScreen(screenId) {
+    if (!soundEnabled) return;
+    
+    if (screenId === 'gameScreen') {
+        // Игровой экран — играет игровая музыка
+        stopMenuMusic();
+        playBgMusic();
+    } else {
+        // Любой другой экран — музыка меню
+        stopBgMusic();
+        playMenuMusic();
+    }
+}
+
 function toggleSound() {
     soundEnabled = !soundEnabled;
     const btn = document.getElementById('menuSoundToggle');
     if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
 
     if (!soundEnabled) {
-        if (bgMusic) try { bgMusic.pause(); } catch (e) {}
+        // Всё выключаем
+        stopAllMusic();
     } else {
-        playBgMusic();
+        // Включаем музыку в зависимости от текущего экрана
+        const gameScreen = document.getElementById('gameScreen');
+        if (gameScreen && gameScreen.classList.contains('active')) {
+            playBgMusic();
+        } else {
+            playMenuMusic();
+        }
     }
 }
 
