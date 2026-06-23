@@ -1,15 +1,13 @@
 // ========== РЕЖИМ ВЫЖИВАНИЯ (БЕСКОНЕЧНОЕ НАКОПЛЕНИЕ) ==========
- 
+
 let survivalEnemies = [];
 let spawnTimer = 0;
 let lastSpawnTime = 0;
 let bossSpawnTimer = 0;
-const SPAWN_INTERVAL = 3000; // 3 секунды между появлением новых
-const MAX_ENEMIES = 12; // Уменьшено с 20 до 12 (для производительности)
+const SPAWN_INTERVAL = 3000;
+const MAX_ENEMIES = 12;
 
-// ===== ФУНКЦИЯ ЗАПУСКА РЕЖИМА =====
 function spawnSurvivalEnemies() {
-    // ===== СБРАСЫВАЕМ БОССА ПРИ СТАРТЕ =====
     if (typeof resetBoss === 'function') {
         resetBoss();
     }
@@ -19,17 +17,14 @@ function spawnSurvivalEnemies() {
     lastSpawnTime = Date.now();
     bossSpawnTimer = 0;
     
-    // ===== СБРАСЫВАЕМ СЧЕТ =====
     if (typeof currentSteps !== 'undefined') {
         currentSteps = 0;
     }
     
-    // Первая волна — 3 врага
     for (let i = 0; i < 3; i++) {
         spawnSingleEnemy();
     }
     
-    // ===== БОСС ПОЯВЛЯЕТСЯ ЧЕРЕЗ 2 СЕКУНДЫ (ПЕРВЫЙ РАЗ) =====
     setTimeout(() => {
         if (typeof spawnBoss === 'function' && players[0] && players[0].alive) {
             spawnBoss();
@@ -38,7 +33,6 @@ function spawnSurvivalEnemies() {
     }, 2000);
 }
 
-// ===== СПАВН ВРАГА =====
 function spawnSingleEnemy() {
     if (typeof players === 'undefined' || !players[0] || !players[0].alive) return;
     if (survivalEnemies.filter(e => e.alive).length >= MAX_ENEMIES) return;
@@ -75,7 +69,6 @@ function spawnSingleEnemy() {
     const trailColors = ['#882222', '#884422', '#886622', '#882266', '#886622', '#884444', '#886633'];
     const colorIndex = Math.floor(Math.random() * colors.length);
     
-    // ===== СЛОЖНОСТЬ ЗАВИСИТ ОТ ВРЕМЕНИ =====
     const difficulty = Math.min(5, Math.floor((survivalEnemies.filter(e => e.alive).length) / 3));
     const isHunter = Math.random() < 0.2 + difficulty * 0.06;
     
@@ -89,11 +82,10 @@ function spawnSingleEnemy() {
         trailColor: trailColors[colorIndex],
         spawnProtection: 30,
         role: isHunter ? 'hunter' : 'flanker',
-        speed: 1 + difficulty * 0.05 // Чуть быстрее со временем
+        speed: 1 + difficulty * 0.05
     });
 }
 
-// ===== ОБНОВЛЕНИЕ РЕЖИМА =====
 function updateSurvival() {
     if (matchMode !== 'survival') return;
     
@@ -106,12 +98,10 @@ function updateSurvival() {
         return;
     }
     
-    // ===== ШАГИ (для счета) =====
     if (typeof currentSteps !== 'undefined') {
         currentSteps++;
     }
     
-    // ===== СПАВН НОВЫХ ВРАГОВ =====
     const now = Date.now();
     if (now - lastSpawnTime > SPAWN_INTERVAL) {
         lastSpawnTime = now;
@@ -120,17 +110,15 @@ function updateSurvival() {
             spawnSingleEnemy();
         }
         const aliveCount = survivalEnemies.filter(e => e.alive).length;
-        // Показываем сообщение, но не спамим
         if (aliveCount > 0 && aliveCount % 3 === 0) {
             showMessage(`⚠️ ВРАГОВ: ${aliveCount}`);
         }
     }
     
-    // ===== БОСС: КАЖДЫЕ 15 СЕКУНД, ШАНС 30% НА 2 БОССОВ =====
     if (typeof boss !== 'undefined' && typeof spawnBoss === 'function') {
         bossSpawnTimer += 16;
         
-        if (bossSpawnTimer >= 15000) { // 15 секунд
+        if (bossSpawnTimer >= 15000) {
             bossSpawnTimer = 0;
             
             if (!boss || !boss.alive) {
@@ -151,27 +139,15 @@ function updateSurvival() {
             }
         }
         
-        // Обновляем босса, если он есть
         if (typeof updateBoss === 'function' && boss && boss.alive) {
             updateBoss();
         }
     }
     
-    // ===== ДВИЖЕНИЕ ВРАГОВ =====
     const aliveEnemies = survivalEnemies.filter(e => e.alive);
     const enemyCount = aliveEnemies.length;
     
     if (enemyCount === 0) return;
-    
-    let centerX = 0, centerY = 0;
-    for (let e of aliveEnemies) {
-        centerX += e.x;
-        centerY += e.y;
-    }
-    if (enemyCount > 0) {
-        centerX /= enemyCount;
-        centerY /= enemyCount;
-    }
     
     for (let i = 0; i < survivalEnemies.length; i++) {
         let e = survivalEnemies[i];
@@ -277,12 +253,10 @@ function updateSurvival() {
         
         let enemyDied = false;
         
-        // Границы
         if (e.x < 0 || e.x >= WIDTH || e.y < 0 || e.y >= HEIGHT) {
             enemyDied = true;
         }
         
-        // Свой след
         if (!enemyDied) {
             for (let t = 0; t < e.trail.length - 2; t++) {
                 if (e.trail[t].x === e.x && e.trail[t].y === e.y) {
@@ -292,7 +266,6 @@ function updateSurvival() {
             }
         }
         
-        // Следы других врагов
         if (!enemyDied) {
             for (let other of survivalEnemies) {
                 if (other === e || !other.alive) continue;
@@ -306,7 +279,6 @@ function updateSurvival() {
             }
         }
         
-        // След игрока
         if (!enemyDied && e.spawnProtection === 0) {
             for (let t = 0; t < player.trail.length - 1; t++) {
                 if (player.trail[t].x === e.x && player.trail[t].y === e.y) {
@@ -316,17 +288,15 @@ function updateSurvival() {
             }
         }
         
-        // Столкновение с игроком (только если игрок жив)
+        // ===== СТОЛКНОВЕНИЕ С ИГРОКОМ =====
         if (!enemyDied && e.spawnProtection === 0 && player.alive) {
-            // Проверяем позицию игрока
             if (Math.round(e.x) === Math.round(player.x) && Math.round(e.y) === Math.round(player.y)) {
                 player.alive = false;
                 enemyDied = true;
                 if (typeof explode === 'function') explode(player.x, player.y, player.color);
                 gameActive = false;
-                showMessage('💀 ВЫ ПРОИГРАЛИ! Нажмите ИГРАТЬ');
+                showMessage('💀 GAME OVER!');
                 if (typeof stopBgMusic === 'function') stopBgMusic();
-                // Сбрасываем босса
                 if (typeof resetBoss === 'function') {
                     resetBoss();
                 }
@@ -340,14 +310,10 @@ function updateSurvival() {
         }
     }
     
-    // Очищаем мертвых врагов
     survivalEnemies = survivalEnemies.filter(e => e.alive);
-    
-    // Обновляем UI
     if (typeof updateUI === 'function') updateUI();
 }
 
-// ===== СБРОС ТАЙМЕРОВ =====
 function resetSurvivalTimer() {
     spawnTimer = 0;
     lastSpawnTime = Date.now();
@@ -360,7 +326,6 @@ function resetSurvivalTimer() {
     }
 }
 
-// ===== ОЧИСТКА ВРАГОВ =====
 function clearSurvivalEnemies() {
     survivalEnemies = [];
     if (typeof resetBoss === 'function') {
