@@ -344,6 +344,40 @@ function setupEventListeners() {
     });
 }
 
+// ===== ЗАГРУЗОЧНЫЙ ЭКРАН: КНОПКА "НАЧАТЬ ПОГРУЖЕНИЕ" =====
+const splashBtn = document.getElementById('splashEnterBtn');
+if (splashBtn) {
+    splashBtn.addEventListener('click', () => {
+        // ===== 1. ЗАПУСКАЕМ МУЗЫКУ МЕНЮ =====
+        if (typeof playMenuMusic === 'function') {
+            playMenuMusic();
+        }
+        
+        // ===== 2. ПЛАВНЫЙ ПЕРЕХОД =====
+        const splash = document.getElementById('splashScreen');
+        if (splash) {
+            splash.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            splash.style.opacity = '0';
+            splash.style.transform = 'scale(1.05)';
+            
+            setTimeout(() => {
+                splash.classList.remove('active');
+                splash.style.display = 'none';
+                splash.style.opacity = '1';
+                splash.style.transform = 'scale(1)';
+                // Показываем основное меню
+                showScreen('menuScreen');
+            }, 900);
+        }
+        
+        // Обновляем кнопку звука
+        const soundBtn = document.getElementById('menuSoundToggle');
+        if (soundBtn) {
+            soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+        }
+    });
+}
+
 function updateUI() {
     const p1Score = document.getElementById('gamePlayer1Score');
     const p2Score = document.getElementById('gamePlayer2Score');
@@ -423,4 +457,4 @@ function setActiveButton(group, activeId) {
     buttons.forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(activeId);
     if (activeBtn) activeBtn.classList.add('active');
-}
+        }
