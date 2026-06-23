@@ -25,12 +25,13 @@ function spawnSurvivalEnemies() {
         spawnSingleEnemy();
     }
     
+    // ===== ПЕРВЫЙ БОСС ЧЕРЕЗ 10 СЕКУНД =====
     setTimeout(() => {
         if (typeof spawnBoss === 'function' && players[0] && players[0].alive) {
             spawnBoss();
             showMessage('⚠️ LIGHT RUNNER ПРИБЫВАЕТ!');
         }
-    }, 2000);
+    }, 10000);
 }
 
 function spawnSingleEnemy() {
@@ -126,10 +127,11 @@ function updateSurvival() {
         }
     }
     
+    // ===== БОСС КАЖДЫЕ 10 СЕКУНД =====
     if (typeof boss !== 'undefined' && typeof spawnBoss === 'function') {
         bossSpawnTimer += 16;
         
-        if (bossSpawnTimer >= 15000) {
+        if (bossSpawnTimer >= 10000) {
             bossSpawnTimer = 0;
             
             if (!boss || !boss.alive) {
@@ -313,9 +315,9 @@ function updateSurvival() {
                     clearInterval(gameLoop);
                     gameLoop = null;
                 }
-                // ===== ПОКАЗЫВАЕМ ТАБЛО GAME OVER =====
+                // ===== ВЫЗОВ ТАБЛО =====
                 if (typeof showGameOver === 'function') {
-                    setTimeout(() => showGameOver(), 300);
+                    setTimeout(showGameOver, 300);
                 }
                 return;
             }
