@@ -128,6 +128,7 @@ function setupEventListeners() {
     const backBtn = document.getElementById('backToMenuBtn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
+            // ===== 1. ОСТАНАВЛИВАЕМ ВСЕ ИНТЕРВАЛЫ =====
             if (typeof gameLoop !== 'undefined' && gameLoop) {
                 clearInterval(gameLoop);
                 gameLoop = null;
@@ -143,13 +144,31 @@ function setupEventListeners() {
                 roundTimerInterval = null;
             }
             
+            // ===== 2. ОСТАНАВЛИВАЕМ ЗАДЕРЖКИ =====
+            if (typeof victoryPendingTimer !== 'undefined' && victoryPendingTimer) {
+                clearTimeout(victoryPendingTimer);
+                victoryPendingTimer = null;
+            }
+            if (typeof victoryPending !== 'undefined') victoryPending = false;
+            
+            if (typeof roundDelayTimer !== 'undefined' && roundDelayTimer) {
+                clearTimeout(roundDelayTimer);
+                roundDelayTimer = null;
+            }
+            if (typeof roundDelayActive !== 'undefined') roundDelayActive = false;
+            
+            // ===== 3. СБРАСЫВАЕМ ФЛАГИ =====
+            if (typeof gameActive !== 'undefined') gameActive = false;
+            paused = false;
+            if (typeof countdownActive !== 'undefined') countdownActive = false;
+            if (typeof roundTimerActive !== 'undefined') roundTimerActive = false;
+            
+            // ===== 4. ОСТАНАВЛИВАЕМ МУЗЫКУ =====
             if (typeof stopBgMusic === 'function') {
                 stopBgMusic();
             }
             
-            if (typeof gameActive !== 'undefined') gameActive = false;
-            paused = false;
-            
+            // ===== 5. СБРАСЫВАЕМ ВРАГОВ И БОССА =====
             if (typeof survivalEnemies !== 'undefined') {
                 survivalEnemies = [];
             }
@@ -158,12 +177,32 @@ function setupEventListeners() {
                 resetBoss();
             }
             
+            // ===== 6. СБРАСЫВАЕМ БОНУСЫ =====
             if (typeof resetBonuses === 'function') {
                 resetBonuses();
             }
             
+            // ===== 7. СБРАСЫВАЕМ ЭФФЕКТЫ ВЗРЫВА =====
+            if (typeof window.explosionEffects !== 'undefined') {
+                window.explosionEffects = [];
+            }
+            
+            // ===== 8. СБРАСЫВАЕМ КЛОНА =====
+            if (typeof cloneData !== 'undefined' && cloneData) {
+                cloneData.active = false;
+                cloneData.trail = [];
+            }
+            if (typeof cloneTrail !== 'undefined') {
+                cloneTrail = [];
+            }
+            if (typeof cloneActive !== 'undefined') {
+                cloneActive = false;
+            }
+            
+            // ===== 9. ВОЗВРАЩАЕМСЯ В МЕНЮ =====
             showScreen('menuScreen');
             
+            // ===== 10. ОБНОВЛЯЕМ РЕКОРД =====
             const recordDisplay = document.getElementById('menuRecordDisplay');
             if (recordDisplay && typeof bestRecord !== 'undefined') {
                 recordDisplay.innerText = bestRecord;
@@ -181,8 +220,8 @@ function setupEventListeners() {
                 clearInterval(roundTimerInterval);
                 roundTimerInterval = null;
             }
-            roundTimerActive = false;
-            roundTimer = 30;
+            if (typeof roundTimerActive !== 'undefined') roundTimerActive = false;
+            if (typeof roundTimer !== 'undefined') roundTimer = 30;
             
             if (matchMode === 'race') {
                 if (typeof startRace === 'function') {
@@ -205,6 +244,25 @@ function setupEventListeners() {
                 if (matchMode === 'race') return;
                 if (typeof gameActive !== 'undefined' && gameActive && !countdownActive) {
                     paused = !paused;
+                    
+                    // ===== ЕСЛИ ПАУЗА - ОСТАНАВЛИВАЕМ ТАЙМЕР =====
+                    if (paused && roundTimerInterval) {
+                        clearInterval(roundTimerInterval);
+                        roundTimerInterval = null;
+                    }
+                    // ===== ЕСЛИ СНЯЛИ ПАУЗУ - ЗАПУСКАЕМ ТАЙМЕР =====
+                    if (!paused && (matchMode === 'classic' || matchMode === 'tournament') && roundTimerActive) {
+                        if (roundTimerInterval) {
+                            clearInterval(roundTimerInterval);
+                            roundTimerInterval = null;
+                        }
+                        roundTimerInterval = setInterval(() => {
+                            roundTimer--;
+                            updateUI();
+                            if (typeof draw === 'function') draw();
+                        }, 1000);
+                    }
+                    
                     if (typeof draw === 'function') draw();
                 }
             }
