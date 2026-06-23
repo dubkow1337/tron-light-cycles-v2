@@ -105,34 +105,22 @@ function drawClouds() {
     }
 }
 
-// ===== СЕТКА С ГРАДИЕНТНЫМИ КЛЕТКАМИ (линии серые) =====
+// ===== СЕТКА С ЦВЕТНЫМИ КЛЕТКАМИ (без перелива) =====
 function drawGrid() {
-    const time = Date.now() * 0.001;
     const w = canvas.width;
     const h = canvas.height;
     
-    // ===== 1. ГРАДИЕНТНАЯ ЗАЛИВКА КЛЕТОК =====
+    // ===== 1. ЗАЛИВКА КЛЕТОК (простой цвет) =====
     for (let row = 0; row < HEIGHT; row++) {
         for (let col = 0; col < WIDTH; col++) {
             const x = col * CELL_SIZE;
             const y = row * CELL_SIZE;
             
-            const grad = ctx.createRadialGradient(
-                x + CELL_SIZE/2, y + CELL_SIZE/2, 0,
-                x + CELL_SIZE/2, y + CELL_SIZE/2, CELL_SIZE/2
-            );
+            // Шахматный узор для разнообразия
+            const isEven = (row + col) % 2 === 0;
+            const alpha = isEven ? 0.06 : 0.03;
             
-            const wave1 = Math.sin(time * 0.3 + row * 0.1 + col * 0.08) * 0.3 + 0.7;
-            const wave2 = Math.sin(time * 0.25 + row * 0.12 + col * 0.06 + 1.5) * 0.3 + 0.7;
-            
-            const alpha1 = 0.02 + 0.05 * wave1;
-            const alpha2 = 0.01 + 0.03 * wave2;
-            
-            grad.addColorStop(0, `rgba(0, 255, 204, ${alpha1})`);
-            grad.addColorStop(0.5, `rgba(0, 220, 200, ${alpha1 * 0.6})`);
-            grad.addColorStop(1, `rgba(0, 180, 180, ${alpha2})`);
-            
-            ctx.fillStyle = grad;
+            ctx.fillStyle = `rgba(0, 255, 204, ${alpha})`;
             ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
         }
     }
@@ -340,7 +328,7 @@ function draw() {
         drawFireworks();
     }
     
-    // ===== СЕТКА (градиентные клетки, серые линии) =====
+    // ===== СЕТКА (цветные клетки, серые линии) =====
     drawGrid();
     
     // ===== СЛЕДЫ ИГРОКОВ =====
