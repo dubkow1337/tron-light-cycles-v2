@@ -25,7 +25,7 @@ let cloudInitialized = false;
 function initClouds() {
     if (cloudInitialized) return;
     cloudParticles = [];
-    const count = 50;
+    const count = 30;
     for (let i = 0; i < count; i++) {
         cloudParticles.push({
             x: Math.random() * canvas.width,
