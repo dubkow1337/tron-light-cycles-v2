@@ -27,33 +27,10 @@ function initSound() {
     const btn = document.getElementById('menuSoundToggle');
     if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
     
-    // ===== НЕ ЗАПУСКАЕМ МУЗЫКУ СРАЗУ — ЖДЁМ ПЕРВОГО КЛИКА =====
-    console.log('🔊 Ожидание первого клика для запуска музыки меню');
+    // ===== МУЗЫКА ЗАПУСТИТСЯ ПО КЛИКУ НА КНОПКУ "НАЧАТЬ ПОГРУЖЕНИЕ" =====
+    console.log('🔊 Ожидание клика по кнопке "НАЧАТЬ ПОГРУЖЕНИЕ"');
     musicInitialized = true;
 }
-
-// ===== ЗАПУСК МУЗЫКИ ПРИ ПЕРВОМ КЛИКЕ =====
-function startMusicOnFirstClick() {
-    if (!soundEnabled) return;
-    if (menuMusic && menuMusic.paused) {
-        const p = menuMusic.play();
-        if (p && typeof p.then === 'function') {
-            p.catch(err => {
-                console.warn('startMusicOnFirstClick:', err);
-            });
-        }
-        currentMusicType = 'menu';
-        // Удаляем обработчики после запуска
-        document.removeEventListener('click', startMusicOnFirstClick);
-        document.removeEventListener('keydown', startMusicOnFirstClick);
-        document.removeEventListener('touchstart', startMusicOnFirstClick);
-    }
-}
-
-// Добавляем обработчики на любое взаимодействие
-document.addEventListener('click', startMusicOnFirstClick);
-document.addEventListener('keydown', startMusicOnFirstClick);
-document.addEventListener('touchstart', startMusicOnFirstClick);
 
 // ===== МУЗЫКА МЕНЮ =====
 function playMenuMusic() {
