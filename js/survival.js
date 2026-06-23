@@ -80,7 +80,7 @@ function spawnSingleEnemy() {
         alive: true,
         color: colors[colorIndex],
         trailColor: trailColors[colorIndex],
-        spawnProtection: 0, // <-- НЕТ НЕУЯЗВИМОСТИ
+        spawnProtection: 0,
         role: isHunter ? 'hunter' : 'flanker',
         speed: 1 + difficulty * 0.05
     });
@@ -286,7 +286,7 @@ function updateSurvival() {
             }
         }
         
-        // ===== СЛЕД ИГРОКА УБИВАЕТ ВРАГА (БЕЗ НЕУЯЗВИМОСТИ) =====
+        // ===== СЛЕД ИГРОКА УБИВАЕТ ВРАГА =====
         if (!enemyDied) {
             for (let t = 0; t < player.trail.length - 1; t++) {
                 if (player.trail[t].x === e.x && player.trail[t].y === e.y) {
@@ -296,7 +296,7 @@ function updateSurvival() {
             }
         }
         
-        // ===== СТОЛКНОВЕНИЕ С ИГРОКОМ (БЕЗ НЕУЯЗВИМОСТИ) =====
+        // ===== СТОЛКНОВЕНИЕ С ИГРОКОМ =====
         if (!enemyDied && player.alive) {
             if (Math.round(e.x) === Math.round(player.x) && Math.round(e.y) === Math.round(player.y)) {
                 player.alive = false;
@@ -312,6 +312,10 @@ function updateSurvival() {
                 if (typeof gameLoop !== 'undefined' && gameLoop) {
                     clearInterval(gameLoop);
                     gameLoop = null;
+                }
+                // ===== ПОКАЗЫВАЕМ ТАБЛО GAME OVER =====
+                if (typeof showGameOver === 'function') {
+                    setTimeout(() => showGameOver(), 300);
                 }
                 return;
             }
