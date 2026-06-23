@@ -20,6 +20,13 @@ function showScreen(screenId) {
             bgVideo.style.display = 'block';
         }
     }
+    
+    // ===== ПЕРЕКЛЮЧАЕМ МУЗЫКУ В ЗАВИСИМОСТИ ОТ ЭКРАНА =====
+    if (typeof switchMusicForScreen === 'function') {
+        setTimeout(() => {
+            switchMusicForScreen(screenId);
+        }, 100);
+    }
 }
 
 function setMenuActive(group, activeId) {
@@ -164,7 +171,9 @@ function setupEventListeners() {
             if (typeof roundTimerActive !== 'undefined') roundTimerActive = false;
             
             // ===== 4. ОСТАНАВЛИВАЕМ МУЗЫКУ =====
-            if (typeof stopBgMusic === 'function') {
+            if (typeof stopAllMusic === 'function') {
+                stopAllMusic();
+            } else if (typeof stopBgMusic === 'function') {
                 stopBgMusic();
             }
             
