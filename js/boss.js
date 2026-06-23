@@ -60,7 +60,7 @@ function spawnBoss() {
         lastDirection: { dx: dirX, dy: dirY },
         invincible: false,
         invincibleTimer: 0,
-        hitCooldown: 0 // Добавлено: защита от множественных попаданий
+        hitCooldown: 0
     };
     
     const startX = boss.x + boss.trailOffsetX;
@@ -113,11 +113,15 @@ function updateBoss() {
         gameActive = false;
         showMessage('💀 ВАС СБИЛ LIGHT RUNNER!');
         if (typeof stopBgMusic === 'function') stopBgMusic();
+        if (typeof gameLoop !== 'undefined' && gameLoop) {
+            clearInterval(gameLoop);
+            gameLoop = null;
+        }
         return;
     }
     
     // ============================================================
-    // ===== УРОН БОССУ ОТ ЛИНИЙ ИГРОКА (ТОЛЬКО ЕСЛИ НЕТ КУЛДАУНА) =====
+    // ===== УРОН БОССУ ОТ ЛИНИЙ ИГРОКА =====
     // ============================================================
     if (boss.hitCooldown === 0 && !boss.invincible) {
         const playerTrail = player.trail || [];
@@ -129,7 +133,7 @@ function updateBoss() {
                     const by = Math.round(boss.y + dy);
                     if (bx === Math.round(seg.x) && by === Math.round(seg.y)) {
                         boss.health--;
-                        boss.hitCooldown = 15; // 15 кадров неуязвимости (~1 секунда)
+                        boss.hitCooldown = 15;
                         boss.invincible = true;
                         boss.invincibleTimer = 15;
                         
@@ -171,7 +175,6 @@ function updateBoss() {
         boss.invincibleTimer--;
         if (boss.invincibleTimer <= 0) {
             boss.invincible = false;
-            // Убираем сообщение, чтобы не спамить
         }
     }
     
@@ -185,8 +188,14 @@ function updateBoss() {
                 const bx = Math.round(boss.x + dx);
                 const by = Math.round(boss.y + dy);
                 if (bx === Math.round(seg.x) && by === Math.round(seg.y)) {
-                    boss.dirX = -boss.dirX || 1;
-                    boss.dirY = -boss.dirY || 1;
+                    // Разворачиваемся и меняем направление
+                    const dirs = [
+                        { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
+                        { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
+                    ];
+                    const newDir = dirs[Math.floor(Math.random() * dirs.length)];
+                    boss.dirX = newDir.dx;
+                    boss.dirY = newDir.dy;
                     boss.lastDirection = { dx: boss.dirX, dy: boss.dirY };
                     return;
                 }
@@ -195,28 +204,61 @@ function updateBoss() {
     }
     
     // ============================================================
-    // ===== ОСНОВНАЯ ЛОГИКА ДВИЖЕНИЯ =====
+    // ===== СЛЕД БОССА УБИВАЕТ ИГРОКА =====
+    // ============================================================
+    for (let i = 0; i < boss.trail.length - 1; i++) {
+        const seg = boss.trail[i];
+        for (let dx = 0; dx < boss.size; dx++) {
+            for (let dy = 0; dy < boss.size; dy++) {
+                const bx = Math.round(boss.x + dx);
+                const by = Math.round(boss.y + dy);
+                if (player.alive && bx === Math.round(seg.x) && by === Math.round(seg.y)) {
+                    player.alive = false;
+                    if (typeof explode === 'function') explode(player.x, player.y, player.color);
+                    gameActive = false;
+                    showMessage('💀 ВАС УБИЛ СЛЕД LIGHT RUNNER!');
+                    if (typeof stopBgMusic === 'function') stopBgMusic();
+                    if (typeof gameLoop !== 'undefined' && gameLoop) {
+                        clearInterval(gameLoop);
+                        gameLoop = null;
+                    }
+                    return;
+                }
+            }
+        }
+    }
+    
+    // ============================================================
+    // ===== ДВИЖЕНИЕ БОССА (преследует игрока) =====
     // ============================================================
     const dx = player.x - boss.x;
     const dy = player.y - boss.y;
     const distToPlayer = Math.hypot(dx, dy);
     
+    // Меняем направление каждые 3-6 шагов
     boss.lastDirChange++;
-    if (boss.lastDirChange > 4 + Math.floor(Math.random() * 4)) {
+    if (boss.lastDirChange > 3 + Math.floor(Math.random() * 4)) {
         boss.lastDirChange = 0;
         
         let newDirX = 0, newDirY = 0;
-        if (distToPlayer < 6) {
-            const angle = Math.atan2(dy, dx) + (Math.random() > 0.5 ? 1.2 : -1.2);
-            newDirX = Math.round(Math.cos(angle));
-            newDirY = Math.round(Math.sin(angle));
-        } else {
+        
+        // Если игрок далеко — едем к нему
+        if (distToPlayer > 5) {
             const angle = Math.atan2(dy, dx);
-            const offset = (Math.random() - 0.5) * 0.8;
-            newDirX = Math.round(Math.cos(angle + offset));
-            newDirY = Math.round(Math.sin(angle + offset));
+            // Добавляем небольшую случайность, чтобы не был идеальным
+            const randomOffset = (Math.random() - 0.5) * 0.5;
+            const finalAngle = angle + randomOffset;
+            newDirX = Math.round(Math.cos(finalAngle));
+            newDirY = Math.round(Math.sin(finalAngle));
+        } else {
+            // Если игрок близко — пытаемся зажать или уйти
+            const angle = Math.atan2(dy, dx);
+            const fleeAngle = angle + (Math.random() > 0.5 ? 1.2 : -1.2);
+            newDirX = Math.round(Math.cos(fleeAngle));
+            newDirY = Math.round(Math.sin(fleeAngle));
         }
         
+        // Нормализуем направление (только по одной оси)
         if (newDirX !== 0 && newDirY !== 0) {
             if (Math.abs(newDirX) > Math.abs(newDirY)) {
                 newDirY = 0;
@@ -225,11 +267,18 @@ function updateBoss() {
             }
         }
         
+        // Если направление не изменилось — выбираем случайное
         if (newDirX === 0 && newDirY === 0) {
-            newDirX = 1;
+            const dirs = [
+                { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
+                { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
+            ];
+            const dir = dirs[Math.floor(Math.random() * dirs.length)];
+            newDirX = dir.dx;
+            newDirY = dir.dy;
         }
         
-        // Запрет разворота назад
+        // Запрещаем разворот на 180 градусов (чтобы не тупить)
         if (boss.lastDirection) {
             const isReverseX = newDirX === -boss.lastDirection.dx && newDirY === 0;
             const isReverseY = newDirY === -boss.lastDirection.dy && newDirX === 0;
@@ -254,9 +303,15 @@ function updateBoss() {
         const newX = boss.x + boss.dirX;
         const newY = boss.y + boss.dirY;
         
+        // Если уперлись в стену — отталкиваемся
         if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) {
-            boss.dirX = -boss.dirX || 1;
-            boss.dirY = -boss.dirY || 1;
+            const dirs = [
+                { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
+                { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
+            ];
+            const newDir = dirs[Math.floor(Math.random() * dirs.length)];
+            boss.dirX = newDir.dx;
+            boss.dirY = newDir.dy;
             boss.lastDirection = { dx: boss.dirX, dy: boss.dirY };
             continue;
         }
@@ -267,7 +322,7 @@ function updateBoss() {
         const trailX = boss.x + boss.trailOffsetX;
         const trailY = boss.y + boss.trailOffsetY;
         boss.trail.push({ x: trailX, y: trailY });
-        if (boss.trail.length > 100) boss.trail.shift();
+        if (boss.trail.length > 150) boss.trail.shift();
     }
 }
 
