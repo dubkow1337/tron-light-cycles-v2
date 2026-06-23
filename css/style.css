@@ -24,35 +24,88 @@ body {
 }
 
 /* ============================================================
-   ===== ЗАГРУЗОЧНЫЙ ЭКРАН (СПЛАШ) =====
+   ===== ЗАГРУЗОЧНЫЙ ЭКРАН (ЭПИЧНЫЙ) =====
    ============================================================ */
 
 #splashScreen {
-    background: radial-gradient(ellipse at center, #0a0e1a 0%, #020408 100%);
+    background: #020408;
     z-index: 100;
     display: none;
     justify-content: center;
     align-items: center;
     transition: opacity 0.8s ease, transform 0.8s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 #splashScreen.active {
     display: flex;
 }
 
+/* ===== АНИМИРОВАННАЯ СЕТКА НА ФОНЕ ===== */
+.splash-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: gridMove 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes gridMove {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(40px, 40px); }
+}
+
+/* ===== СВЕТОВОЙ ЛУЧ (СКАНИРУЮЩАЯ ЛИНИЯ) ===== */
+.splash-grid::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0, 255, 255, 0.04), transparent 70%);
+    animation: scanLight 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes scanLight {
+    0% { transform: translateY(-100%) scale(1); opacity: 0; }
+    30% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translateY(100%) scale(1.2); opacity: 0; }
+}
+
+/* ===== КОНТЕНТ ===== */
 .splash-wrapper {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 30px;
+    gap: 40px;
     padding: 40px;
     text-align: center;
+    width: 100%;
     max-width: 700px;
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
     width: 100%;
 }
 
-.splash-title {
+.splash-logo {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -62,97 +115,97 @@ body {
 .splash-tron {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
-    font-size: clamp(48px, 8vw, 80px);
-    background: linear-gradient(90deg, #00ffff, #0088ff, #ffaa00, #ff6600, #00ffff);
-    background-size: 300% 100%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: neonFlow 4s ease-in-out infinite;
-    filter: drop-shadow(0 0 40px rgba(0, 255, 255, 0.3));
-    letter-spacing: 8px;
+    font-size: clamp(56px, 10vw, 100px);
+    letter-spacing: 12px;
+    color: #00ffff;
+    text-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.5),
+        0 0 60px rgba(0, 255, 255, 0.2),
+        0 0 120px rgba(0, 255, 255, 0.1);
+    animation: tronGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes tronGlow {
+    0% { text-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 60px rgba(0, 255, 255, 0.2); }
+    100% { text-shadow: 0 0 40px rgba(0, 255, 255, 0.8), 0 0 100px rgba(0, 255, 255, 0.4), 0 0 200px rgba(0, 255, 255, 0.1); }
 }
 
 .splash-sub {
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
-    font-size: clamp(18px, 2.5vw, 32px);
-    background: linear-gradient(90deg, #ffaa00, #ff6600, #00ffff, #0088ff);
-    background-size: 300% 100%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: neonFlow 4s ease-in-out infinite alternate-reverse;
-    letter-spacing: 12px;
-    margin-top: -8px;
+    font-size: clamp(16px, 2vw, 28px);
+    letter-spacing: 16px;
+    color: #88ccff;
+    opacity: 0.7;
+    margin-top: -4px;
 }
 
-.splash-tagline {
-    margin: 10px 0;
+.splash-line {
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ffff, transparent);
+    margin-top: 20px;
+    animation: lineGrow 1.5s ease-out forwards;
 }
 
-.tagline-line {
-    font-family: 'Courier New', monospace;
-    font-size: clamp(12px, 1.2vw, 18px);
-    color: #66ddff;
-    text-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
-    letter-spacing: 4px;
-    opacity: 0.8;
+@keyframes lineGrow {
+    0% { width: 0; opacity: 0; }
+    100% { width: 200px; opacity: 1; }
 }
 
+/* ===== КНОПКА ===== */
 .splash-btn {
     position: relative;
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
-    font-size: clamp(14px, 1.5vw, 22px);
-    letter-spacing: 4px;
+    font-size: clamp(13px, 1.2vw, 18px);
+    letter-spacing: 6px;
     text-transform: uppercase;
-    padding: 18px 48px;
+    padding: 16px 48px;
     background: transparent;
-    border: 2px solid #00ffff;
+    border: 1px solid rgba(0, 255, 255, 0.4);
     color: #00ffff;
-    border-radius: 4px;
     cursor: pointer;
     transition: all 0.4s ease;
     overflow: hidden;
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
-}
-
-.splash-btn:hover {
-    background: rgba(0, 255, 255, 0.1);
-    box-shadow: 0 0 60px rgba(0, 255, 255, 0.3), inset 0 0 60px rgba(0, 255, 255, 0.1);
-    transform: scale(1.05);
-    border-color: #00ffff;
-}
-
-.splash-btn .btn-glow {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(0, 255, 255, 0.1), transparent 70%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    pointer-events: none;
-}
-
-.splash-btn:hover .btn-glow {
-    opacity: 1;
+    border-radius: 2px;
 }
 
 .splash-btn .btn-text {
     position: relative;
     z-index: 2;
-    text-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
-.splash-footer {
+/* ===== ЭФФЕКТ СКАНИРОВАНИЯ НА КНОПКЕ ===== */
+.splash-btn .btn-scan {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.15), transparent);
+    transition: left 0.6s ease;
+}
+
+.splash-btn:hover .btn-scan {
+    left: 100%;
+}
+
+.splash-btn:hover {
+    border-color: #00ffff;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.2),
+        inset 0 0 30px rgba(0, 255, 255, 0.05);
+    transform: scale(1.03);
+}
+
+/* ===== ВЕРСИЯ ===== */
+.splash-version {
     font-family: 'Courier New', monospace;
-    font-size: clamp(10px, 0.8vw, 14px);
-    color: rgba(100, 200, 255, 0.4);
+    font-size: clamp(10px, 0.7vw, 13px);
+    color: rgba(0, 255, 255, 0.25);
     letter-spacing: 3px;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 /* ============================================================
@@ -762,44 +815,21 @@ body {
     #gameCanvas {
         border-radius: 6px;
     }
-}
-
-/* ОЧЕНЬ МАЛЕНЬКИЕ ЭКРАНЫ (до 400px) */
-@media (max-width: 400px) {
-    .game-score {
-        padding: 2px 6px;
+    .splash-tron {
+        font-size: clamp(36px, 8vw, 48px);
+        letter-spacing: 6px;
+    }
+    .splash-sub {
+        font-size: clamp(12px, 3vw, 16px);
+        letter-spacing: 8px;
+    }
+    .splash-btn {
+        padding: 12px 24px;
+        font-size: clamp(11px, 2.5vw, 14px);
+        letter-spacing: 3px;
+    }
+    .splash-version {
         font-size: 8px;
-        min-width: 60px;
-    }
-    .score {
-        font-size: 8px;
-        gap: 1px;
-    }
-    .score-value {
-        font-size: 8px;
-        min-width: 10px;
-        padding: 0 2px;
-    }
-    .round-timer {
-        font-size: 10px;
-        min-width: 14px;
-    }
-    .back-btn,
-    .restart-btn {
-        font-size: 6px;
-        padding: 2px 5px;
-    }
-    .game-message {
-        font-size: 7px;
-        padding: 2px 8px;
-    }
-    .victory-overlay {
-        padding: 8px 12px;
-        font-size: 13px;
-        border-radius: 12px;
-    }
-    .score-label {
-        font-size: 6px;
     }
 }
 
@@ -819,4 +849,4 @@ body {
         font-size: 12px;
         padding: 4px 14px;
     }
-    }
+                                  }
