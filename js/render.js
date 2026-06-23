@@ -32,7 +32,7 @@ function initClouds() {
             y: Math.random() * canvas.height,
             size: 30 + Math.random() * 120, // Разная форма
             speed: 0.2 + Math.random() * 0.5, // Разная скорость
-            opacity: 0.04 + Math.random() * 0.08, // Разная прозрачность
+            opacity: 0.15 + Math.random() * 0.10, // Разная прозрачность
             offsetY: Math.random() * 200, // Смещение по Y
             phase: Math.random() * Math.PI * 2
         });
