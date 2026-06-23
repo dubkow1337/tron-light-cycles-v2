@@ -105,9 +105,9 @@ function updateBoss() {
                     clearInterval(gameLoop);
                     gameLoop = null;
                 }
-                // ===== ПОКАЗЫВАЕМ ТАБЛО GAME OVER =====
+                // ===== ВЫЗОВ ТАБЛО =====
                 if (typeof showGameOver === 'function') {
-                    setTimeout(() => showGameOver(), 300);
+                    setTimeout(showGameOver, 300);
                 }
                 return;
             }
@@ -129,9 +129,9 @@ function updateBoss() {
                 clearInterval(gameLoop);
                 gameLoop = null;
             }
-            // ===== ПОКАЗЫВАЕМ ТАБЛО GAME OVER =====
+            // ===== ВЫЗОВ ТАБЛО =====
             if (typeof showGameOver === 'function') {
-                setTimeout(() => showGameOver(), 300);
+                setTimeout(showGameOver, 300);
             }
             return;
         }
@@ -175,7 +175,6 @@ function updateBoss() {
                             return;
                         } else {
                             showMessage(`💥 LIGHT RUNNER РАНЕН! ❤️ ${boss.health}/${boss.maxHealth}`);
-                            // Отталкиваем босса
                             boss.dirX = -boss.dirX || 1;
                             boss.dirY = -boss.dirY || 1;
                         }
@@ -222,7 +221,6 @@ function updateBoss() {
         }
     }
     
-    // ===== ДВИЖЕНИЕ =====
     for (let step = 0; step < boss.speed; step++) {
         const newX = boss.x + boss.dirX;
         const newY = boss.y + boss.dirY;
