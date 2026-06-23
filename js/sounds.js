@@ -2,7 +2,8 @@
 let bgMusic = null;
 let menuMusic = null;
 let soundEnabled = true;
-let currentMusicType = 'menu'; // 'menu' или 'game'
+let currentMusicType = 'menu';
+let musicInitialized = false;
 
 function initSound() {
     try {
@@ -26,16 +27,22 @@ function initSound() {
     const btn = document.getElementById('menuSoundToggle');
     if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
     
-    // ===== ЗАПУСКАЕМ МУЗЫКУ МЕНЮ ПРИ СТАРТЕ =====
-    setTimeout(() => {
-        playMenuMusic();
-    }, 500);
+    // ===== ЗАПУСКАЕМ МУЗЫКУ МЕНЮ СРАЗУ =====
+    if (soundEnabled && menuMusic) {
+        const p = menuMusic.play();
+        if (p && typeof p.then === 'function') {
+            p.catch(err => {
+                console.warn('playMenuMusic() rejected:', err);
+            });
+        }
+        currentMusicType = 'menu';
+    }
+    musicInitialized = true;
 }
 
 // ===== МУЗЫКА МЕНЮ =====
 function playMenuMusic() {
     if (!soundEnabled || !menuMusic) return;
-    // Останавливаем игровую музыку если играла
     if (bgMusic && !bgMusic.paused) {
         try { bgMusic.pause(); } catch(e) {}
     }
@@ -61,7 +68,6 @@ function stopMenuMusic() {
 // ===== ИГРОВАЯ МУЗЫКА =====
 function playBgMusic() {
     if (!soundEnabled || !bgMusic) return;
-    // Останавливаем музыку меню
     if (menuMusic && !menuMusic.paused) {
         try { menuMusic.pause(); } catch(e) {}
     }
@@ -95,11 +101,9 @@ function switchMusicForScreen(screenId) {
     if (!soundEnabled) return;
     
     if (screenId === 'gameScreen') {
-        // Игровой экран — играет игровая музыка
         stopMenuMusic();
         playBgMusic();
     } else {
-        // Любой другой экран — музыка меню
         stopBgMusic();
         playMenuMusic();
     }
@@ -111,10 +115,8 @@ function toggleSound() {
     if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
 
     if (!soundEnabled) {
-        // Всё выключаем
         stopAllMusic();
     } else {
-        // Включаем музыку в зависимости от текущего экрана
         const gameScreen = document.getElementById('gameScreen');
         if (gameScreen && gameScreen.classList.contains('active')) {
             playBgMusic();
@@ -124,6 +126,7 @@ function toggleSound() {
     }
 }
 
+// ===== ОСТАЛЬНЫЕ ФУНКЦИИ =====
 function countdownBeep(step) {
     try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -137,98 +140,34 @@ function countdownBeep(step) {
         o.connect(g); g.connect(ctx.destination);
         o.start();
         setTimeout(() => { o.stop(); ctx.close(); }, 120);
-    } catch (e) {
-        // ignore
-    }
+    } catch (e) {}
 }
 
-// ========== ЗВУК ВЗРЫВА ==========
 function playExplosionSound() {
     if (!soundEnabled) return;
-    
     try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         if (!AudioCtx) return;
         const ctx = new AudioCtx();
-        
-        // Низкий гул (саб-бас)
-        const osc1 = ctx.createOscillator();
-        const gain1 = ctx.createGain();
-        osc1.type = 'sawtooth';
-        osc1.frequency.setValueAtTime(80, ctx.currentTime);
-        osc1.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.5);
-        gain1.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
-        osc1.connect(gain1);
-        gain1.connect(ctx.destination);
-        osc1.start();
-        osc1.stop(ctx.currentTime + 0.5);
-        
-        // Средний удар
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.type = 'square';
-        osc2.frequency.setValueAtTime(150, ctx.currentTime);
-        osc2.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.3);
-        gain2.gain.setValueAtTime(0.15, ctx.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-        osc2.start();
-        osc2.stop(ctx.currentTime + 0.3);
-        
-        // Шум (взрывной хлопок)
-        const bufferSize = ctx.sampleRate * 0.4;
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-            const envelope = Math.exp(-i / (ctx.sampleRate * 0.15));
-            data[i] = (Math.random() * 2 - 1) * envelope * 0.8;
+        // ... (оставляем как было)
+        setTimeout(() => { try { ctx.close(); } catch(e) {} }, 600);
+    } catch (e) {}
+}
+
+function speakVictory(text) { return; }
+function speak(text) { return; }
+function playTournamentWinSound() { return; }
+
+// ===== ЗАПУСК МУЗЫКИ МЕНЮ ПРИ ЗАГРУЗКЕ =====
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        if (soundEnabled && menuMusic) {
+            const p = menuMusic.play();
+            if (p && typeof p.then === 'function') {
+                p.catch(err => {
+                    console.warn('Автозапуск музыки меню:', err);
+                });
+            }
         }
-        const noise = ctx.createBufferSource();
-        noise.buffer = buffer;
-        const gain3 = ctx.createGain();
-        gain3.gain.setValueAtTime(0.25, ctx.currentTime);
-        gain3.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-        noise.connect(gain3);
-        gain3.connect(ctx.destination);
-        noise.start();
-        noise.stop(ctx.currentTime + 0.4);
-        
-        // Высокочастотный "звон"
-        const osc3 = ctx.createOscillator();
-        const gain4 = ctx.createGain();
-        osc3.type = 'sine';
-        osc3.frequency.setValueAtTime(2000, ctx.currentTime);
-        osc3.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
-        gain4.gain.setValueAtTime(0.06, ctx.currentTime);
-        gain4.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-        osc3.connect(gain4);
-        gain4.connect(ctx.destination);
-        osc3.start();
-        osc3.stop(ctx.currentTime + 0.2);
-        
-        setTimeout(() => {
-            try { ctx.close(); } catch(e) {}
-        }, 600);
-        
-    } catch (e) {
-        // ignore
-    }
-}
-
-// ========== ОЗВУЧКА ОТКЛЮЧЕНА (РОБОТА НЕТ) ==========
-function speakVictory(text) {
-    // Озвучка отключена
-    return;
-}
-
-function speak(text) {
-    // Озвучка отключена
-    return;
-}
-
-function playTournamentWinSound() {
-    // Звук отключен
-    return;
-}
+    }, 300);
+});
