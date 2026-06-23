@@ -627,3 +627,43 @@ function drawFireworks() {
         ctx.shadowBlur = 0;
     } catch(e) {}
 }
+
+// ============================================================
+// ===== АДАПТАЦИЯ КАНВАСА ПОД РАЗМЕР ЭКРАНА =====
+// ============================================================
+
+function resizeCanvas() {
+    const container = canvas.parentElement;
+    if (!container) return;
+    
+    const containerWidth = container.clientWidth;
+    const containerHeight = container.clientHeight;
+    
+    // Сохраняем пропорции 1200:720
+    const aspectRatio = 1200 / 720;
+    let width = containerWidth;
+    let height = containerWidth / aspectRatio;
+    
+    if (height > containerHeight) {
+        height = containerHeight;
+        width = containerHeight * aspectRatio;
+    }
+    
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+}
+
+// Вызываем при загрузке и при изменении размера окна
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('load', () => {
+    setTimeout(resizeCanvas, 50);
+});
+
+// Также вызываем при появлении игрового экрана
+const resizeObserver = new MutationObserver(() => {
+    const gameScreen = document.getElementById('gameScreen');
+    if (gameScreen && gameScreen.classList.contains('active')) {
+        setTimeout(resizeCanvas, 50);
+    }
+});
+resizeObserver.observe(document.body, { attributes: false, childList: true, subtree: true });
