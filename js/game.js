@@ -430,15 +430,19 @@ function updateGame() {
             continue;
         }
         
-        // Границы
+        // ===== ГРАНИЦЫ (СТЕНЫ) =====
         if (p.x < 0 || p.x >= WIDTH || p.y < 0 || p.y >= HEIGHT) {
             p.alive = false;
             crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
             if (typeof explode === 'function') explode(p.x, p.y, p.color);
+            // ===== ВЫЗОВ ТАБЛО ДЛЯ ВЫЖИВАНИЯ =====
+            if (matchMode === 'survival' && typeof showGameOver === 'function') {
+                setTimeout(showGameOver, 300);
+            }
             continue;
         }
         
-        // Свой след
+        // ===== СВОЙ СЛЕД =====
         for (let i = 0; i < p.trail.length - 2; i++) {
             if (p.trail[i].x === p.x && p.trail[i].y === p.y) {
                 p.alive = false;
