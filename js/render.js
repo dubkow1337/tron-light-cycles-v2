@@ -18,6 +18,61 @@ const TRAIL_FADE = true;
 
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
+// ===== ТУМАН (ускоренный) =====
+let fogParticles = [];
+let fogInitialized = false;
+
+function initFog() {
+    if (fogInitialized) return;
+    fogParticles = [];
+    const count = 60;
+    for (let i = 0; i < count; i++) {
+        fogParticles.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            size: 30 + Math.random() * 80,
+            speed: 0.3 + Math.random() * 0.4,  // УСКОРЕНО
+            angle: Math.random() * Math.PI * 2,
+            opacity: 0.02 + Math.random() * 0.03,
+            offset: Math.random() * 1000
+        });
+    }
+    fogInitialized = true;
+}
+
+function updateFog() {
+    const time = Date.now() * 0.001;
+    for (let p of fogParticles) {
+        p.x += Math.cos(p.angle + time * 0.15) * p.speed * 1.0;  // УСКОРЕНО
+        p.y += Math.sin(p.angle + time * 0.20) * p.speed * 1.0;  // УСКОРЕНО
+        
+        if (p.x < -100) p.x = canvas.width + 100;
+        if (p.x > canvas.width + 100) p.x = -100;
+        if (p.y < -100) p.y = canvas.height + 100;
+        if (p.y > canvas.height + 100) p.y = -100;
+        
+        p.opacity = (0.02 + Math.random() * 0.02) * (0.7 + 0.3 * Math.sin(time * 0.1 + p.offset));
+    }
+}
+
+function drawFog() {
+    for (let p of fogParticles) {
+        const cx = p.x;
+        const cy = p.y;
+        const size = p.size;
+        
+        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, size);
+        gradient.addColorStop(0, `rgba(0, 180, 255, ${p.opacity * 0.5})`);
+        gradient.addColorStop(0.5, `rgba(0, 150, 255, ${p.opacity * 0.3})`);
+        gradient.addColorStop(1, `rgba(0, 100, 200, 0)`);
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(cx, cy, size, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
 // ===== ОБЛАКА (белые, 30 штук, цикличные) =====
 let cloudParticles = [];
 let cloudInitialized = false;
@@ -322,6 +377,13 @@ function draw() {
     ctx.fillStyle = '#03050a';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.shadowBlur = 0;
+    
+    // ===== ТУМАН (под игрой) =====
+    if (!fogInitialized) {
+        initFog();
+    }
+    updateFog();
+    drawFog();
     
     // ===== САЛЮТ =====
     if (typeof drawFireworks === 'function') {
