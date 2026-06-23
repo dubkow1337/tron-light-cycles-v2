@@ -1,6 +1,6 @@
 // ========== БОНУСЫ ==========
-
-let bonuses = [];
+window.bonuses = [];
+let bonuses = window.bonuses;
 let bonusTimer = 0;
 const BONUS_SPAWN_INTERVAL = 1000;
 const MAX_BONUSES = 3;
@@ -61,7 +61,6 @@ const BONUS_TYPES = {
             cloneData.active = true;
             cloneData.offsetX = 2;
             cloneData.offsetY = 0;
-            // НЕ ОБНУЛЯЕМ trail ЗДЕСЬ — он будет обновляться в game.js
             
             showMessage('🌀 КЛОН АКТИВИРОВАН! (3 сек)');
         }
@@ -88,10 +87,8 @@ function triggerExplosion(player) {
     const centerX = player.x;
     const centerY = player.y;
     
-    // Создаем эффект взрыва
     createExplosionEffect(centerX, centerY, radius);
     
-    // Звук взрыва
     if (typeof playExplosionSound === 'function') {
         playExplosionSound();
     }
@@ -115,18 +112,21 @@ function triggerExplosion(player) {
                 explode(p.x, p.y, p.color);
             }
             
-            if (player === players[0]) {
-                players[0].score++;
-            } else if (player === players[1] && opponentType === '2p') {
-                players[1].score++;
+            // ===== СЧЕТ ТОЛЬКО НЕ В ВЫЖИВАНИИ =====
+            if (matchMode !== 'survival') {
+                if (player === players[0]) {
+                    players[0].score++;
+                } else if (player === players[1] && opponentType === '2p') {
+                    players[1].score++;
+                }
             }
             
             createExplosionEffect(p.x, p.y, 2);
         }
     }
     
-    // Проверяем бота
-    if (opponentType === 'ai' && players[1].alive) {
+    // Проверяем бота (только не в выживании)
+    if (matchMode !== 'survival' && opponentType === 'ai' && players[1].alive) {
         const dx = Math.abs(players[1].x - centerX);
         const dy = Math.abs(players[1].y - centerY);
         
@@ -181,13 +181,29 @@ function triggerExplosion(player) {
                 destroyedNames.push('БОССА');
                 showMessage('💥 БОСС УНИЧТОЖЕН ВЗРЫВОМ!');
                 
-                if (player === players[0]) {
-                    players[0].score += 5;
-                } else if (player === players[1] && opponentType === '2p') {
-                    players[1].score += 5;
+                if (matchMode !== 'survival') {
+                    if (player === players[0]) {
+                        players[0].score += 5;
+                    } else if (player === players[1] && opponentType === '2p') {
+                        players[1].score += 5;
+                    }
                 }
             } else {
                 showMessage(`💥 БОССУ НАНЕСЕН УРОН! HP: ${boss.health}/${boss.maxHealth}`);
+            }
+        }
+    }
+    
+    // ===== ПОБЕДА ТОЛЬКО В КЛАССИКЕ/ТУРНИРЕ =====
+    if (matchMode !== 'survival') {
+        const alivePlayers = players.filter(p => p.alive);
+        if (alivePlayers.length === 1 && destroyedCount > 0) {
+            let winnerIdx = players.findIndex(p => p.alive);
+            if (winnerIdx !== -1) {
+                if (typeof showVictory === 'function') {
+                    showVictory(players[winnerIdx].name);
+                }
+                if (typeof updateUI === 'function') updateUI();
             }
         }
     }
@@ -198,17 +214,6 @@ function triggerExplosion(player) {
         if (typeof updateUI === 'function') updateUI();
     } else {
         showMessage('💥 ВЗРЫВ НЕ ЗАДЕЛ ВРАГОВ!');
-    }
-    
-    const alivePlayers = players.filter(p => p.alive);
-    if (alivePlayers.length === 1 && destroyedCount > 0) {
-        let winnerIdx = players.findIndex(p => p.alive);
-        if (winnerIdx !== -1) {
-            if (typeof showVictory === 'function') {
-                showVictory(players[winnerIdx].name);
-            }
-            if (typeof updateUI === 'function') updateUI();
-        }
     }
 }
 
@@ -471,5 +476,4 @@ function resetBonuses() {
     }
     cloneData.active = false;
     cloneData.trail = [];
-    // НЕ ТРОГАЕМ window.explosionEffects
 }
