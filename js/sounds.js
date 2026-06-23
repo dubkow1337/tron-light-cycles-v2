@@ -140,63 +140,18 @@ function playExplosionSound() {
     }
 }
 
-// ========== ЗВУК ПОБЕДЫ В ТУРНИРЕ ==========
-function playTournamentWinSound() {
-    if (!soundEnabled) return;
-    
-    try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-        
-        // Торжественная мелодия (как в TRON)
-        const notes = [523, 659, 784, 1047, 784, 659, 523];
-        let time = 0;
-        
-        for (let note of notes) {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'square';
-            osc.frequency.value = note;
-            gain.gain.setValueAtTime(0.08, ctx.currentTime + time);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + time + 0.15);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(ctx.currentTime + time);
-            osc.stop(ctx.currentTime + time + 0.15);
-            time += 0.12;
-        }
-        
-        // Добавляем бас-удар в конце
-        setTimeout(() => {
-            const oscBass = ctx.createOscillator();
-            const gainBass = ctx.createGain();
-            oscBass.type = 'sine';
-            oscBass.frequency.value = 110;
-            gainBass.gain.setValueAtTime(0.15, ctx.currentTime);
-            gainBass.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-            oscBass.connect(gainBass);
-            gainBass.connect(ctx.destination);
-            oscBass.start();
-            oscBass.stop(ctx.currentTime + 0.3);
-        }, time * 1000 - 50);
-        
-        setTimeout(() => ctx.close(), time * 1000 + 300);
-    } catch (e) {}
-}
-
+// ========== ОЗВУЧКА ОТКЛЮЧЕНА (РОБОТА НЕТ) ==========
 function speakVictory(text) {
-    if (!('speechSynthesis' in window)) return;
-    try {
-        const ut = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(ut);
-    } catch (e) {}
+    // Озвучка отключена
+    return;
 }
 
 function speak(text) {
-    if (!('speechSynthesis' in window)) return;
-    try {
-        const ut = new SpeechSynthesisUtterance(text);
-        window.speechSynthesis.speak(ut);
-    } catch (e) {}
-    }
+    // Озвучка отключена
+    return;
+}
+
+function playTournamentWinSound() {
+    // Звук отключен
+    return;
+}
