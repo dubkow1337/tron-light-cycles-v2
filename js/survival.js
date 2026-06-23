@@ -1,5 +1,5 @@
 // ========== РЕЖИМ ВЫЖИВАНИЯ (БЕСКОНЕЧНОЕ НАКОПЛЕНИЕ) ==========
-
+ 
 let survivalEnemies = [];
 let spawnTimer = 0;
 let lastSpawnTime = 0;
