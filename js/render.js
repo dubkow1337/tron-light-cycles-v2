@@ -71,28 +71,28 @@ function drawClouds() {
         const cy = p.y + p.offsetY * 0.1;
         const size = p.size;
         
-        // Каждое облако — градиент с разной формой
+        // ===== БЕЛЫЕ ОБЛАКА =====
         const gradient = ctx.createRadialGradient(
             cx - size * 0.2, cy - size * 0.1, 0,
             cx, cy, size
         );
-        gradient.addColorStop(0, `rgba(0, 200, 255, ${p.opacity * 0.8})`);
-        gradient.addColorStop(0.3, `rgba(0, 180, 255, ${p.opacity * 0.5})`);
-        gradient.addColorStop(0.7, `rgba(0, 150, 255, ${p.opacity * 0.2})`);
-        gradient.addColorStop(1, `rgba(0, 100, 200, 0)`);
+        gradient.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * 0.8})`);
+        gradient.addColorStop(0.3, `rgba(255, 255, 255, ${p.opacity * 0.5})`);
+        gradient.addColorStop(0.7, `rgba(255, 255, 255, ${p.opacity * 0.2})`);
+        gradient.addColorStop(1, `rgba(255, 255, 255, 0)`);
         
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(cx, cy, size, 0, Math.PI * 2);
         ctx.fill();
         
-        // Второй "лепесток" для неправильной формы
+        // Второй "лепесток"
         const gradient2 = ctx.createRadialGradient(
             cx + size * 0.4, cy - size * 0.2, 0,
             cx + size * 0.4, cy - size * 0.2, size * 0.7
         );
-        gradient2.addColorStop(0, `rgba(0, 190, 255, ${p.opacity * 0.4})`);
-        gradient2.addColorStop(1, `rgba(0, 100, 200, 0)`);
+        gradient2.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * 0.4})`);
+        gradient2.addColorStop(1, `rgba(255, 255, 255, 0)`);
         ctx.fillStyle = gradient2;
         ctx.beginPath();
         ctx.arc(cx + size * 0.4, cy - size * 0.2, size * 0.7, 0, Math.PI * 2);
@@ -103,8 +103,8 @@ function drawClouds() {
             cx - size * 0.5, cy + size * 0.3, 0,
             cx - size * 0.5, cy + size * 0.3, size * 0.6
         );
-        gradient3.addColorStop(0, `rgba(0, 200, 255, ${p.opacity * 0.3})`);
-        gradient3.addColorStop(1, `rgba(0, 100, 200, 0)`);
+        gradient3.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * 0.3})`);
+        gradient3.addColorStop(1, `rgba(255, 255, 255, 0)`);
         ctx.fillStyle = gradient3;
         ctx.beginPath();
         ctx.arc(cx - size * 0.5, cy + size * 0.3, size * 0.6, 0, Math.PI * 2);
