@@ -167,6 +167,7 @@ function updateBoss() {
                             return;
                         } else {
                             showMessage(`💥 LIGHT RUNNER РАНЕН! ❤️ ${boss.health}/${boss.maxHealth}`);
+                            // Отталкиваем босса
                             boss.dirX = -boss.dirX || 1;
                             boss.dirY = -boss.dirY || 1;
                         }
@@ -185,38 +186,16 @@ function updateBoss() {
     }
     
     // ============================================================
-    // ===== СТОЛКНОВЕНИЕ БОССА СО СВОИМ СЛЕДОМ =====
-    // ============================================================
-    for (let i = 0; i < boss.trail.length - 2; i++) {
-        const seg = boss.trail[i];
-        for (let dx = 0; dx < boss.size; dx++) {
-            for (let dy = 0; dy < boss.size; dy++) {
-                const bx = Math.round(boss.x + dx);
-                const by = Math.round(boss.y + dy);
-                if (bx === Math.round(seg.x) && by === Math.round(seg.y)) {
-                    const dirs = [
-                        { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
-                        { dx: 0, dy: 1 }, { dx: 0, dy: -1 }
-                    ];
-                    const newDir = dirs[Math.floor(Math.random() * dirs.length)];
-                    boss.dirX = newDir.dx;
-                    boss.dirY = newDir.dy;
-                    return;
-                }
-            }
-        }
-    }
-    
-    // ============================================================
-    // ===== ДВИЖЕНИЕ БОССА (упрощенно) =====
+    // ===== ДВИЖЕНИЕ БОССА (упрощённое, без проверки на свой след) =====
     // ============================================================
     boss.dirChangeTimer++;
-    if (boss.dirChangeTimer > 5 + Math.floor(Math.random() * 6)) {
+    if (boss.dirChangeTimer > 4 + Math.floor(Math.random() * 5)) {
         boss.dirChangeTimer = 0;
         
         const dx = player.x - boss.x;
         const dy = player.y - boss.y;
         
+        // С вероятностью 70% едем к игроку, 30% — случайно
         if (Math.random() < 0.7) {
             if (Math.abs(dx) > Math.abs(dy)) {
                 boss.dirX = dx > 0 ? 1 : -1;
@@ -241,6 +220,7 @@ function updateBoss() {
         const newX = boss.x + boss.dirX;
         const newY = boss.y + boss.dirY;
         
+        // Если упираемся в стену — меняем направление
         if (newX < 0 || newX >= WIDTH || newY < 0 || newY >= HEIGHT) {
             const dirs = [
                 { dx: 1, dy: 0 }, { dx: -1, dy: 0 },
