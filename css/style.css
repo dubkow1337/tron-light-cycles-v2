@@ -24,9 +24,8 @@ body {
 }
 
 /* ============================================================
-   ===== ЗАГРУЗОЧНЫЙ ЭКРАН (ЭПИЧНЫЙ) =====
+   ===== ЗАГРУЗОЧНЫЙ ЭКРАН =====
    ============================================================ */
-
 #splashScreen {
     background: #020408;
     z-index: 100;
@@ -37,12 +36,8 @@ body {
     position: relative;
     overflow: hidden;
 }
+#splashScreen.active { display: flex; }
 
-#splashScreen.active {
-    display: flex;
-}
-
-/* ===== АНИМИРОВАННАЯ СЕТКА НА ФОНЕ ===== */
 .splash-grid {
     position: absolute;
     top: 0;
@@ -56,13 +51,11 @@ body {
     animation: gridMove 20s linear infinite;
     pointer-events: none;
 }
-
 @keyframes gridMove {
     0% { transform: translate(0, 0); }
     100% { transform: translate(40px, 40px); }
 }
 
-/* ===== СВЕТОВОЙ ЛУЧ (СКАНИРУЮЩАЯ ЛИНИЯ) ===== */
 .splash-grid::after {
     content: '';
     position: absolute;
@@ -74,7 +67,6 @@ body {
     animation: scanLight 8s ease-in-out infinite;
     pointer-events: none;
 }
-
 @keyframes scanLight {
     0% { transform: translateY(-100%) scale(1); opacity: 0; }
     30% { opacity: 1; }
@@ -82,7 +74,6 @@ body {
     100% { transform: translateY(100%) scale(1.2); opacity: 0; }
 }
 
-/* ===== КОНТЕНТ ===== */
 .splash-wrapper {
     position: relative;
     z-index: 2;
@@ -96,7 +87,6 @@ body {
     width: 100%;
     max-width: 700px;
 }
-
 .splash-content {
     display: flex;
     flex-direction: column;
@@ -104,32 +94,25 @@ body {
     gap: 40px;
     width: 100%;
 }
-
 .splash-logo {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0;
 }
-
 .splash-tron {
     font-family: 'Orbitron', sans-serif;
     font-weight: 900;
     font-size: clamp(56px, 10vw, 100px);
     letter-spacing: 12px;
     color: #00ffff;
-    text-shadow: 
-        0 0 20px rgba(0, 255, 255, 0.5),
-        0 0 60px rgba(0, 255, 255, 0.2),
-        0 0 120px rgba(0, 255, 255, 0.1);
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 60px rgba(0, 255, 255, 0.2), 0 0 120px rgba(0, 255, 255, 0.1);
     animation: tronGlow 3s ease-in-out infinite alternate;
 }
-
 @keyframes tronGlow {
     0% { text-shadow: 0 0 20px rgba(0, 255, 255, 0.4), 0 0 60px rgba(0, 255, 255, 0.2); }
     100% { text-shadow: 0 0 40px rgba(0, 255, 255, 0.8), 0 0 100px rgba(0, 255, 255, 0.4), 0 0 200px rgba(0, 255, 255, 0.1); }
 }
-
 .splash-sub {
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
@@ -139,7 +122,6 @@ body {
     opacity: 0.7;
     margin-top: -4px;
 }
-
 .splash-line {
     width: 0;
     height: 2px;
@@ -147,13 +129,11 @@ body {
     margin-top: 20px;
     animation: lineGrow 1.5s ease-out forwards;
 }
-
 @keyframes lineGrow {
     0% { width: 0; opacity: 0; }
     100% { width: 200px; opacity: 1; }
 }
 
-/* ===== КНОПКА ===== */
 .splash-btn {
     position: relative;
     font-family: 'Orbitron', sans-serif;
@@ -170,13 +150,7 @@ body {
     overflow: hidden;
     border-radius: 2px;
 }
-
-.splash-btn .btn-text {
-    position: relative;
-    z-index: 2;
-}
-
-/* ===== ЭФФЕКТ СКАНИРОВАНИЯ НА КНОПКЕ ===== */
+.splash-btn .btn-text { position: relative; z-index: 2; }
 .splash-btn .btn-scan {
     position: absolute;
     top: 0;
@@ -186,20 +160,12 @@ body {
     background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.15), transparent);
     transition: left 0.6s ease;
 }
-
-.splash-btn:hover .btn-scan {
-    left: 100%;
-}
-
+.splash-btn:hover .btn-scan { left: 100%; }
 .splash-btn:hover {
     border-color: #00ffff;
-    box-shadow: 
-        0 0 30px rgba(0, 255, 255, 0.2),
-        inset 0 0 30px rgba(0, 255, 255, 0.05);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.05);
     transform: scale(1.03);
 }
-
-/* ===== ВЕРСИЯ ===== */
 .splash-version {
     font-family: 'Courier New', monospace;
     font-size: clamp(10px, 0.7vw, 13px);
@@ -209,339 +175,8 @@ body {
 }
 
 /* ============================================================
-   ===== НОВОЕ МЕНЮ В СТИЛЕ TRON =====
-   ============================================================ */
-
-#menuScreen {
-    background: #020408;
-    position: relative;
-    overflow: hidden;
-}
-
-/* ===== ФОН МЕНЮ (СЕТКА) ===== */
-.menu-grid-bg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-    background-size: 50px 50px;
-    animation: gridMove 25s linear infinite;
-    pointer-events: none;
-    opacity: 0.5;
-}
-
-.menu-grid-bg::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at 50% 0%, rgba(0, 255, 255, 0.04), transparent 70%);
-    animation: scanLight 10s ease-in-out infinite;
-    pointer-events: none;
-}
-
-/* ===== ОБЁРТКА МЕНЮ ===== */
-.menu-wrapper {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-    width: 100%;
-    max-width: 700px;
-    padding: 30px 20px;
-    animation: menuFadeIn 0.8s ease-out;
-}
-
-@keyframes menuFadeIn {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== ЗАГОЛОВОК ===== */
-.menu-header {
-    text-align: center;
-    margin-bottom: 8px;
-}
-
-.menu-title {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 900;
-    font-size: clamp(40px, 7vw, 72px);
-    letter-spacing: 10px;
-    background: linear-gradient(135deg, #00ffff, #0088ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.3));
-    line-height: 1;
-}
-
-.menu-sub {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    font-size: clamp(14px, 1.5vw, 22px);
-    letter-spacing: 12px;
-    color: rgba(0, 255, 255, 0.5);
-    margin-top: -4px;
-}
-
-.menu-divider {
-    width: 120px;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #00ffff, transparent);
-    margin: 12px auto 0;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-}
-
-/* ===== МОДУЛИ ===== */
-.menu-modules {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    width: 100%;
-    max-width: 500px;
-}
-
-.menu-module {
-    background: rgba(0, 20, 30, 0.3);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 14px 20px;
-    transition: border-color 0.3s ease;
-}
-
-.menu-module:hover {
-    border-color: rgba(0, 255, 255, 0.3);
-}
-
-.module-label {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    font-size: clamp(9px, 0.8vw, 12px);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: rgba(0, 255, 255, 0.6);
-    margin-bottom: 8px;
-}
-
-.module-buttons {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.module-btn {
-    flex: 1;
-    min-width: 80px;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    font-size: clamp(9px, 0.8vw, 12px);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 8px 12px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    border-radius: 6px;
-    color: #88ccff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.module-btn:hover {
-    background: rgba(0, 255, 255, 0.08);
-    border-color: #00ffff;
-    color: #00ffff;
-    transform: scale(1.02);
-}
-
-.module-btn.active {
-    background: rgba(0, 255, 255, 0.15);
-    border-color: #00ffff;
-    color: #00ffff;
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.1), inset 0 0 30px rgba(0, 255, 255, 0.05);
-}
-
-/* ===== МОДУЛЬ ИНФОРМАЦИИ ===== */
-.menu-module-info .module-info-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.menu-module-info .info-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 2px 0;
-    font-size: clamp(9px, 0.7vw, 11px);
-    border-bottom: 1px solid rgba(0, 255, 255, 0.04);
-}
-
-.menu-module-info .info-item:last-child {
-    border-bottom: none;
-}
-
-.menu-module-info .info-label {
-    color: rgba(0, 255, 255, 0.4);
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px;
-}
-
-.menu-module-info .info-value {
-    color: #88ccff;
-    font-family: 'Courier New', monospace;
-}
-
-.menu-module-info .info-value a {
-    color: #00ffff;
-    text-decoration: none;
-    transition: color 0.2s;
-}
-
-.menu-module-info .info-value a:hover {
-    color: #ffaa00;
-}
-
-/* ===== КНОПКА СТАРТА ===== */
-.menu-start-btn {
-    position: relative;
-    width: 100%;
-    max-width: 400px;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 900;
-    font-size: clamp(14px, 1.2vw, 18px);
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    padding: 14px 20px;
-    background: transparent;
-    border: 1.5px solid rgba(0, 255, 255, 0.5);
-    color: #00ffff;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.4s ease;
-    overflow: hidden;
-}
-
-.menu-start-btn .start-text {
-    position: relative;
-    z-index: 2;
-}
-
-.menu-start-btn .start-scan {
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.12), transparent);
-    transition: left 0.6s ease;
-}
-
-.menu-start-btn:hover .start-scan {
-    left: 100%;
-}
-
-.menu-start-btn:hover {
-    border-color: #00ffff;
-    box-shadow: 0 0 40px rgba(0, 255, 255, 0.2), inset 0 0 40px rgba(0, 255, 255, 0.05);
-    transform: scale(1.02);
-    background: rgba(0, 255, 255, 0.05);
-}
-
-.menu-start-btn:active {
-    transform: scale(0.96);
-}
-
-/* ===== НИЖНЯЯ ПАНЕЛЬ ===== */
-.menu-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 500px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(0, 255, 255, 0.06);
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.footer-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.footer-sound {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    font-size: clamp(9px, 0.7vw, 12px);
-    background: transparent;
-    border: none;
-    color: #ffaa00;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-}
-
-.footer-sound:hover {
-    background: rgba(255, 170, 0, 0.1);
-    box-shadow: 0 0 20px rgba(255, 170, 0, 0.1);
-}
-
-.footer-version {
-    font-family: 'Courier New', monospace;
-    font-size: clamp(8px, 0.6vw, 11px);
-    color: rgba(0, 255, 255, 0.2);
-    letter-spacing: 2px;
-}
-
-.footer-center {
-    flex: 1;
-    text-align: center;
-}
-
-.footer-status {
-    font-family: 'Courier New', monospace;
-    font-size: clamp(8px, 0.6vw, 11px);
-    color: rgba(0, 255, 100, 0.4);
-    letter-spacing: 2px;
-    animation: statusPulse 2s ease-in-out infinite;
-}
-
-@keyframes statusPulse {
-    0%, 100% { opacity: 0.4; }
-    50% { opacity: 1; }
-}
-
-.footer-right {
-    text-align: right;
-}
-
-.footer-record {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
-    font-size: clamp(9px, 0.7vw, 12px);
-    color: #ffaa00;
-    text-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
-}
-
-/* ============================================================
    ===== ЭКРАНЫ =====
    ============================================================ */
-
 .screen {
     display: none;
     width: 100%;
@@ -551,10 +186,7 @@ body {
     padding: 15px;
     position: relative;
 }
-
-.screen.active {
-    display: flex;
-}
+.screen.active { display: flex; }
 
 /* ===== ФОНОВОЕ ВИДЕО ===== */
 #bgVideo {
@@ -572,10 +204,217 @@ body {
     filter: brightness(0.6) saturate(1.4);
 }
 
-/* ============================================================
-   ===== ИГРОВОЙ ЭКРАН (АДАПТИВНЫЙ) =====
-   ============================================================ */
+#menuScreen::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    pointer-events: none;
+}
 
+/* ============================================================
+   ===== МЕНЮ =====
+   ============================================================ */
+.menu-wrapper {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 580px;
+    padding: 30px 20px;
+}
+
+.menu-header {
+    text-align: center;
+    margin-bottom: 4px;
+}
+.menu-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(40px, 7vw, 64px);
+    letter-spacing: 10px;
+    background: linear-gradient(135deg, #00ffff, #0088ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.3));
+    line-height: 1;
+}
+.menu-sub {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(14px, 1.5vw, 22px);
+    letter-spacing: 12px;
+    color: rgba(0, 255, 255, 0.5);
+    margin-top: -4px;
+}
+.menu-divider {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00ffff, transparent);
+    margin: 12px auto 0;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+}
+
+.menu-modules {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+.menu-module {
+    background: rgba(0, 20, 30, 0.3);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px 20px;
+    transition: border-color 0.3s ease;
+}
+.menu-module:hover { border-color: rgba(0, 255, 255, 0.3); }
+.module-label {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(9px, 0.8vw, 12px);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(0, 255, 255, 0.6);
+    margin-bottom: 8px;
+}
+.module-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.module-btn {
+    flex: 1;
+    min-width: 80px;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(9px, 0.8vw, 12px);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 6px;
+    color: #88ccff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+.module-btn:hover {
+    background: rgba(0, 255, 255, 0.08);
+    border-color: #00ffff;
+    color: #00ffff;
+    transform: scale(1.02);
+}
+.module-btn.active {
+    background: #00ffff;
+    color: #000000;
+    border-color: #00ffff;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.25);
+    transform: scale(1.02);
+}
+
+.menu-start-btn {
+    position: relative;
+    width: 100%;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(14px, 1.2vw, 18px);
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    background: transparent;
+    border: 1.5px solid rgba(0, 255, 255, 0.5);
+    color: #00ffff;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.4s ease;
+    overflow: hidden;
+}
+.menu-start-btn .start-text { position: relative; z-index: 2; }
+.menu-start-btn .start-scan {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.12), transparent);
+    transition: left 0.6s ease;
+}
+.menu-start-btn:hover .start-scan { left: 100%; }
+.menu-start-btn:hover {
+    border-color: #00ffff;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.2), inset 0 0 40px rgba(0, 255, 255, 0.05);
+    transform: scale(1.02);
+    background: rgba(0, 255, 255, 0.05);
+}
+.menu-start-btn:active { transform: scale(0.96); }
+
+.menu-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 255, 255, 0.06);
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.footer-left { display: flex; align-items: center; gap: 12px; }
+.footer-sound {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(9px, 0.7vw, 12px);
+    background: transparent;
+    border: none;
+    color: #ffaa00;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+.footer-sound:hover { background: rgba(255, 170, 0, 0.1); box-shadow: 0 0 20px rgba(255, 170, 0, 0.1); }
+.footer-version {
+    font-family: 'Courier New', monospace;
+    font-size: clamp(8px, 0.6vw, 11px);
+    color: rgba(0, 255, 255, 0.2);
+    letter-spacing: 2px;
+}
+.footer-center { flex: 1; text-align: center; }
+.footer-status {
+    font-family: 'Courier New', monospace;
+    font-size: clamp(8px, 0.6vw, 11px);
+    color: rgba(0, 255, 100, 0.4);
+    letter-spacing: 2px;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+.footer-right { text-align: right; }
+.footer-record {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(9px, 0.7vw, 12px);
+    color: #ffaa00;
+    text-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
+}
+
+/* ============================================================
+   ===== ИГРОВОЙ ЭКРАН =====
+   ============================================================ */
 .game-wrapper {
     display: flex;
     flex-direction: column;
@@ -586,8 +425,6 @@ body {
     padding: 8px;
     gap: 6px;
 }
-
-/* ===== ВЕРХНЯЯ ПАНЕЛЬ (гибкая) ===== */
 .game-top-panel {
     display: flex;
     align-items: center;
@@ -598,9 +435,7 @@ body {
     flex-wrap: wrap;
     flex-shrink: 0;
 }
-
-.back-btn,
-.restart-btn {
+.back-btn, .restart-btn {
     font-family: 'Orbitron', sans-serif;
     font-weight: 700;
     font-size: clamp(9px, 0.8vw, 12px);
@@ -615,32 +450,12 @@ body {
     flex-shrink: 0;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
 }
+.back-btn { color: #ff5555; border-color: #ff5555; }
+.back-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 85, 85, 0.25); }
+.restart-btn { color: #00ff88; border-color: #00ff88; }
+.restart-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 255, 136, 0.25); }
 
-.back-btn {
-    color: #ff5555;
-    border-color: #ff5555;
-}
-
-.back-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(255, 85, 85, 0.25), inset 0 0 30px rgba(255, 85, 85, 0.05);
-    border-color: #ff5555;
-}
-
-.restart-btn {
-    color: #00ff88;
-    border-color: #00ff88;
-}
-
-.restart-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.25), inset 0 0 30px rgba(0, 255, 136, 0.05);
-    border-color: #00ff88;
-}
-
-/* ===== СЧЕТ (адаптивный) ===== */
 .game-score {
     display: flex;
     align-items: center;
@@ -648,7 +463,6 @@ body {
     gap: 6px;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(0, 255, 255, 0.2);
     padding: 4px 14px;
     border-radius: 60px;
@@ -656,9 +470,7 @@ body {
     min-width: 140px;
     max-width: 460px;
     flex-wrap: wrap;
-    box-shadow: 0 0 40px rgba(0, 255, 255, 0.06), inset 0 0 40px rgba(0, 255, 255, 0.04);
 }
-
 .score {
     display: flex;
     align-items: center;
@@ -667,23 +479,9 @@ body {
     font-weight: 700;
     font-family: 'Orbitron', monospace;
 }
-
-.score.blue {
-    color: #00ffff;
-    text-shadow: 0 0 15px #00ffff, 0 0 35px rgba(0, 255, 255, 0.4), 0 0 70px rgba(0, 255, 255, 0.15);
-}
-
-.score.orange {
-    color: #ffaa00;
-    text-shadow: 0 0 15px #ffaa00, 0 0 35px rgba(255, 170, 0, 0.4), 0 0 70px rgba(255, 170, 0, 0.15);
-}
-
-.score-label {
-    font-size: clamp(7px, 0.7vw, 12px);
-    color: #88aaff;
-    letter-spacing: 1px;
-}
-
+.score.blue { color: #00ffff; text-shadow: 0 0 15px #00ffff, 0 0 35px rgba(0, 255, 255, 0.4); }
+.score.orange { color: #ffaa00; text-shadow: 0 0 15px #ffaa00, 0 0 35px rgba(255, 170, 0, 0.4); }
+.score-label { font-size: clamp(7px, 0.7vw, 12px); color: #88aaff; letter-spacing: 1px; }
 .score-value {
     background: rgba(0, 0, 0, 0.4);
     padding: 0 6px;
@@ -692,15 +490,11 @@ body {
     text-align: center;
     font-size: clamp(10px, 1.5vw, 20px);
 }
-
 .score-divider {
     font-size: clamp(10px, 1.5vw, 20px);
     color: rgba(255, 255, 255, 0.5);
     font-weight: 300;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
-
-/* ===== ТАЙМЕР РАУНДА ===== */
 .round-timer {
     font-family: 'Orbitron', monospace;
     font-size: clamp(14px, 2vw, 30px);
@@ -711,19 +505,16 @@ body {
     text-align: center;
     transition: all 0.3s ease;
 }
-
 .round-timer.warning {
     color: #ff3333 !important;
     text-shadow: 0 0 20px #ff3333, 0 0 50px rgba(255, 51, 51, 0.3) !important;
     animation: timerPulse 0.5s ease-in-out infinite alternate;
 }
-
 @keyframes timerPulse {
     0% { transform: scale(1); opacity: 0.9; }
     100% { transform: scale(1.12); opacity: 0.6; }
 }
 
-/* ===== ИГРОВОЕ ПОЛЕ ===== */
 .game-area {
     position: relative;
     border: 2px solid rgba(0, 255, 255, 0.4);
@@ -734,10 +525,7 @@ body {
     width: 100%;
     max-width: 1200px;
     flex-shrink: 1;
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
-
-/* ===== КАНВАС (масштабируется) ===== */
 #gameCanvas {
     display: block;
     border-radius: 10px;
@@ -746,10 +534,7 @@ body {
     max-width: 1200px !important;
     aspect-ratio: 1200 / 720 !important;
     background: #03050a;
-    transition: filter 0.2s ease;
 }
-
-/* ===== СООБЩЕНИЯ ===== */
 .game-message {
     position: absolute;
     bottom: 12px;
@@ -762,15 +547,12 @@ body {
     text-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     border: 1px solid rgba(0, 255, 204, 0.15);
     border-radius: 30px;
     padding: 4px 16px;
     z-index: 10;
     white-space: nowrap;
 }
-
-/* ===== ПОБЕДНЫЙ ОВЕРЛЕЙ ===== */
 .victory-overlay {
     position: absolute;
     top: 50%;
@@ -782,7 +564,6 @@ body {
     text-shadow: 0 0 30px #ffaa00, 0 0 60px #ff8800;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 2px solid #ffaa00;
     box-shadow: 0 0 60px rgba(255, 170, 0, 0.2), inset 0 0 60px rgba(255, 170, 0, 0.05);
     border-radius: 30px;
@@ -793,12 +574,8 @@ body {
     transition: opacity 0.4s ease;
     pointer-events: none;
 }
+.victory-overlay.show { opacity: 1; }
 
-.victory-overlay.show {
-    opacity: 1;
-}
-
-/* ===== ТУРНИРНАЯ ПОБЕДА ===== */
 .victory-overlay.tournament {
     font-size: clamp(24px, 5vw, 56px) !important;
     border-color: #ffd700 !important;
@@ -806,155 +583,44 @@ body {
     text-shadow: 0 0 40px #ffd700, 0 0 80px #ff8800, 0 0 120px #ff4400 !important;
     animation: tournamentWin 1.5s ease-in-out infinite alternate !important;
 }
-
 @keyframes tournamentWin {
-    0% { 
-        transform: translate(-50%, -50%) scale(1);
-        text-shadow: 0 0 40px #ffd700, 0 0 80px #ff8800;
-    }
-    100% { 
-        transform: translate(-50%, -50%) scale(1.05);
-        text-shadow: 0 0 60px #ffd700, 0 0 120px #ff6600, 0 0 180px #ff4400;
-    }
+    0% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 40px #ffd700, 0 0 80px #ff8800; }
+    100% { transform: translate(-50%, -50%) scale(1.05); text-shadow: 0 0 60px #ffd700, 0 0 120px #ff6600, 0 0 180px #ff4400; }
 }
 
 /* ============================================================
    ===== АДАПТАЦИЯ =====
    ============================================================ */
-
-/* ТЕЛЕФОНЫ (до 600px) */
 @media (max-width: 600px) {
-    .game-wrapper {
-        padding: 4px;
-        gap: 4px;
-    }
-    .game-top-panel {
-        gap: 4px;
-    }
-    .game-score {
-        padding: 2px 8px;
-        gap: 3px;
-        min-width: 80px;
-        font-size: 10px;
-        order: 3;
-        width: 100%;
-        border-radius: 30px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .score {
-        font-size: 10px;
-        gap: 2px;
-    }
-    .score-value {
-        font-size: 10px;
-        min-width: 14px;
-        padding: 0 3px;
-    }
-    .round-timer {
-        font-size: 12px;
-        min-width: 18px;
-    }
-    .back-btn,
-    .restart-btn {
-        font-size: 7px;
-        padding: 2px 8px;
-        letter-spacing: 0;
-    }
-    .game-message {
-        font-size: 8px;
-        padding: 3px 10px;
-        bottom: 4px;
-        white-space: nowrap;
-    }
-    .victory-overlay {
-        padding: 10px 16px;
-        font-size: 16px;
-        border-radius: 16px;
-        white-space: normal;
-        text-align: center;
-    }
-    .game-area {
-        border-radius: 10px;
-        padding: 2px;
-        border-width: 1px;
-    }
-    #gameCanvas {
-        border-radius: 6px;
-    }
-    .splash-tron {
-        font-size: clamp(36px, 8vw, 48px);
-        letter-spacing: 6px;
-    }
-    .splash-sub {
-        font-size: clamp(12px, 3vw, 16px);
-        letter-spacing: 8px;
-    }
-    .splash-btn {
-        padding: 12px 24px;
-        font-size: clamp(11px, 2.5vw, 14px);
-        letter-spacing: 3px;
-    }
-    .splash-version {
-        font-size: 8px;
-    }
-
-    /* АДАПТАЦИЯ НОВОГО МЕНЮ */
-    .menu-wrapper {
-        padding: 16px 12px;
-        gap: 16px;
-    }
-    .menu-modules {
-        gap: 10px;
-    }
-    .menu-module {
-        padding: 10px 14px;
-    }
-    .module-buttons {
-        flex-direction: column;
-        gap: 6px;
-    }
-    .module-btn {
-        min-width: unset;
-        padding: 10px 12px;
-    }
-    .menu-start-btn {
-        padding: 12px 16px;
-        letter-spacing: 4px;
-        font-size: 14px;
-    }
-    .menu-footer {
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-    }
-    .footer-left,
-    .footer-right {
-        width: 100%;
-        text-align: center;
-        justify-content: center;
-    }
-    .menu-module-info .info-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
-    }
+    .game-wrapper { padding: 4px; gap: 4px; }
+    .game-top-panel { gap: 4px; }
+    .game-score { padding: 2px 8px; gap: 3px; min-width: 80px; font-size: 10px; order: 3; width: 100%; border-radius: 30px; flex-wrap: wrap; justify-content: center; }
+    .score { font-size: 10px; gap: 2px; }
+    .score-value { font-size: 10px; min-width: 14px; padding: 0 3px; }
+    .round-timer { font-size: 12px; min-width: 18px; }
+    .back-btn, .restart-btn { font-size: 7px; padding: 2px 8px; letter-spacing: 0; }
+    .game-message { font-size: 8px; padding: 3px 10px; bottom: 4px; white-space: nowrap; }
+    .victory-overlay { padding: 10px 16px; font-size: 16px; border-radius: 16px; white-space: normal; text-align: center; }
+    .game-area { border-radius: 10px; padding: 2px; border-width: 1px; }
+    #gameCanvas { border-radius: 6px; }
+    .splash-tron { font-size: clamp(36px, 8vw, 48px); letter-spacing: 6px; }
+    .splash-sub { font-size: clamp(12px, 3vw, 16px); letter-spacing: 8px; }
+    .splash-btn { padding: 12px 24px; font-size: clamp(11px, 2.5vw, 14px); letter-spacing: 3px; }
+    .splash-version { font-size: 8px; }
+    
+    .menu-wrapper { padding: 16px 12px; gap: 16px; }
+    .menu-modules { gap: 10px; }
+    .menu-module { padding: 10px 14px; }
+    .module-buttons { flex-direction: column; gap: 6px; }
+    .module-btn { min-width: unset; padding: 10px 12px; }
+    .menu-start-btn { padding: 12px 16px; letter-spacing: 4px; font-size: 14px; }
+    .menu-footer { flex-direction: column; align-items: center; gap: 6px; }
+    .footer-left, .footer-right { width: 100%; text-align: center; justify-content: center; }
 }
 
-/* ПЛАНШЕТЫ (600-1024px) */
 @media (min-width: 601px) and (max-width: 1024px) {
-    .game-score {
-        padding: 4px 12px;
-        min-width: 120px;
-    }
-    .score {
-        font-size: 14px;
-    }
-    .round-timer {
-        font-size: 18px;
-    }
-    .game-message {
-        font-size: 12px;
-        padding: 4px 14px;
-    }
+    .game-score { padding: 4px 12px; min-width: 120px; }
+    .score { font-size: 14px; }
+    .round-timer { font-size: 18px; }
+    .game-message { font-size: 12px; padding: 4px 14px; }
 }
