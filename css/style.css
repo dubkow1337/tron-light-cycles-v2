@@ -852,3 +852,331 @@ body {
     .round-timer { font-size: 20px; }
     .game-message { font-size: 11px; padding: 4px 14px; }
 }
+
+/* ============================================================
+   ===== ИГРОВОЙ ЭКРАН — НЕОНОВЫЙ СТАЙЛ =====
+   ============================================================ */
+
+.game-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    padding: 12px;
+    gap: 10px;
+    background: #020408;
+    position: relative;
+}
+
+/* ===== ФОН С СЕТКОЙ ===== */
+.game-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: gridMove 25s linear infinite;
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 0;
+}
+
+.game-wrapper::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0, 255, 255, 0.03), transparent 70%);
+    animation: scanLight 10s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ===== ВЕРХНЯЯ ПАНЕЛЬ ===== */
+.game-top-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 1200px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== КНОПКИ ===== */
+.back-btn,
+.restart-btn {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(9px, 0.8vw, 12px);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    white-space: nowrap;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid;
+}
+
+.back-btn {
+    color: #ff5555;
+    border-color: rgba(255, 85, 85, 0.4);
+    box-shadow: 0 0 20px rgba(255, 85, 85, 0.05);
+}
+.back-btn:hover {
+    border-color: #ff5555;
+    box-shadow: 0 0 40px rgba(255, 85, 85, 0.2), inset 0 0 40px rgba(255, 85, 85, 0.05);
+    transform: scale(1.05);
+}
+
+.restart-btn {
+    color: #00ffff;
+    border-color: rgba(0, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+}
+.restart-btn:hover {
+    border-color: #00ffff;
+    box-shadow: 0 0 40px rgba(0, 255, 255, 0.3), inset 0 0 40px rgba(0, 255, 255, 0.08);
+    transform: scale(1.05);
+}
+
+/* ===== СЧЁТ — ЯРКИЙ НЕОН ===== */
+.game-score {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: rgba(0, 20, 30, 0.2);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 24px;
+    border-radius: 12px;
+    flex: 1 1 auto;
+    min-width: 180px;
+    max-width: 500px;
+    flex-wrap: wrap;
+    position: relative;
+    border: 2px solid #00ffff;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.25),
+        0 0 60px rgba(0, 255, 255, 0.12),
+        inset 0 0 30px rgba(0, 255, 255, 0.05);
+}
+
+/* ===== ОЧКИ ===== */
+.score {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: clamp(14px, 1.6vw, 22px);
+    font-weight: 700;
+    font-family: 'Orbitron', monospace;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.score.blue {
+    color: #00ffff;
+    text-shadow: 
+        0 0 20px rgba(0, 255, 255, 0.6),
+        0 0 40px rgba(0, 255, 255, 0.3);
+    border: 1px solid rgba(0, 255, 255, 0.15);
+}
+
+.score.orange {
+    color: #ffaa00;
+    text-shadow: 
+        0 0 20px rgba(255, 170, 0, 0.6),
+        0 0 40px rgba(255, 170, 0, 0.3);
+    border: 1px solid rgba(255, 170, 0, 0.15);
+}
+
+.score-label {
+    font-size: clamp(8px, 0.7vw, 12px);
+    color: rgba(136, 170, 255, 0.6);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 400;
+}
+
+.score-value {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 0 8px;
+    border-radius: 4px;
+    min-width: 24px;
+    text-align: center;
+    font-size: clamp(14px, 1.6vw, 22px);
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.score-divider {
+    font-size: clamp(14px, 1.6vw, 22px);
+    color: rgba(255, 255, 255, 0.2);
+    font-weight: 300;
+}
+
+/* ===== ТАЙМЕР ===== */
+.round-timer {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(18px, 2.2vw, 32px);
+    font-weight: 700;
+    color: #00ffcc;
+    text-shadow: 
+        0 0 25px rgba(0, 255, 204, 0.3),
+        0 0 50px rgba(0, 255, 204, 0.15);
+    min-width: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+    padding: 0 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    border: 1px solid rgba(0, 255, 204, 0.08);
+}
+
+.round-timer.warning {
+    color: #ff3333 !important;
+    text-shadow: 0 0 20px rgba(255, 51, 51, 0.3), 0 0 40px rgba(255, 51, 51, 0.15) !important;
+    border-color: rgba(255, 51, 51, 0.15);
+    animation: timerPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes timerPulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    100% { transform: scale(1.08); opacity: 1; }
+}
+
+/* ===== ИГРОВОЕ ПОЛЕ — ЯРКИЙ НЕОН ===== */
+.game-area {
+    position: relative;
+    border-radius: 16px;
+    padding: 4px;
+    background: #03050a;
+    width: 100%;
+    max-width: 1200px;
+    flex-shrink: 1;
+    z-index: 1;
+    border: 2px solid #00ffff;
+    box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.25),
+        0 0 60px rgba(0, 255, 255, 0.12),
+        inset 0 0 30px rgba(0, 255, 255, 0.05);
+}
+
+/* ===== ВНУТРЕННЯЯ РАМКА ===== */
+.game-area::after {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    border: 1px solid rgba(0, 255, 255, 0.06);
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* ===== КАНВАС ===== */
+#gameCanvas {
+    display: block;
+    border-radius: 12px;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 1200px !important;
+    aspect-ratio: 1200 / 720 !important;
+    background: #03050a;
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== СООБЩЕНИЯ ===== */
+.game-message {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: #00ffcc;
+    font-size: clamp(10px, 1vw, 14px);
+    font-weight: 700;
+    text-shadow: 0 0 20px rgba(0, 255, 204, 0.2);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 255, 204, 0.08);
+    border-radius: 8px;
+    padding: 6px 20px;
+    z-index: 10;
+    white-space: nowrap;
+    letter-spacing: 1px;
+}
+
+/* ===== ПОБЕДНЫЙ ОВЕРЛЕЙ ===== */
+.victory-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 900;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 16px;
+    padding: 24px 48px;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.5);
+    line-height: 1.3;
+}
+
+.victory-overlay.show {
+    opacity: 1;
+}
+
+.victory-overlay.blue {
+    color: #00ffff;
+    border-color: rgba(0, 255, 255, 0.2);
+    text-shadow: 0 0 30px rgba(0, 255, 255, 0.3), 0 0 60px rgba(0, 255, 255, 0.1);
+}
+
+.victory-overlay.orange {
+    color: #ffaa00;
+    border-color: rgba(255, 170, 0, 0.2);
+    text-shadow: 0 0 30px rgba(255, 170, 0, 0.3), 0 0 60px rgba(255, 170, 0, 0.1);
+}
+
+.victory-overlay.gameover {
+    color: #ff3333;
+    border-color: rgba(255, 51, 51, 0.2);
+    text-shadow: 0 0 30px rgba(255, 51, 51, 0.3), 0 0 60px rgba(255, 51, 51, 0.1);
+}
+
+.victory-overlay.tournament {
+    color: #ffd700;
+    border-color: rgba(255, 215, 0, 0.2);
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 0 60px rgba(255, 215, 0, 0.1);
+}
