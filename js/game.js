@@ -125,6 +125,11 @@ function showGameOver() {
         stopBgMusic();
     }
     
+    // ===== ЗВУК GAME OVER =====
+    if (typeof playGameOverSound === 'function') {
+        playGameOverSound();
+    }
+    
     const steps = currentSteps || 0;
     
     // Обновляем рекорд
@@ -194,6 +199,11 @@ function showVictory(name, isTournamentFinal = false) {
             overlay.classList.add('show');
             overlay.classList.add('tournament');
             
+            // ===== ЗВУК ТУРНИРНОЙ ПОБЕДЫ =====
+            if (typeof playTournamentWinSound === 'function') {
+                playTournamentWinSound();
+            }
+            
             if (typeof startFireworks === 'function') {
                 setTimeout(() => startFireworks(mainColor, 12), 0);
                 setTimeout(() => startFireworks('#ffd700', 8), 500);
@@ -222,6 +232,11 @@ function showVictory(name, isTournamentFinal = false) {
             overlay.style.color = mainColor;
             overlay.classList.remove('tournament');
             overlay.classList.add('show');
+            
+            // ===== ЗВУК ПОБЕДЫ =====
+            if (typeof playVictorySound === 'function') {
+                playVictorySound();
+            }
             
             if (typeof startFireworks === 'function') {
                 startFireworks(mainColor, 6);
@@ -446,6 +461,10 @@ function updateGame() {
             p.alive = false;
             crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
             if (typeof explode === 'function') explode(p.x, p.y, p.color);
+            // ===== ЗВУК СТОЛКНОВЕНИЯ =====
+            if (typeof playCrashSound === 'function') {
+                playCrashSound();
+            }
             // ===== ВЫЗОВ ТАБЛО ДЛЯ ВЫЖИВАНИЯ =====
             if (matchMode === 'survival' && typeof showGameOver === 'function') {
                 setTimeout(showGameOver, 300);
@@ -459,6 +478,10 @@ function updateGame() {
                 p.alive = false;
                 crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
                 if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                // ===== ЗВУК СТОЛКНОВЕНИЯ =====
+                if (typeof playCrashSound === 'function') {
+                    playCrashSound();
+                }
                 // ===== ВЫЗОВ ТАБЛО ДЛЯ ВЫЖИВАНИЯ =====
                 if (matchMode === 'survival' && typeof showGameOver === 'function') {
                     setTimeout(showGameOver, 300);
@@ -484,6 +507,10 @@ function updateGame() {
                         p.alive = false;
                         crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
                         if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        // ===== ЗВУК СТОЛКНОВЕНИЯ =====
+                        if (typeof playCrashSound === 'function') {
+                            playCrashSound();
+                        }
                         break;
                     }
                 }
@@ -532,6 +559,10 @@ function updateGame() {
                         p.alive = false;
                         crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
                         if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        // ===== ЗВУК СТОЛКНОВЕНИЯ =====
+                        if (typeof playCrashSound === 'function') {
+                            playCrashSound();
+                        }
                         // ===== ВЫЗОВ ТАБЛО ДЛЯ ВЫЖИВАНИЯ =====
                         if (matchMode === 'survival' && typeof showGameOver === 'function') {
                             setTimeout(showGameOver, 300);
@@ -554,6 +585,10 @@ function updateGame() {
                         p.alive = false;
                         crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
                         if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        // ===== ЗВУК СТОЛКНОВЕНИЯ =====
+                        if (typeof playCrashSound === 'function') {
+                            playCrashSound();
+                        }
                         break;
                     }
                 }
