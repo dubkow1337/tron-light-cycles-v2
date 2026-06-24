@@ -18,6 +18,26 @@ const TRAIL_FADE = true;
 
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
+// ===== ДРАКОН НА ФОНЕ =====
+let dragonImage = null;
+let dragonLoaded = false;
+
+function loadDragonImage() {
+    if (dragonLoaded) return;
+    const img = new Image();
+    img.src = 'assets/images/dragon-bg.jpg';
+    img.onload = function() {
+        dragonImage = img;
+        dragonLoaded = true;
+        console.log('🐉 Дракон загружен!');
+    };
+    img.onerror = function() {
+        console.warn('⚠️ Не удалось загрузить дракона, используем стандартную сетку');
+        dragonLoaded = false;
+    };
+}
+loadDragonImage();
+
 // ===== ОБЛАКА (белые, 30 штук, УСКОРЕННЫЕ) =====
 let cloudParticles = [];
 let cloudInitialized = false;
@@ -31,7 +51,7 @@ function initClouds() {
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             size: 30 + Math.random() * 120,
-            speed: 0.8 + Math.random() * 1.2, // УСКОРЕНО (было 0.3-0.5)
+            speed: 0.8 + Math.random() * 1.2,
             opacity: 0.10 + Math.random() * 0.08,
             offsetY: Math.random() * 200,
             phase: Math.random() * Math.PI * 2
@@ -43,7 +63,7 @@ function initClouds() {
 function updateClouds() {
     const time = Date.now() * 0.001;
     for (let p of cloudParticles) {
-        p.x += p.speed * 1.2; // УСКОРЕНО (было 0.4)
+        p.x += p.speed * 1.2;
         p.y += Math.sin(time * 0.03 + p.phase) * 0.08;
         
         if (p.x > canvas.width + 150) {
@@ -288,7 +308,7 @@ function draw() {
         drawFireworks();
     }
     
-    // ===== СЕТКА (цветные клетки, серые линии) =====
+    // ===== СЕТКА С ДРАКОНОМ =====
     drawGrid();
     
     // ===== СЛЕДЫ ИГРОКОВ =====
@@ -469,7 +489,7 @@ function draw() {
         }
     }
     
-    // ===== ОБЛАКА (ПАРЯТ НАД ВСЕМ, КРОМЕ ТЕКСТА) =====
+    // ===== ОБЛАКА =====
     if (!cloudInitialized) {
         initClouds();
     }
@@ -506,27 +526,39 @@ function draw() {
     ctx.shadowBlur = 0;
 }
 
-// ========== СЕТКА С ЦВЕТНЫМИ КЛЕТКАМИ =====
+// ========== СЕТКА С ДРАКОНОМ НА ФОНЕ ==========
 function drawGrid() {
     const w = canvas.width;
     const h = canvas.height;
     
-    // ===== 1. ЗАЛИВКА КЛЕТОК =====
+    // ===== 1. ФОН =====
+    ctx.fillStyle = '#050a18';
+    ctx.fillRect(0, 0, w, h);
+    
+    // ===== 2. РИСУЕМ ДРАКОНА (ЕСЛИ ЗАГРУЗИЛСЯ) =====
+    if (dragonLoaded && dragonImage) {
+        ctx.save();
+        ctx.globalAlpha = 0.25; // Прозрачность, чтобы не мешал игре
+        ctx.drawImage(dragonImage, 0, 0, w, h);
+        ctx.restore();
+    }
+    
+    // ===== 3. ШАХМАТНЫЙ УЗОР (СВЕРХУ, ПОЛУПРОЗРАЧНЫЙ) =====
     for (let row = 0; row < HEIGHT; row++) {
         for (let col = 0; col < WIDTH; col++) {
             const x = col * CELL_SIZE;
             const y = row * CELL_SIZE;
             const isEven = (row + col) % 2 === 0;
-            const alpha = isEven ? 0.06 : 0.03;
-            ctx.fillStyle = `rgba(0, 255, 204, ${alpha})`;
+            const alpha = isEven ? 0.025 : 0.01;
+            ctx.fillStyle = `rgba(0, 100, 255, ${alpha})`;
             ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
         }
     }
     
-    // ===== 2. ЛИНИИ СЕТКИ =====
+    // ===== 4. ЛИНИИ СЕТКИ =====
     ctx.shadowBlur = 0;
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#0f3f3a';
+    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = 'rgba(0, 150, 255, 0.05)';
     for (let i = 0; i <= WIDTH; i++) {
         const x = i * CELL_SIZE;
         ctx.beginPath();
@@ -535,6 +567,24 @@ function drawGrid() {
         ctx.stroke();
     }
     for (let i = 0; i <= HEIGHT; i++) {
+        const y = i * CELL_SIZE;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+    }
+    
+    // ===== 5. АКЦЕНТНЫЕ ЛИНИИ =====
+    ctx.lineWidth = 0.8;
+    ctx.strokeStyle = 'rgba(0, 200, 255, 0.03)';
+    for (let i = 0; i <= WIDTH; i += 5) {
+        const x = i * CELL_SIZE;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+    }
+    for (let i = 0; i <= HEIGHT; i += 5) {
         const y = i * CELL_SIZE;
         ctx.beginPath();
         ctx.moveTo(0, y);
