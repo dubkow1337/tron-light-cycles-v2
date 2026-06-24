@@ -18,62 +18,7 @@ const TRAIL_FADE = true;
 
 // cloneData объявлен в bonuses.js — НЕ ОБЪЯВЛЯЕМ ЕГО ЗДЕСЬ!
 
-// ===== ТУМАН (ускоренный) =====
-let fogParticles = [];
-let fogInitialized = false;
-
-function initFog() {
-    if (fogInitialized) return;
-    fogParticles = [];
-    const count = 60;
-    for (let i = 0; i < count; i++) {
-        fogParticles.push({
-            x: Math.random() * canvas.width,
-            y: Math.random() * canvas.height,
-            size: 30 + Math.random() * 80,
-            speed: 0.3 + Math.random() * 0.4,  // УСКОРЕНО
-            angle: Math.random() * Math.PI * 2,
-            opacity: 0.02 + Math.random() * 0.03,
-            offset: Math.random() * 1000
-        });
-    }
-    fogInitialized = true;
-}
-
-function updateFog() {
-    const time = Date.now() * 0.001;
-    for (let p of fogParticles) {
-        p.x += Math.cos(p.angle + time * 0.15) * p.speed * 1.0;  // УСКОРЕНО
-        p.y += Math.sin(p.angle + time * 0.20) * p.speed * 1.0;  // УСКОРЕНО
-        
-        if (p.x < -100) p.x = canvas.width + 100;
-        if (p.x > canvas.width + 100) p.x = -100;
-        if (p.y < -100) p.y = canvas.height + 100;
-        if (p.y > canvas.height + 100) p.y = -100;
-        
-        p.opacity = (0.02 + Math.random() * 0.02) * (0.7 + 0.3 * Math.sin(time * 0.1 + p.offset));
-    }
-}
-
-function drawFog() {
-    for (let p of fogParticles) {
-        const cx = p.x;
-        const cy = p.y;
-        const size = p.size;
-        
-        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, size);
-        gradient.addColorStop(0, `rgba(0, 180, 255, ${p.opacity * 0.5})`);
-        gradient.addColorStop(0.5, `rgba(0, 150, 255, ${p.opacity * 0.3})`);
-        gradient.addColorStop(1, `rgba(0, 100, 200, 0)`);
-        
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(cx, cy, size, 0, Math.PI * 2);
-        ctx.fill();
-    }
-}
-
-// ===== ОБЛАКА (белые, 30 штук, цикличные) =====
+// ===== ОБЛАКА (белые, 30 штук, УСКОРЕННЫЕ) =====
 let cloudParticles = [];
 let cloudInitialized = false;
 
@@ -86,7 +31,7 @@ function initClouds() {
             x: Math.random() * canvas.width,
             y: Math.random() * canvas.height,
             size: 30 + Math.random() * 120,
-            speed: 0.3 + Math.random() * 0.5,
+            speed: 0.8 + Math.random() * 1.2, // УСКОРЕНО (было 0.3-0.5)
             opacity: 0.10 + Math.random() * 0.08,
             offsetY: Math.random() * 200,
             phase: Math.random() * Math.PI * 2
@@ -98,14 +43,14 @@ function initClouds() {
 function updateClouds() {
     const time = Date.now() * 0.001;
     for (let p of cloudParticles) {
-        p.x += p.speed * 0.4;
-        p.y += Math.sin(time * 0.02 + p.phase) * 0.05;
+        p.x += p.speed * 1.2; // УСКОРЕНО (было 0.4)
+        p.y += Math.sin(time * 0.03 + p.phase) * 0.08;
         
         if (p.x > canvas.width + 150) {
             p.x = -150;
             p.y = Math.random() * canvas.height;
             p.size = 30 + Math.random() * 120;
-            p.speed = 0.3 + Math.random() * 0.5;
+            p.speed = 0.8 + Math.random() * 1.2;
             p.opacity = 0.10 + Math.random() * 0.08;
         }
         if (p.x < -150) {
@@ -157,46 +102,6 @@ function drawClouds() {
         ctx.beginPath();
         ctx.arc(cx - size * 0.5, cy + size * 0.3, size * 0.6, 0, Math.PI * 2);
         ctx.fill();
-    }
-}
-
-// ===== СЕТКА С ЦВЕТНЫМИ КЛЕТКАМИ (без перелива) =====
-function drawGrid() {
-    const w = canvas.width;
-    const h = canvas.height;
-    
-    // ===== 1. ЗАЛИВКА КЛЕТОК (простой цвет) =====
-    for (let row = 0; row < HEIGHT; row++) {
-        for (let col = 0; col < WIDTH; col++) {
-            const x = col * CELL_SIZE;
-            const y = row * CELL_SIZE;
-            
-            // Шахматный узор для разнообразия
-            const isEven = (row + col) % 2 === 0;
-            const alpha = isEven ? 0.06 : 0.03;
-            
-            ctx.fillStyle = `rgba(0, 255, 204, ${alpha})`;
-            ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
-        }
-    }
-    
-    // ===== 2. ЛИНИИ СЕТКИ (серые, как были) =====
-    ctx.shadowBlur = 0;
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = '#0f3f3a';
-    for (let i = 0; i <= WIDTH; i++) {
-        const x = i * CELL_SIZE;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-    }
-    for (let i = 0; i <= HEIGHT; i++) {
-        const y = i * CELL_SIZE;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
     }
 }
 
@@ -377,13 +282,6 @@ function draw() {
     ctx.fillStyle = '#03050a';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.shadowBlur = 0;
-    
-    // ===== ТУМАН (под игрой) =====
-    if (!fogInitialized) {
-        initFog();
-    }
-    updateFog();
-    drawFog();
     
     // ===== САЛЮТ =====
     if (typeof drawFireworks === 'function') {
@@ -608,6 +506,43 @@ function draw() {
     ctx.shadowBlur = 0;
 }
 
+// ========== СЕТКА С ЦВЕТНЫМИ КЛЕТКАМИ =====
+function drawGrid() {
+    const w = canvas.width;
+    const h = canvas.height;
+    
+    // ===== 1. ЗАЛИВКА КЛЕТОК =====
+    for (let row = 0; row < HEIGHT; row++) {
+        for (let col = 0; col < WIDTH; col++) {
+            const x = col * CELL_SIZE;
+            const y = row * CELL_SIZE;
+            const isEven = (row + col) % 2 === 0;
+            const alpha = isEven ? 0.06 : 0.03;
+            ctx.fillStyle = `rgba(0, 255, 204, ${alpha})`;
+            ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+        }
+    }
+    
+    // ===== 2. ЛИНИИ СЕТКИ =====
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#0f3f3a';
+    for (let i = 0; i <= WIDTH; i++) {
+        const x = i * CELL_SIZE;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+    }
+    for (let i = 0; i <= HEIGHT; i++) {
+        const y = i * CELL_SIZE;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+    }
+}
+
 // ========== САЛЮТ ==========
 
 let fireworkParticles = [];
@@ -701,7 +636,6 @@ function resizeCanvas() {
     const containerWidth = container.clientWidth;
     const containerHeight = container.clientHeight;
     
-    // Сохраняем пропорции 1200:720
     const aspectRatio = 1200 / 720;
     let width = containerWidth;
     let height = containerWidth / aspectRatio;
@@ -715,13 +649,11 @@ function resizeCanvas() {
     canvas.style.height = height + 'px';
 }
 
-// Вызываем при загрузке и при изменении размера окна
 window.addEventListener('resize', resizeCanvas);
 window.addEventListener('load', () => {
     setTimeout(resizeCanvas, 50);
 });
 
-// Также вызываем при появлении игрового экрана
 const resizeObserver = new MutationObserver(() => {
     const gameScreen = document.getElementById('gameScreen');
     if (gameScreen && gameScreen.classList.contains('active')) {
