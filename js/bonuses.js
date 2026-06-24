@@ -35,6 +35,10 @@ const BONUS_TYPES = {
         apply: () => {
             bonusEffects.speed.active = true;
             bonusEffects.speed.endTime = Date.now() + 5000;
+            // ===== ЗВУК ПОДБОРА БОНУСА =====
+            if (typeof playBonusSound === 'function') {
+                playBonusSound();
+            }
             showMessage('⚡ СКОРОСТЬ УВЕЛИЧЕНА! (5 сек)');
         }
     },
@@ -46,6 +50,10 @@ const BONUS_TYPES = {
         apply: () => {
             bonusEffects.shield.active = true;
             bonusEffects.shield.endTime = Date.now() + 5000;
+            // ===== ЗВУК ПОДБОРА БОНУСА =====
+            if (typeof playBonusSound === 'function') {
+                playBonusSound();
+            }
             showMessage('🛡️ ЩИТ АКТИВИРОВАН! (5 сек неуязвимости)');
         }
     },
@@ -62,6 +70,10 @@ const BONUS_TYPES = {
             cloneData.offsetX = 2;
             cloneData.offsetY = 0;
             
+            // ===== ЗВУК ПОДБОРА БОНУСА =====
+            if (typeof playBonusSound === 'function') {
+                playBonusSound();
+            }
             showMessage('🌀 КЛОН АКТИВИРОВАН! (3 сек)');
         }
     },
@@ -71,6 +83,10 @@ const BONUS_TYPES = {
         symbol: '💥',
         duration: 0,
         apply: (player) => {
+            // ===== ЗВУК ПОДБОРА БОНУСА =====
+            if (typeof playBonusSound === 'function') {
+                playBonusSound();
+            }
             if (typeof triggerExplosion === 'function') {
                 triggerExplosion(player);
             }
