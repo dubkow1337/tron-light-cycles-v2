@@ -29,14 +29,22 @@ function showScreen(screenId) {
     }
 }
 
+// ===== УНИВЕРСАЛЬНАЯ ФУНКЦИЯ АКТИВНЫХ КНОПОК =====
 function setMenuActive(group, activeId) {
-    const buttons = document.querySelectorAll(`.menu-btn[data-group="${group}"]`);
-    buttons.forEach(btn => btn.classList.remove('active'));
-    const activeBtn = document.getElementById(activeId);
-    if (activeBtn) {
-        activeBtn.classList.add('active');
-    } else {
-        console.error('Кнопка с id', activeId, 'не найдена!');
+    // Для новых кнопок (module-btn)
+    const moduleButtons = document.querySelectorAll(`.module-btn[data-group="${group}"]`);
+    moduleButtons.forEach(btn => btn.classList.remove('active'));
+    const activeModuleBtn = document.getElementById(activeId);
+    if (activeModuleBtn) {
+        activeModuleBtn.classList.add('active');
+    }
+    
+    // Для старых кнопок (menu-btn) — на случай, если остались
+    const menuButtons = document.querySelectorAll(`.menu-btn[data-group="${group}"]`);
+    menuButtons.forEach(btn => btn.classList.remove('active'));
+    const activeMenuBtn = document.getElementById(activeId);
+    if (activeMenuBtn) {
+        activeMenuBtn.classList.add('active');
     }
 }
 
@@ -457,4 +465,4 @@ function setActiveButton(group, activeId) {
     buttons.forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById(activeId);
     if (activeBtn) activeBtn.classList.add('active');
-        }
+}
