@@ -151,10 +151,12 @@ function showGameOver() {
     overlay.style.lineHeight = '1.4';
     overlay.classList.remove('tournament');
     overlay.classList.add('show');
+    overlay.classList.add('gameover'); // <-- ДОБАВЛЕНО
     
     // Задержка 4 секунды и выход в меню
     setTimeout(() => {
         overlay.classList.remove('show');
+        overlay.classList.remove('gameover');
         overlay.style.whiteSpace = '';
         overlay.style.textAlign = '';
         overlay.style.color = '';
@@ -196,8 +198,8 @@ function showVictory(name, isTournamentFinal = false) {
             overlay.style.borderColor = '#ffd700';
             overlay.style.boxShadow = '0 0 80px rgba(255, 215, 0, 0.4), inset 0 0 80px rgba(255, 215, 0, 0.1)';
             overlay.style.textShadow = '0 0 40px #ffd700, 0 0 80px #ff8800, 0 0 120px #ff4400';
-            overlay.classList.add('show');
-            overlay.classList.add('tournament');
+            overlay.classList.remove('blue', 'orange', 'gameover');
+            overlay.classList.add('show', 'tournament');
             
             // ===== ЗВУК ТУРНИРНОЙ ПОБЕДЫ =====
             if (typeof playTournamentWinSound === 'function') {
@@ -230,8 +232,9 @@ function showVictory(name, isTournamentFinal = false) {
             overlay.style.boxShadow = `0 0 60px rgba(${isBlue ? '0, 255, 255' : '255, 170, 0'}, 0.4), inset 0 0 60px rgba(${isBlue ? '0, 255, 255' : '255, 170, 0'}, 0.1)`;
             overlay.style.textShadow = `0 0 30px ${mainColor}, 0 0 60px ${glowColor}`;
             overlay.style.color = mainColor;
-            overlay.classList.remove('tournament');
+            overlay.classList.remove('tournament', 'gameover');
             overlay.classList.add('show');
+            overlay.classList.add(isBlue ? 'blue' : 'orange'); // <-- ДОБАВЛЕНО
             
             // ===== ЗВУК ПОБЕДЫ =====
             if (typeof playVictorySound === 'function') {
@@ -244,6 +247,7 @@ function showVictory(name, isTournamentFinal = false) {
             
             setTimeout(() => {
                 overlay.classList.remove('show');
+                overlay.classList.remove('blue', 'orange');
                 overlay.style.color = '';
                 overlay.style.borderColor = '';
                 overlay.style.boxShadow = '';
