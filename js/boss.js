@@ -66,6 +66,11 @@ function spawnBoss() {
     const startY = boss.y + boss.trailOffsetY;
     boss.trail.push({ x: startX, y: startY });
     
+    // ===== ЗВУК ПОЯВЛЕНИЯ БОССА =====
+    if (typeof playBossSpawnSound === 'function') {
+        playBossSpawnSound();
+    }
+    
     showMessage(`⚠️ LIGHT RUNNER ПОЯВИЛСЯ! (❤️ ${BOSS_MAX_HEALTH})`);
 }
 
@@ -99,6 +104,12 @@ function updateBoss() {
                 player.alive = false;
                 if (typeof explode === 'function') explode(player.x, player.y, player.color);
                 gameActive = false;
+                
+                // ===== ЗВУК СМЕРТИ ИГРОКА =====
+                if (typeof playPlayerDieSound === 'function') {
+                    playPlayerDieSound();
+                }
+                
                 showMessage('💀 ВАС РАЗДАВИЛ LIGHT RUNNER!');
                 if (typeof stopBgMusic === 'function') stopBgMusic();
                 if (typeof gameLoop !== 'undefined' && gameLoop) {
@@ -123,6 +134,12 @@ function updateBoss() {
             player.alive = false;
             if (typeof explode === 'function') explode(player.x, player.y, player.color);
             gameActive = false;
+            
+            // ===== ЗВУК СМЕРТИ ИГРОКА =====
+            if (typeof playPlayerDieSound === 'function') {
+                playPlayerDieSound();
+            }
+            
             showMessage('💀 ВАС УБИЛ СЛЕД LIGHT RUNNER!');
             if (typeof stopBgMusic === 'function') stopBgMusic();
             if (typeof gameLoop !== 'undefined' && gameLoop) {
@@ -154,10 +171,21 @@ function updateBoss() {
                         boss.invincible = true;
                         boss.invincibleTimer = 15;
                         
+                        // ===== ЗВУК УРОНА ПО БОССУ =====
+                        if (typeof playBossHitSound === 'function') {
+                            playBossHitSound();
+                        }
+                        
                         if (typeof explode === 'function') explode(boss.x, boss.y, '#ffaa00');
                         
                         if (boss.health <= 0) {
                             boss.alive = false;
+                            
+                            // ===== ЗВУК СМЕРТИ БОССА =====
+                            if (typeof playBossDeathSound === 'function') {
+                                playBossDeathSound();
+                            }
+                            
                             for (let i = 0; i < 5; i++) {
                                 setTimeout(() => {
                                     if (typeof explode === 'function') {
@@ -272,10 +300,22 @@ function hitBoss() {
     
     boss.health--;
     boss.hitCooldown = 15;
+    
+    // ===== ЗВУК УРОНА ПО БОССУ =====
+    if (typeof playBossHitSound === 'function') {
+        playBossHitSound();
+    }
+    
     if (typeof explode === 'function') explode(boss.x, boss.y, '#ffaa00');
     
     if (boss.health <= 0) {
         boss.alive = false;
+        
+        // ===== ЗВУК СМЕРТИ БОССА =====
+        if (typeof playBossDeathSound === 'function') {
+            playBossDeathSound();
+        }
+        
         for (let i = 0; i < 5; i++) {
             setTimeout(() => {
                 if (typeof explode === 'function') {
