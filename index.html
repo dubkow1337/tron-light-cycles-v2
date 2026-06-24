@@ -27,80 +27,79 @@
         </div>
     </div>
 
-    <!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
+    <!-- ===== НОВОЕ ГЛАВНОЕ МЕНЮ В СТИЛЕ TRON ===== -->
     <div id="menuScreen" class="screen">
-        <video id="bgVideo" autoplay muted loop playsinline>
-            <source src="assets/videos/tron-bg.mp4" type="video/mp4">
-            <source src="assets/videos/tron-bg.webm" type="video/webm">
-            Ваш браузер не поддерживает видео.
-        </video>
+        <div class="menu-grid-bg"></div>
         
         <div class="menu-wrapper">
-            <div class="game-title-container">
-                <h1 class="game-title-main">TRON</h1>
-                <h2 class="game-title-sub">LIGHT CYCLES</h2>
-            </div>
-            
-            <div class="menu-container">
-                <!-- ВЫБОР ПРОТИВНИКА -->
-                <div class="menu-section">
-                    <h3>🎮 ПРОТИВНИК</h3>
-                    <div class="menu-grid">
-                        <button id="menuOpponent2p" class="menu-btn" data-group="opponent">ДВА ИГРОКА</button>
-                        <button id="menuOpponentAI" class="menu-btn" data-group="opponent">ПРОТИВ ИИ</button>
-                    </div>
-                </div>
-                
-                <!-- ВЫБОР РЕЖИМА МАТЧА -->
-                <div class="menu-section">
-                    <h3>🏆 РЕЖИМ</h3>
-                    <div class="menu-grid">
-                        <button id="menuMatchClassic" class="menu-btn" data-group="match">КЛАССИКА</button>
-                        <button id="menuMatchTournament" class="menu-btn" data-group="match">ТУРНИР ДО 3</button>
-                        <button id="menuMatchSurvival" class="menu-btn" data-group="match">ВЫЖИВАНИЕ</button>
-                    </div>
-                </div>
-                
-                <!-- КНОПКА ИГРАТЬ -->
-                <div class="menu-section">
-                    <button id="menuPlayBtn" class="play-btn">▶ НАЧАТЬ</button>
-                </div>
-                
-                <!-- НИЖНЯЯ ПАНЕЛЬ -->
-                <div class="menu-footer">
-                    <button id="menuSoundToggle" class="sound-btn">🔊 ЗВУК</button>
-                    <div class="menu-record">🏆 РЕКОРД: <span id="menuRecordDisplay">0</span></div>
-                </div>
+            <!-- ЗАГОЛОВОК -->
+            <div class="menu-header">
+                <h1 class="menu-title">TRON</h1>
+                <p class="menu-sub">LIGHT CYCLES</p>
+                <div class="menu-divider"></div>
             </div>
 
-            <!-- БЛОКИ ВНИЗУ -->
-            <div class="menu-footer-links">
-                <div class="footer-block">
-                    <h4>🎮 УПРАВЛЕНИЕ</h4>
-                    <p><span class="blue">🔵</span> ↑ ↓ ← →</p>
-                    <p><span class="orange">🟠</span> W A S D</p>
+            <!-- ОСНОВНЫЕ МОДУЛИ -->
+            <div class="menu-modules">
+                <!-- МОДУЛЬ: ПРОТИВНИК -->
+                <div class="menu-module">
+                    <div class="module-label">⚡ ПРОТИВНИК</div>
+                    <div class="module-buttons">
+                        <button id="menuOpponent2p" class="module-btn" data-group="opponent">ДВА ИГРОКА</button>
+                        <button id="menuOpponentAI" class="module-btn" data-group="opponent">VS ИИ</button>
+                    </div>
                 </div>
 
-                <div class="footer-block">
-                    <h4>💡 СОВЕТЫ</h4>
-                    <p>• Не врезайся в следы</p>
-                    <p>• Зажимай противника в угол</p>
-                    <p>• В режиме ВЫЖИВАНИЕ —</p>
-                    <p>  уничтожай врагов и боссов!</p>
+                <!-- МОДУЛЬ: РЕЖИМ -->
+                <div class="menu-module">
+                    <div class="module-label">🏆 РЕЖИМ</div>
+                    <div class="module-buttons">
+                        <button id="menuMatchClassic" class="module-btn" data-group="match">КЛАССИКА</button>
+                        <button id="menuMatchTournament" class="module-btn" data-group="match">ТУРНИР</button>
+                        <button id="menuMatchSurvival" class="module-btn" data-group="match">ВЫЖИВАНИЕ</button>
+                    </div>
                 </div>
 
-                <div class="footer-block">
-                    <h4>📬 КОНТАКТЫ</h4>
-                    <p><a href="https://github.com/dubkow1337" target="_blank">GitHub</a></p>
-                    <p><a href="mailto:dubkow14@gmail.com">dubkow14@gmail.com</a></p>
+                <!-- МОДУЛЬ: ДОПОЛНИТЕЛЬНО (БЛОКИ ВНИЗУ ПЕРЕНЕСЕНЫ СЮДА) -->
+                <div class="menu-module menu-module-info">
+                    <div class="module-label">📋 ИНФОРМАЦИЯ</div>
+                    <div class="module-info-grid">
+                        <div class="info-item">
+                            <span class="info-label">УПРАВЛЕНИЕ</span>
+                            <span class="info-value">🔵 ↑↓←→ &nbsp; 🟠 WASD</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">СТАТУС</span>
+                            <span class="info-value" style="color: #00ff88;">✅ 2 игрока, VS AI, Выживание</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">КОНТАКТЫ</span>
+                            <span class="info-value">
+                                <a href="https://github.com/dubkow1337" target="_blank">GitHub</a> &nbsp;|&nbsp;
+                                <a href="mailto:dubkow14@gmail.com">dubkow14@gmail.com</a>
+                            </span>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div class="footer-block">
-                    <h4>📋 СТАТУС</h4>
-                    <p><span style="color: #00ff88;">✅</span> 2 игрока, VS AI</p>
-                    <p><span style="color: #00ff88;">✅</span> Классика, Турнир до 3</p>
-                    <p><span style="color: #00ff88;">✅</span> ВЫЖИВАНИЕ</p>
-                    <p><span style="color: #ffaa00;">⏳</span> Гонки (в плане)</p>
+            <!-- КНОПКА СТАРТА -->
+            <button id="menuPlayBtn" class="menu-start-btn">
+                <span class="start-text">▶ ЗАПУСТИТЬ</span>
+                <span class="start-scan"></span>
+            </button>
+
+            <!-- НИЖНЯЯ ПАНЕЛЬ -->
+            <div class="menu-footer">
+                <div class="footer-left">
+                    <button id="menuSoundToggle" class="footer-sound">🔊 ЗВУК</button>
+                    <span class="footer-version">v2.0</span>
+                </div>
+                <div class="footer-center">
+                    <span class="footer-status">⚡ СИСТЕМА ГОТОВА</span>
+                </div>
+                <div class="footer-right">
+                    <span class="footer-record">🏆 РЕКОРД: <span id="menuRecordDisplay">0</span></span>
                 </div>
             </div>
         </div>
