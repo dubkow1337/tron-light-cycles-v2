@@ -532,6 +532,10 @@ function updateGame() {
                         p.alive = false;
                         crashEffect = { active: true, x: p.x, y: p.y, color: p.color, timer: 5 };
                         if (typeof explode === 'function') explode(p.x, p.y, p.color);
+                        // ===== ВЫЗОВ ТАБЛО ДЛЯ ВЫЖИВАНИЯ =====
+                        if (matchMode === 'survival' && typeof showGameOver === 'function') {
+                            setTimeout(showGameOver, 300);
+                        }
                         break;
                     }
                 }
@@ -768,4 +772,4 @@ function resetGame() {
     }
     
     initGame();
-            }
+}
