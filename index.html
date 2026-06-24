@@ -27,23 +27,26 @@
         </div>
     </div>
 
-    <!-- ===== НОВОЕ ГЛАВНОЕ МЕНЮ В СТИЛЕ TRON ===== -->
+    <!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
     <div id="menuScreen" class="screen">
-        <div class="menu-grid-bg"></div>
+        <!-- ФОНОВОЕ ВИДЕО -->
+        <video id="bgVideo" autoplay muted loop playsinline>
+            <source src="assets/videos/tron-bg.mp4" type="video/mp4">
+            <source src="assets/videos/tron-bg.webm" type="video/webm">
+            Ваш браузер не поддерживает видео.
+        </video>
         
         <div class="menu-wrapper">
-            <!-- ЗАГОЛОВОК -->
             <div class="menu-header">
                 <h1 class="menu-title">TRON</h1>
                 <p class="menu-sub">LIGHT CYCLES</p>
                 <div class="menu-divider"></div>
             </div>
 
-            <!-- ОСНОВНЫЕ МОДУЛИ -->
             <div class="menu-modules">
                 <!-- МОДУЛЬ: ПРОТИВНИК -->
                 <div class="menu-module">
-                    <div class="module-label">⚡ ПРОТИВНИК</div>
+                    <div class="module-label">ПРОТИВНИК</div>
                     <div class="module-buttons">
                         <button id="menuOpponent2p" class="module-btn" data-group="opponent">ДВА ИГРОКА</button>
                         <button id="menuOpponentAI" class="module-btn" data-group="opponent">VS ИИ</button>
@@ -52,54 +55,30 @@
 
                 <!-- МОДУЛЬ: РЕЖИМ -->
                 <div class="menu-module">
-                    <div class="module-label">🏆 РЕЖИМ</div>
+                    <div class="module-label">РЕЖИМ</div>
                     <div class="module-buttons">
                         <button id="menuMatchClassic" class="module-btn" data-group="match">КЛАССИКА</button>
                         <button id="menuMatchTournament" class="module-btn" data-group="match">ТУРНИР</button>
                         <button id="menuMatchSurvival" class="module-btn" data-group="match">ВЫЖИВАНИЕ</button>
                     </div>
                 </div>
-
-                <!-- МОДУЛЬ: ДОПОЛНИТЕЛЬНО (БЛОКИ ВНИЗУ ПЕРЕНЕСЕНЫ СЮДА) -->
-                <div class="menu-module menu-module-info">
-                    <div class="module-label">📋 ИНФОРМАЦИЯ</div>
-                    <div class="module-info-grid">
-                        <div class="info-item">
-                            <span class="info-label">УПРАВЛЕНИЕ</span>
-                            <span class="info-value">🔵 ↑↓←→ &nbsp; 🟠 WASD</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">СТАТУС</span>
-                            <span class="info-value" style="color: #00ff88;">✅ 2 игрока, VS AI, Выживание</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">КОНТАКТЫ</span>
-                            <span class="info-value">
-                                <a href="https://github.com/dubkow1337" target="_blank">GitHub</a> &nbsp;|&nbsp;
-                                <a href="mailto:dubkow14@gmail.com">dubkow14@gmail.com</a>
-                            </span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <!-- КНОПКА СТАРТА -->
             <button id="menuPlayBtn" class="menu-start-btn">
-                <span class="start-text">▶ ЗАПУСТИТЬ</span>
+                <span class="start-text">ЗАПУСТИТЬ</span>
                 <span class="start-scan"></span>
             </button>
 
-            <!-- НИЖНЯЯ ПАНЕЛЬ -->
             <div class="menu-footer">
                 <div class="footer-left">
-                    <button id="menuSoundToggle" class="footer-sound">🔊 ЗВУК</button>
+                    <button id="menuSoundToggle" class="footer-sound">ЗВУК</button>
                     <span class="footer-version">v2.0</span>
                 </div>
                 <div class="footer-center">
-                    <span class="footer-status">⚡ СИСТЕМА ГОТОВА</span>
+                    <span class="footer-status">СИСТЕМА ГОТОВА</span>
                 </div>
                 <div class="footer-right">
-                    <span class="footer-record">🏆 РЕКОРД: <span id="menuRecordDisplay">0</span></span>
+                    <span class="footer-record">РЕКОРД: <span id="menuRecordDisplay">0</span></span>
                 </div>
             </div>
         </div>
@@ -108,28 +87,26 @@
     <!-- ===== ИГРОВОЙ ЭКРАН ===== -->
     <div id="gameScreen" class="screen">
         <div class="game-wrapper">
-            <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
             <div class="game-top-panel">
-                <button id="backToMenuBtn" class="back-btn">← НАЗАД</button>
+                <button id="backToMenuBtn" class="back-btn">НАЗАД</button>
                 
                 <div class="game-score">
                     <div class="score blue">
-                        <span class="score-label" style="color: #00ffff; text-shadow: 0 0 15px #00ffff, 0 0 30px rgba(0,255,255,0.5);">СИНИЙ</span>
+                        <span class="score-label">СИНИЙ</span>
                         <span id="gamePlayer1Score" class="score-value">0</span>
                     </div>
                     <div class="score-divider">:</div>
                     <div id="roundTimer" class="round-timer">30</div>
                     <div class="score-divider">:</div>
                     <div class="score orange">
-                        <span class="score-label" style="color: #ffaa00; text-shadow: 0 0 15px #ffaa00, 0 0 30px rgba(255,170,0,0.5);">ОРАНЖЕВЫЙ</span>
+                        <span class="score-label">ОРАНЖЕВЫЙ</span>
                         <span id="gamePlayer2Score" class="score-value">0</span>
                     </div>
                 </div>
 
-                <button id="restartGameBtn" class="restart-btn">⟳ ИГРАТЬ СНОВА</button>
+                <button id="restartGameBtn" class="restart-btn">ИГРАТЬ СНОВА</button>
             </div>
             
-            <!-- ИГРОВОЕ ПОЛЕ -->
             <div class="game-area">
                 <canvas id="gameCanvas" width="1200" height="720"></canvas>
                 <div id="gameMessage" class="game-message"></div>
@@ -138,7 +115,6 @@
         </div>
     </div>
     
-    <!-- ===== СКРИПТЫ ===== -->
     <script src="js/utils.js"></script>
     <script src="js/player.js"></script>
     <script src="js/sounds.js"></script>
