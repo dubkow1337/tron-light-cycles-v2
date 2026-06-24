@@ -48,6 +48,13 @@ function setMenuActive(group, activeId) {
     }
 }
 
+// ===== ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ ЗВУКА КЛИКА =====
+function playClickWithCheck() {
+    if (typeof playClickSound === 'function') {
+        playClickSound();
+    }
+}
+
 function setupEventListeners() {
     // ===== ГРУППА 1: ПРОТИВНИК =====
     const btn2p = document.getElementById('menuOpponent2p');
@@ -55,6 +62,7 @@ function setupEventListeners() {
     
     if (btn2p) {
         btn2p.addEventListener('click', () => {
+            playClickWithCheck();
             opponentType = '2p';
             setMenuActive('opponent', 'menuOpponent2p');
             showMessage('Противник: 2 игрока');
@@ -62,6 +70,7 @@ function setupEventListeners() {
     }
     if (btnAI) {
         btnAI.addEventListener('click', () => {
+            playClickWithCheck();
             opponentType = 'ai';
             setMenuActive('opponent', 'menuOpponentAI');
             showMessage('Противник: VS AI');
@@ -76,6 +85,7 @@ function setupEventListeners() {
     
     if (btnClassic) {
         btnClassic.addEventListener('click', () => {
+            playClickWithCheck();
             matchMode = 'classic';
             setMenuActive('match', 'menuMatchClassic');
             tournamentActive = false;
@@ -84,6 +94,7 @@ function setupEventListeners() {
     }
     if (btnTournament) {
         btnTournament.addEventListener('click', () => {
+            playClickWithCheck();
             matchMode = 'tournament';
             setMenuActive('match', 'menuMatchTournament');
             tournamentScore = [0, 0];
@@ -93,6 +104,7 @@ function setupEventListeners() {
     }
     if (btnSurvival) {
         btnSurvival.addEventListener('click', () => {
+            playClickWithCheck();
             matchMode = 'survival';
             setMenuActive('match', 'menuMatchSurvival');
             tournamentActive = false;
@@ -102,6 +114,7 @@ function setupEventListeners() {
     }
     if (btnRace) {
         btnRace.addEventListener('click', () => {
+            playClickWithCheck();
             matchMode = 'race';
             setMenuActive('match', 'menuMatchRace');
             tournamentActive = false;
@@ -113,6 +126,7 @@ function setupEventListeners() {
     const playBtn = document.getElementById('menuPlayBtn');
     if (playBtn) {
         playBtn.addEventListener('click', () => {
+            playClickWithCheck();
             if (typeof bonuses !== 'undefined') {
                 bonuses = [];
             }
@@ -135,6 +149,7 @@ function setupEventListeners() {
     const soundBtn = document.getElementById('menuSoundToggle');
     if (soundBtn) {
         soundBtn.addEventListener('click', () => {
+            playClickWithCheck();
             if (typeof toggleSound === 'function') toggleSound();
         });
     }
@@ -143,6 +158,7 @@ function setupEventListeners() {
     const backBtn = document.getElementById('backToMenuBtn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
+            playClickWithCheck();
             // ===== 1. ОСТАНАВЛИВАЕМ ВСЕ ИНТЕРВАЛЫ =====
             if (typeof gameLoop !== 'undefined' && gameLoop) {
                 clearInterval(gameLoop);
@@ -252,6 +268,7 @@ function setupEventListeners() {
     const restartBtn = document.getElementById('restartGameBtn');
     if (restartBtn) {
         restartBtn.addEventListener('click', () => {
+            playClickWithCheck();
             if (typeof roundTimerInterval !== 'undefined' && roundTimerInterval) {
                 clearInterval(roundTimerInterval);
                 roundTimerInterval = null;
@@ -356,6 +373,11 @@ function setupEventListeners() {
 const splashBtn = document.getElementById('splashEnterBtn');
 if (splashBtn) {
     splashBtn.addEventListener('click', () => {
+        // ===== ЗВУК КЛИКА =====
+        if (typeof playClickSound === 'function') {
+            playClickSound();
+        }
+        
         // ===== 1. ЗАПУСКАЕМ МУЗЫКУ МЕНЮ =====
         if (typeof playMenuMusic === 'function') {
             playMenuMusic();
