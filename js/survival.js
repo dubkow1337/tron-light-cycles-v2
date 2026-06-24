@@ -29,6 +29,10 @@ function spawnSurvivalEnemies() {
     setTimeout(() => {
         if (typeof spawnBoss === 'function' && players[0] && players[0].alive) {
             spawnBoss();
+            // ===== ЗВУК ПОЯВЛЕНИЯ БОССА =====
+            if (typeof playBossSpawnSound === 'function') {
+                playBossSpawnSound();
+            }
             showMessage('⚠️ LIGHT RUNNER ПРИБЫВАЕТ!');
         }
     }, 10000);
@@ -85,6 +89,11 @@ function spawnSingleEnemy() {
         role: isHunter ? 'hunter' : 'flanker',
         speed: 1 + difficulty * 0.05
     });
+    
+    // ===== ЗВУК ПОЯВЛЕНИЯ ВРАГА =====
+    if (typeof playEnemySpawnSound === 'function') {
+        playEnemySpawnSound();
+    }
 }
 
 function updateSurvival() {
@@ -141,6 +150,10 @@ function updateSurvival() {
                     setTimeout(() => {
                         if (players[0] && players[0].alive && typeof spawnBoss === 'function') {
                             spawnBoss();
+                            // ===== ЗВУК ПОЯВЛЕНИЯ БОССА =====
+                            if (typeof playBossSpawnSound === 'function') {
+                                playBossSpawnSound();
+                            }
                             if (bossCount > 1) {
                                 showMessage(`⚠️ LIGHT RUNNER ×${bossCount} ПРИБЫВАЮТ!`);
                             } else {
@@ -305,6 +318,12 @@ function updateSurvival() {
                 enemyDied = true;
                 if (typeof explode === 'function') explode(player.x, player.y, player.color);
                 gameActive = false;
+                
+                // ===== ЗВУК СМЕРТИ ИГРОКА =====
+                if (typeof playPlayerDieSound === 'function') {
+                    playPlayerDieSound();
+                }
+                
                 showMessage('💀 GAME OVER!');
                 if (typeof stopBgMusic === 'function') stopBgMusic();
                 if (typeof resetBoss === 'function') {
@@ -326,6 +345,10 @@ function updateSurvival() {
         if (enemyDied) {
             e.alive = false;
             if (typeof explode === 'function') explode(e.x, e.y, e.color);
+            // ===== ЗВУК СМЕРТИ ВРАГА =====
+            if (typeof playEnemyDeathSound === 'function') {
+                playEnemyDeathSound();
+            }
         }
     }
     
