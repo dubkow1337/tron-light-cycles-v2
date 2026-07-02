@@ -1,38 +1,50 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
+<head> 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRON 3D — Light Cycles</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TRON: Light Cycles</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
-    <!-- ===== СПЛАШ-ЭКРАН ===== -->
-    <div id="splashScreen" class="splash active">
-        <div class="splash-content">
-            <div class="splash-title">
-                <span class="splash-tron">TRON</span>
-                <span class="splash-sub">LIGHT CYCLES</span>
+    <!-- ===== ЗАГРУЗОЧНЫЙ ЭКРАН (ЭПИЧНЫЙ) ===== -->
+    <div id="splashScreen" class="screen active">
+        <div class="splash-wrapper">
+            <div class="splash-grid"></div>
+            <div class="splash-content">
+                <div class="splash-logo">
+                    <span class="splash-tron">TRON</span>
+                    <span class="splash-sub">LIGHT CYCLES</span>
+                    <div class="splash-line"></div>
+                </div>
+                <button id="splashEnterBtn" class="splash-btn">
+                    <span class="btn-text">ВОЙТИ В СИСТЕМУ</span>
+                    <span class="btn-scan"></span>
+                </button>
+                <div class="splash-version">v2.0 // ОС: TRON</div>
             </div>
-            <button id="splashEnterBtn" class="splash-btn">
-                <span class="btn-text">ВОЙТИ В СИСТЕМУ</span>
-                <span class="btn-scan"></span>
-            </button>
-            <div class="splash-version">v3.0 // 3D ENGINE</div>
         </div>
     </div>
 
-    <!-- ===== МЕНЮ ===== -->
-    <div id="menuScreen" class="menu-screen">
+    <!-- ===== ГЛАВНОЕ МЕНЮ ===== -->
+    <div id="menuScreen" class="screen">
+        <!-- ФОНОВОЕ ВИДЕО -->
+        <video id="bgVideo" autoplay muted loop playsinline>
+            <source src="assets/videos/tron-bg.mp4" type="video/mp4">
+            <source src="assets/videos/tron-bg.webm" type="video/webm">
+            Ваш браузер не поддерживает видео.
+        </video>
+        
         <div class="menu-wrapper">
             <div class="menu-header">
                 <h1 class="menu-title">TRON</h1>
                 <p class="menu-sub">LIGHT CYCLES</p>
                 <div class="menu-divider"></div>
             </div>
+
             <div class="menu-modules">
+                <!-- МОДУЛЬ: ПРОТИВНИК -->
                 <div class="menu-module">
                     <div class="module-label">ПРОТИВНИК</div>
                     <div class="module-buttons">
@@ -40,6 +52,8 @@
                         <button id="menuOpponentAI" class="module-btn" data-group="opponent">VS ИИ</button>
                     </div>
                 </div>
+
+                <!-- МОДУЛЬ: РЕЖИМ -->
                 <div class="menu-module">
                     <div class="module-label">РЕЖИМ</div>
                     <div class="module-buttons">
@@ -49,26 +63,33 @@
                     </div>
                 </div>
             </div>
+
             <button id="menuPlayBtn" class="menu-start-btn">
                 <span class="start-text">ЗАПУСТИТЬ</span>
                 <span class="start-scan"></span>
             </button>
+
             <div class="menu-footer">
-                <button id="menuSoundToggle" class="footer-sound">ЗВУК</button>
-                <span class="footer-status">СИСТЕМА ГОТОВА</span>
-                <span class="footer-record">РЕКОРД: <span id="menuRecordDisplay">0</span></span>
+                <div class="footer-left">
+                    <button id="menuSoundToggle" class="footer-sound">ЗВУК</button>
+                    <span class="footer-version">v2.0</span>
+                </div>
+                <div class="footer-center">
+                    <span class="footer-status">СИСТЕМА ГОТОВА</span>
+                </div>
+                <div class="footer-right">
+                    <span class="footer-record">РЕКОРД: <span id="menuRecordDisplay">0</span></span>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- ===== 3D ИГРОВОЙ КОНТЕЙНЕР ===== -->
-    <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        
-        <!-- UI ПОВЕРХ 3D -->
-        <div id="gameUI">
+    
+    <!-- ===== ИГРОВОЙ ЭКРАН ===== -->
+    <div id="gameScreen" class="screen">
+        <div class="game-wrapper">
             <div class="game-top-panel">
-                <button id="backToMenuBtn" class="back-btn">← НАЗАД</button>
+                <button id="backToMenuBtn" class="back-btn">НАЗАД</button>
+                
                 <div class="game-score">
                     <div class="score blue">
                         <span class="score-label">СИНИЙ</span>
@@ -82,26 +103,28 @@
                         <span id="gamePlayer2Score" class="score-value">0</span>
                     </div>
                 </div>
+
                 <button id="restartGameBtn" class="restart-btn">ИГРАТЬ СНОВА</button>
             </div>
-            <div id="gameMessage" class="game-message"></div>
-            <div id="victoryOverlay" class="victory-overlay"></div>
+            
+            <div class="game-area">
+                <canvas id="gameCanvas" width="1200" height="720"></canvas>
+                <div id="gameMessage" class="game-message"></div>
+                <div id="victoryOverlay" class="victory-overlay"></div>
+            </div>
         </div>
     </div>
-
-    <!-- ===== ЗАГРУЗКА THREE.JS ===== -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-            }
-        }
-    </script>
-
-    <!-- ===== СКРИПТЫ ===== -->
-    <script type="module" src="js/main.js"></script>
+    
+    <script src="js/utils.js"></script>
+    <script src="js/player.js"></script>
     <script src="js/sounds.js"></script>
+    <script src="js/bonuses.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/boss.js"></script>
+    <script src="js/survival.js"></script>
+    <script src="js/render.js"></script>
     <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
