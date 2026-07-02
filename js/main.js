@@ -1,135 +1,58 @@
-// ========== UI ДЛЯ 3D ВЕРСИИ ==========
+// ========== ТОЧКА ВХОДА ==========
 
-let soundEnabled = true;
+// canvas и ctx объявлены в render.js, НЕ ОБЪЯВЛЯЕМ ИХ ЗДЕСЬ!
 
-document.addEventListener('DOMContentLoaded', () => {
-    // ===== СПЛАШ =====
-    const splashBtn = document.getElementById('splashEnterBtn');
-    if (splashBtn) {
-        splashBtn.addEventListener('click', () => {
-            const splash = document.getElementById('splashScreen');
-            splash.classList.add('hidden');
-            setTimeout(() => {
-                splash.style.display = 'none';
-                document.getElementById('menuScreen').classList.add('active');
-                if (typeof playMenuMusic === 'function') {
-                    playMenuMusic();
-                }
-            }, 800);
-        });
+function init() {
+    // Используем глобальные canvas и ctx из render.js
+    if (typeof canvas === 'undefined' || typeof ctx === 'undefined') {
+        console.error('❌ canvas или ctx не найдены!');
+        return;
     }
     
-    // ===== КНОПКИ МЕНЮ =====
-    const btn2p = document.getElementById('menuOpponent2p');
-    const btnAI = document.getElementById('menuOpponentAI');
-    const btnClassic = document.getElementById('menuMatchClassic');
-    const btnTournament = document.getElementById('menuMatchTournament');
-    const btnSurvival = document.getElementById('menuMatchSurvival');
-    const playBtn = document.getElementById('menuPlayBtn');
-    const backBtn = document.getElementById('backToMenuBtn');
-    const restartBtn = document.getElementById('restartGameBtn');
-    const soundToggle = document.getElementById('menuSoundToggle');
+    window.canvas = canvas;
+    window.ctx = ctx;
     
-    // Противник
-    if (btn2p) {
-        btn2p.addEventListener('click', () => {
-            window.opponentType = '2p';
-            document.querySelectorAll('.module-btn[data-group="opponent"]').forEach(b => b.classList.remove('active'));
-            btn2p.classList.add('active');
-            showMessage('Противник: 2 игрока');
-        });
-        btn2p.classList.add('active');
-    }
-    if (btnAI) {
-        btnAI.addEventListener('click', () => {
-            window.opponentType = 'ai';
-            document.querySelectorAll('.module-btn[data-group="opponent"]').forEach(b => b.classList.remove('active'));
-            btnAI.classList.add('active');
-            showMessage('Противник: VS AI');
-        });
+    if (typeof initSound === 'function') initSound();
+    if (typeof setupEventListeners === 'function') setupEventListeners();
+    
+    // Загружаем рекорд
+    const recordDisplay = document.getElementById('menuRecordDisplay');
+    if (recordDisplay && typeof bestRecord !== 'undefined') {
+        recordDisplay.innerText = bestRecord;
     }
     
-    // Режим
-    if (btnClassic) {
-        btnClassic.addEventListener('click', () => {
-            window.matchMode = 'classic';
-            document.querySelectorAll('.module-btn[data-group="match"]').forEach(b => b.classList.remove('active'));
-            btnClassic.classList.add('active');
-            showMessage('Режим: Классика');
-        });
-        btnClassic.classList.add('active');
-    }
-    if (btnTournament) {
-        btnTournament.addEventListener('click', () => {
-            window.matchMode = 'tournament';
-            document.querySelectorAll('.module-btn[data-group="match"]').forEach(b => b.classList.remove('active'));
-            btnTournament.classList.add('active');
-            showMessage('Режим: Турнир');
-        });
-    }
-    if (btnSurvival) {
-        btnSurvival.addEventListener('click', () => {
-            window.matchMode = 'survival';
-            document.querySelectorAll('.module-btn[data-group="match"]').forEach(b => b.classList.remove('active'));
-            btnSurvival.classList.add('active');
-            showMessage('Режим: Выживание');
-        });
+    // Показываем сообщение в меню
+    if (typeof showMessage === 'function') {
+        showMessage('Выберите настройки и нажмите ИГРАТЬ');
     }
     
-    // Кнопка ИГРАТЬ
-    if (playBtn) {
-        playBtn.addEventListener('click', () => {
-            if (typeof window.startGame === 'function') {
-                window.startGame();
-            } else {
-                console.error('startGame не найден!');
-            }
-        });
+    // Ждём загрузки draw()
+    function waitForDraw() {
+        if (typeof draw === 'function') {
+            draw();
+            console.log('✅ draw() найдена и вызвана');
+        } else {
+            console.log('⏳ Ждём загрузки draw()...');
+            setTimeout(waitForDraw, 100);
+        }
+    }
+    waitForDraw();
+}
+
+// Запуск после загрузки страницы
+window.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ DOM loaded');
+    
+    // Устанавливаем активные кнопки
+    if (typeof setActiveButton === 'function') {
+        setActiveButton('.mode-selector .mode-btn', 'opponent2p');
+        setActiveButton('.arena-selector .mode-btn', 'matchClassic');
     }
     
-    // Кнопка НАЗАД
-    if (backBtn) {
-        backBtn.addEventListener('click', () => {
-            if (typeof window.stopGame === 'function') {
-                window.stopGame();
-            }
-            document.getElementById('gameContainer').style.display = 'none';
-            document.getElementById('gameUI').style.display = 'none';
-            document.getElementById('menuScreen').classList.add('active');
-            if (typeof playMenuMusic === 'function') {
-                playMenuMusic();
-            }
-            showMessage('Выберите режим и нажмите ЗАПУСТИТЬ');
-        });
-    }
+    // Глобальные переменные
+    window.opponentType = '2p';
+    window.matchMode = 'classic';
+    window.tournamentActive = false;
     
-    // Кнопка ИГРАТЬ СНОВА
-    if (restartBtn) {
-        restartBtn.addEventListener('click', () => {
-            if (typeof window.startGame === 'function') {
-                document.getElementById('victoryOverlay').className = 'victory-overlay';
-                window.startGame();
-            }
-        });
-    }
-    
-    // Кнопка ЗВУК
-    if (soundToggle) {
-        soundToggle.addEventListener('click', () => {
-            if (typeof toggleSound === 'function') {
-                toggleSound();
-                soundToggle.textContent = soundEnabled ? '🔊' : '🔇';
-            }
-        });
-    }
+    init();
 });
-
-// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
-function showMessage(msg) {
-    const el = document.getElementById('gameMessage');
-    if (el) el.textContent = msg;
-}
-
-function updateUI() {
-    // UI обновляется через game.js
-}
